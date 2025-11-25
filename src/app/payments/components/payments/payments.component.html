@@ -1,0 +1,269 @@
+<div class="min-h-screen bg-gray-100 p-4 md:p-6 lg:p-8" dir="rtl">
+    <!-- Header -->
+    <div class="mb-6 md:mb-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="text-right">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                    إدارة المدفوعات
+                </h1>
+                <p class="text-sm md:text-base text-gray-600">
+                    إدارة جميع المدفوعات في النظام
+                </p>
+            </div>
+            <button (click)="addNewPayment()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200 shadow-lg w-full md:w-auto">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span class="font-semibold">إضافة دفعة جديدة</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+        <div *ngFor="let stat of stats"
+            class="bg-white rounded-xl p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <div class="flex items-center justify-between">
+                <div class="text-right">
+                    <p class="text-xs md:text-sm text-gray-600 mb-1 md:mb-2">{{ stat.label }}</p>
+                    <p class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">{{ stat.value }}</p>
+                </div>
+                <div [class]="stat.color + ' p-3 md:p-4 rounded-xl'">
+                    <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm mb-6">
+        <div class="flex flex-col lg:flex-row gap-4">
+            <!-- Search Input -->
+            <div class="flex-1 relative">
+                <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" placeholder="ابحث عن مدفوعة (الاسم، المرجع، رقم الطالب...)" [(ngModel)]="searchTerm"
+                    (ngModelChange)="onSearchChange()"
+                    class="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" />
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap gap-2">
+                <button (click)="selectMethod('all')"
+                    [class]="selectedMethod === 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors">
+                    جميع الطرق
+                </button>
+                <button (click)="selectMethod('cash')"
+                    [class]="selectedMethod === 'cash' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                        </path>
+                    </svg>
+                    نقدي
+                </button>
+                <button (click)="selectMethod('bank')"
+                    [class]="selectedMethod === 'bank' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z">
+                        </path>
+                    </svg>
+                    بنكي
+                </button>
+                <button (click)="selectMethod('wallet')"
+                    [class]="selectedMethod === 'wallet' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z">
+                        </path>
+                    </svg>
+                    محفظة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+        <!-- Desktop Table -->
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">الطالب</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">رقم الطالب</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">المجموعة</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">المبلغ</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">طريقة الدفع</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">المرجع</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">استلمه</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">التاريخ</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr *ngFor="let payment of filteredPayments" class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                                    {{ payment.avatar }}
+                                </div>
+                                <span class="font-medium text-gray-900">{{ payment.studentName }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">{{ payment.studentId }}</td>
+                        <td class="px-6 py-4">
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                                {{ payment.groupId }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="font-bold text-gray-900">{{ payment.amount }} {{ payment.currency }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span
+                                [class]="getMethodBadgeColor(payment.methodBadge) + ' px-3 py-1 rounded-full text-sm font-medium'">
+                                {{ payment.method }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 text-sm">{{ payment.reference }}</td>
+                        <td class="px-6 py-4 text-gray-700">{{ payment.receivedBy }}</td>
+                        <td class="px-6 py-4 text-gray-600 text-sm">{{ payment.date }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <button (click)="viewPayment(payment)"
+                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <button (click)="editPayment(payment)"
+                                    class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <button (click)="deletePayment(payment)"
+                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="lg:hidden divide-y divide-gray-200">
+            <div *ngFor="let payment of filteredPayments" class="p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
+                            {{ payment.avatar }}
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900">{{ payment.studentName }}</p>
+                            <p class="text-sm text-gray-600">{{ payment.studentId }}</p>
+                        </div>
+                    </div>
+                    <span
+                        [class]="getMethodBadgeColor(payment.methodBadge) + ' px-3 py-1 rounded-full text-xs font-medium'">
+                        {{ payment.method }}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 mb-3 text-sm">
+                    <div>
+                        <span class="text-gray-600">المجموعة:</span>
+                        <span class="mr-2 bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs">{{ payment.groupId
+                            }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">المبلغ:</span>
+                        <span class="mr-2 font-bold text-gray-900">{{ payment.amount }} {{ payment.currency }}</span>
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-gray-600">المرجع:</span>
+                        <span class="mr-2 text-gray-700">{{ payment.reference }}</span>
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-gray-600">استلمه:</span>
+                        <span class="mr-2 text-gray-700">{{ payment.receivedBy }}</span>
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-gray-600">التاريخ:</span>
+                        <span class="mr-2 text-gray-700">{{ payment.date }}</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button (click)="viewPayment(payment)"
+                        class="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-100 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                        </svg>
+                        <span class="text-sm font-medium">عرض</span>
+                    </button>
+                    <button (click)="editPayment(payment)"
+                        class="flex-1 bg-orange-50 text-orange-600 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-orange-100 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                        <span class="text-sm font-medium">تعديل</span>
+                    </button>
+                    <button (click)="deletePayment(payment)"
+                        class="flex-1 bg-red-50 text-red-600 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-red-100 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
+                        <span class="text-sm font-medium">حذف</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredPayments.length === 0" class="text-center py-12">
+        <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+            </path>
+        </svg>
+        <p class="text-gray-600 text-lg">لا توجد مدفوعات مطابقة للبحث</p>
+    </div>
+</div>

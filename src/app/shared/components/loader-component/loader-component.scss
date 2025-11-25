@@ -1,0 +1,42 @@
+/* خلفية ضبابية ومتمركزة */
+.overlay {
+    position: fixed;
+    inset: 0;
+    /* top, right, bottom, left = 0 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 9999999 !important;
+}
+
+/* الدائرة الخارجية */
+.spinner {
+    background-image: linear-gradient(rgb(186, 66, 255) 35%, rgb(0, 225, 255));
+    width: 100px;
+    height: 100px;
+    animation: spinning 1.7s linear infinite;
+    border-radius: 50%;
+    filter: blur(1px);
+    box-shadow: 0 -5px 20px rgb(186, 66, 255), 0 5px 20px rgb(0, 225, 255);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* الدائرة الداخلية */
+.spinner1 {
+    background-color: rgb(36, 36, 36);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    filter: blur(10px);
+}
+
+/* الحركة */
+@keyframes spinning {
+    to {
+        transform: rotate(360deg);
+    }
+}

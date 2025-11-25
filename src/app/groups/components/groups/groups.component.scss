@@ -1,0 +1,306 @@
+:host {
+    display: block;
+}
+
+/* ===== Smooth Transitions ===== */
+button {
+    transition: all 0.2s ease-in-out;
+}
+
+input,
+select,
+textarea {
+    transition: all 0.2s ease-in-out;
+}
+
+/* ===== Custom Scrollbar ===== */
+.overflow-y-auto::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track,
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ===== Loading Spinner Animation ===== */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* ===== Gradient Backgrounds ===== */
+.bg-gradient-to-r {
+    background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+.from-blue-500 {
+    --tw-gradient-from: #3b82f6;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(59, 130, 246, 0));
+}
+
+.to-purple-600 {
+    --tw-gradient-to: #9333ea;
+}
+
+.bg-gradient-to-br {
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+}
+
+/* ===== Modal Animations ===== */
+.fixed {
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal content slide up animation */
+.fixed>div {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===== Card Hover Effects ===== */
+.hover\:shadow-lg:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.hover\:shadow-md:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* ===== Progress Bar Animation ===== */
+[style*="width"] {
+    transition: width 0.5s ease-in-out;
+}
+
+/* ===== Button Hover Effects ===== */
+button:active {
+    transform: scale(0.98);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== Input Focus Effects ===== */
+input:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ===== Badge Styles ===== */
+.rounded-full {
+    border-radius: 9999px;
+}
+
+/* ===== Card Shadow ===== */
+.shadow-sm {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* ===== Responsive Grid Adjustments ===== */
+@media (max-width: 640px) {
+    .grid {
+        gap: 1rem;
+    }
+}
+
+/* ===== Empty State Styling ===== */
+.text-center svg {
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+}
+
+/* ===== Stats Card Animation ===== */
+.stats-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+}
+
+/* ===== Modal Backdrop Blur ===== */
+.fixed.inset-0 {
+    backdrop-filter: blur(2px);
+}
+
+/* ===== Custom Checkbox Styles ===== */
+input[type="checkbox"]:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* ===== Number Input Hide Arrows ===== */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* ===== Responsive Text Sizes ===== */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+}
+
+/* ===== Z-index Management ===== */
+.z-10 {
+    z-index: 10;
+}
+
+.z-30 {
+    z-index: 30;
+}
+
+.z-40 {
+    z-index: 40;
+}
+
+.z-50 {
+    z-index: 50;
+}
+
+/* ===== Print Styles ===== */
+@media print {
+
+    .fixed,
+    button {
+        display: none;
+    }
+}
+
+/* ===== Accessibility Improvements ===== */
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* ===== Dark Mode Support (Optional) ===== */
+@media (prefers-color-scheme: dark) {
+    /* Add dark mode styles if needed */
+}
+
+/* ===== RTL Specific Adjustments ===== */
+[dir="rtl"] input {
+    text-align: right;
+}
+
+[dir="rtl"] .text-right {
+    text-align: right;
+}
+
+/* ===== Animation Delays for Staggered Effects ===== */
+.grid>*:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.grid>*:nth-child(2) {
+    animation-delay: 0.05s;
+}
+
+.grid>*:nth-child(3) {
+    animation-delay: 0.1s;
+}
+
+.grid>*:nth-child(4) {
+    animation-delay: 0.15s;
+}
+
+/* ===== Tooltip Styles (if needed) ===== */
+[title] {
+    position: relative;
+}
+
+/* ===== Loading Overlay Styles ===== */
+.fixed.inset-0.bg-black {
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* ===== Success/Error Message Animations ===== */
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-10px);
+    }
+
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+.error-shake {
+    animation: shake 0.3s ease-in-out;
+}

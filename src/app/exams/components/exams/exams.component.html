@@ -1,0 +1,270 @@
+<!-- exams-list.component.html -->
+<div class="min-h-screen bg-gray-100 p-4 md:p-6 lg:p-8" dir="rtl">
+    <!-- Header -->
+    <div class="mb-6 md:mb-8 animate-fade-in">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="text-right">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                    إدارة الامتحانات
+                </h1>
+                <p class="text-sm md:text-base text-gray-600">
+                    إدارة جميع الامتحانات في النظام
+                </p>
+            </div>
+            <button (click)="addNewExam()"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-6 py-2.5 md:py-3 rounded-lg flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 w-full md:w-auto">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                <span class="font-semibold">إضافة امتحان جديد</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+        <div *ngFor="let stat of stats; let i = index"
+            class="bg-white rounded-xl p-4 md:p-6 shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-105 animate-slide-in"
+            [style.animation-delay]="i * 100 + 'ms'">
+            <div class="flex items-center justify-between">
+                <div class="text-right">
+                    <p class="text-xs md:text-sm text-gray-600 mb-1 md:mb-2">{{ stat.label }}</p>
+                    <p class="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">{{ stat.value }}</p>
+                </div>
+                <div [class]="stat.color + ' p-3 md:p-4 rounded-xl transition-transform duration-300 hover:rotate-12'">
+                    <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" [attr.d]="stat.icon">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm mb-6 animate-fade-in">
+        <div class="flex flex-col lg:flex-row gap-4">
+            <!-- Search Input -->
+            <div class="flex-1 relative group">
+                <svg class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-blue-500 transition-colors"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" placeholder="ابحث عن امتحان (العنوان، المجموعة، التاريخ...)" [(ngModel)]="searchTerm"
+                    (ngModelChange)="onSearchChange()"
+                    class="w-full pr-10 pl-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all" />
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex flex-wrap gap-2">
+                <button (click)="selectStatus('all')"
+                    [class]="selectedStatus === 'all' ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105">
+                    جميع الامتحانات
+                </button>
+                <button (click)="selectStatus('active')"
+                    [class]="selectedStatus === 'active' ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    نشط
+                </button>
+                <button (click)="selectStatus('upcoming')"
+                    [class]="selectedStatus === 'upcoming' ? 'bg-orange-600 text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    قادم
+                </button>
+                <button (click)="selectStatus('completed')"
+                    [class]="selectedStatus === 'completed' ? 'bg-purple-600 text-white shadow-lg' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                    class="px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    مكتمل
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden animate-fade-in">
+        <!-- Desktop Table -->
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">عنوان الامتحان</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">المجموعة</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">المدة</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">الدرجة الكلية</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">التاريخ</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">الحالة</th>
+                        <th class="px-6 py-4 text-right text-sm font-semibold text-gray-700">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    <tr *ngFor="let exam of filteredExams; let i = index"
+                        class="hover:bg-gray-50 transition-colors duration-200 animate-slide-up"
+                        [style.animation-delay]="i * 50 + 'ms'">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm transition-transform duration-300 hover:scale-110">
+                                    {{ exam.avatar }}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ exam.title }}</p>
+                                    <p class="text-sm text-gray-500">{{ exam.description }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                                {{ exam.groupName }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-700">{{ exam.duration }} دقيقة</td>
+                        <td class="px-6 py-4">
+                            <span class="font-bold text-gray-900">{{ exam.totalMarks }}</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-600 text-sm">
+                            <div>
+                                <p>{{ exam.startDate | date: 'dd/MM/yyyy' }}</p>
+                                <p class="text-xs text-gray-500">{{ exam.startDate | date: 'hh:mm a' }}</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span
+                                [class]="getStatusBadgeColor(exam.status) + ' px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 hover:scale-105'">
+                                {{ exam.statusText }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <button (click)="viewExam(exam)"
+                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                    title="عرض">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <button (click)="editExam(exam)"
+                                    class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                    title="تعديل">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                        </path>
+                                    </svg>
+                                </button>
+                                <button (click)="deleteExam(exam)"
+                                    class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                                    title="حذف">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="lg:hidden divide-y divide-gray-200">
+            <div *ngFor="let exam of filteredExams; let i = index"
+                class="p-4 hover:bg-gray-50 transition-all duration-200 animate-slide-up"
+                [style.animation-delay]="i * 50 + 'ms'">
+                <div class="flex items-start justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold">
+                            {{ exam.avatar }}
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900">{{ exam.title }}</p>
+                            <p class="text-sm text-gray-600">{{ exam.groupName }}</p>
+                        </div>
+                    </div>
+                    <span [class]="getStatusBadgeColor(exam.status) + ' px-3 py-1 rounded-full text-xs font-medium'">
+                        {{ exam.statusText }}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
+                    <div class="bg-gray-50 p-2 rounded-lg">
+                        <span class="text-gray-600 block text-xs mb-1">المدة</span>
+                        <span class="font-semibold text-gray-900">{{ exam.duration }} دقيقة</span>
+                    </div>
+                    <div class="bg-gray-50 p-2 rounded-lg">
+                        <span class="text-gray-600 block text-xs mb-1">الدرجة</span>
+                        <span class="font-semibold text-gray-900">{{ exam.totalMarks }}</span>
+                    </div>
+                    <div class="col-span-2 bg-gray-50 p-2 rounded-lg">
+                        <span class="text-gray-600 block text-xs mb-1">التاريخ</span>
+                        <span class="text-gray-900">{{ exam.startDate | date: 'dd/MM/yyyy - hh:mm a' }}</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button (click)="viewExam(exam)"
+                        class="flex-1 bg-blue-50 text-blue-600 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-100 transition-all duration-200 transform active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                            </path>
+                        </svg>
+                        <span class="text-sm font-medium">عرض</span>
+                    </button>
+                    <button (click)="editExam(exam)"
+                        class="flex-1 bg-orange-50 text-orange-600 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-orange-100 transition-all duration-200 transform active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                        <span class="text-sm font-medium">تعديل</span>
+                    </button>
+                    <button (click)="deleteExam(exam)"
+                        class="flex-1 bg-red-50 text-red-600 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-red-100 transition-all duration-200 transform active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
+                        <span class="text-sm font-medium">حذف</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredExams.length === 0" class="text-center py-12 animate-fade-in">
+        <div class="inline-block p-6 bg-gray-100 rounded-full mb-4 animate-bounce">
+            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                </path>
+            </svg>
+        </div>
+        <p class="text-gray-600 text-lg font-medium">لا توجد امتحانات مطابقة للبحث</p>
+        <p class="text-gray-500 text-sm mt-2">جرب تغيير معايير البحث أو الفلتر</p>
+    </div>
+</div>

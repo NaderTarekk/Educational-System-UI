@@ -1,0 +1,409 @@
+<!-- group-attendance-report.component.html -->
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+
+    <!-- Loading Overlay -->
+    <div *ngIf="loading"
+        class="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center animate-fadeIn">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl transform animate-scaleIn">
+            <div class="relative w-16 h-16 mx-auto mb-4">
+                <div class="absolute inset-0 border-4 border-blue-200 rounded-full animate-ping"></div>
+                <div class="absolute inset-0 border-4 border-t-blue-600 rounded-full animate-spin"></div>
+            </div>
+            <p class="text-gray-700 font-bold text-lg text-center">جاري التحميل...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="mb-8 animate-slideDown">
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div class="flex-1">
+                <div class="flex items-center gap-4 mb-3">
+                    <div
+                        class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
+                        <i class="fas fa-users text-white text-3xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-800 mb-1">
+                            تقرير حضور المجموعة
+                        </h1>
+                        <p class="text-gray-600 text-sm sm:text-base">تقرير شامل لحضور جميع طلاب المجموعة</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div *ngIf="studentsSummary.length > 0" class="flex flex-wrap gap-3">
+                <!-- PDF Export -->
+                <button (click)="exportToPDF()"
+                    class="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white rounded-2xl font-bold transition-all hover:shadow-xl flex items-center gap-2 hover:scale-105 transform">
+                    <i class="fas fa-file-pdf text-xl"></i>
+                    <span>تصدير PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="bg-white rounded-3xl p-6 sm:p-8 mb-8 shadow-xl border border-gray-100 animate-slideUp"
+        style="animation-delay: 100ms;">
+
+        <h2 class="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3">
+            <i class="fas fa-sliders-h text-indigo-600"></i>
+            <span>إعدادات التقرير</span>
+        </h2>
+
+        <div class="space-y-6">
+            <!-- Row 1: Group Select -->
+            <div class="grid grid-cols-1 gap-6">
+                <div>
+                    <label class="block text-sm font-black text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-layer-group text-indigo-600"></i>
+                        <span>اختر المجموعة</span>
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <select [(ngModel)]="selectedGroupId" (change)="onGroupChange()"
+                        class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 transition-all bg-gray-50 hover:bg-white appearance-none cursor-pointer font-semibold text-gray-800">
+                        <option value="">-- اختر المجموعة --</option>
+                        <option *ngFor="let group of groups" [value]="group.id">
+                            {{ group.name }} - {{ group.subject }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Row 2: Date Range -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-black text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-calendar-alt text-green-600"></i>
+                        <span>من تاريخ</span>
+                    </label>
+                    <input type="date" [(ngModel)]="startDate"
+                        class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all bg-gray-50 hover:bg-white font-semibold text-gray-800">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-black text-gray-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-calendar-check text-red-600"></i>
+                        <span>إلى تاريخ</span>
+                    </label>
+                    <input type="date" [(ngModel)]="endDate"
+                        class="w-full px-5 py-4 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all bg-gray-50 hover:bg-white font-semibold text-gray-800">
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-3">
+                <button (click)="generateReport()"
+                    class="flex-1 sm:flex-none px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-2xl font-bold transition-all hover:shadow-xl flex items-center justify-center gap-3">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>إنشاء التقرير</span>
+                </button>
+                <button (click)="resetReport()"
+                    class="px-8 py-4 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-2xl font-bold transition-all flex items-center justify-center gap-3">
+                    <i class="fas fa-redo"></i>
+                    <span>إعادة تعيين</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Info Card -->
+    <div *ngIf="selectedGroup && studentsSummary.length > 0"
+        class="bg-white rounded-3xl p-6 sm:p-8 mb-8 shadow-xl border border-gray-100 animate-slideUp"
+        style="animation-delay: 200ms;">
+
+        <div class="flex flex-col lg:flex-row items-start lg:items-center gap-6">
+            <div class="flex-1">
+                <h3 class="text-2xl font-black text-gray-800 mb-2">{{ selectedGroup.name }}</h3>
+                <div class="flex flex-wrap gap-4 text-sm">
+                    <span class="flex items-center gap-2 text-gray-600">
+                        <i class="fas fa-book text-indigo-600"></i>
+                        <strong>المادة:</strong> {{ selectedGroup.subject }}
+                    </span>
+                    <span class="flex items-center gap-2 text-gray-600">
+                        <i class="fas fa-user-tie text-blue-600"></i>
+                        <strong>المدرس:</strong> {{ selectedGroup.instructorName }}
+                    </span>
+                    <span class="flex items-center gap-2 text-gray-600">
+                        <i class="fas fa-users text-green-600"></i>
+                        <strong>عدد الطلاب:</strong> {{ overallStats.totalStudents }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Stats -->
+    <div *ngIf="studentsSummary.length > 0" class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8 animate-slideUp"
+        style="animation-delay: 300ms;">
+
+        <div
+            class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-6 text-white shadow-2xl hover:shadow-blue-500/50 transition-all hover:scale-105">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-calendar-day text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-4xl font-black mb-2">{{ overallStats.totalDays }}</p>
+            <p class="text-sm opacity-90 font-semibold">أيام الحضور</p>
+        </div>
+
+        <div
+            class="bg-gradient-to-br from-green-500 to-green-600 rounded-3xl p-6 text-white shadow-2xl hover:shadow-green-500/50 transition-all hover:scale-105">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-percentage text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-4xl font-black mb-2">{{ overallStats.averageAttendanceRate }}%</p>
+            <p class="text-sm opacity-90 font-semibold">متوسط نسبة الحضور</p>
+        </div>
+
+        <div
+            class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl p-6 text-white shadow-2xl hover:shadow-purple-500/50 transition-all hover:scale-105">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-check-circle text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-4xl font-black mb-2">{{ overallStats.totalPresent }}</p>
+            <p class="text-sm opacity-90 font-semibold">إجمالي الحضور</p>
+        </div>
+
+        <div
+            class="bg-gradient-to-br from-red-500 to-red-600 rounded-3xl p-6 text-white shadow-2xl hover:shadow-red-500/50 transition-all hover:scale-105">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <i class="fas fa-times-circle text-2xl"></i>
+                </div>
+            </div>
+            <p class="text-4xl font-black mb-2">{{ overallStats.totalAbsent }}</p>
+            <p class="text-sm opacity-90 font-semibold">إجمالي الغياب</p>
+        </div>
+    </div>
+
+    <!-- Summary View -->
+    <div *ngIf="viewMode === 'summary' && studentsSummary.length > 0"
+        class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden animate-slideUp"
+        style="animation-delay: 400ms;">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 sm:p-8">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-white mb-2 flex items-center gap-3">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>ملخص حضور الطلاب</span>
+                    </h2>
+                    <p class="text-white/90 text-sm">عدد الطلاب: {{ filteredStudents.length }}</p>
+                </div>
+
+                <!-- Search -->
+                <div class="relative w-full sm:w-64">
+                    <input type="text" [(ngModel)]="searchTerm" placeholder="بحث عن طالب..."
+                        class="w-full pr-12 pl-4 py-3 rounded-2xl focus:outline-none focus:ring-4 focus:ring-white/30 transition-all bg-white/20 text-white placeholder-white/70 backdrop-blur-xl font-semibold">
+                    <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-white/70"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table (Desktop) -->
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50 border-b-2 border-gray-200">
+                        <th class="text-right py-5 px-6 text-sm font-black text-gray-800">الطالب</th>
+                        <th class="text-center py-5 px-6 text-sm font-black text-gray-800">إجمالي الأيام</th>
+                        <th class="text-center py-5 px-6 text-sm font-black text-gray-800">حاضر</th>
+                        <th class="text-center py-5 px-6 text-sm font-black text-gray-800">غائب</th>
+                        <th class="text-center py-5 px-6 text-sm font-black text-gray-800">متأخر</th>
+                        <th class="text-center py-5 px-6 text-sm font-black text-gray-800">نسبة الحضور</th>
+                        <th class="text-center py-5 px-6 text-sm font-black text-gray-800">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let student of filteredStudents; let i = index"
+                        class="border-b border-gray-100 hover:bg-indigo-50 transition-all animate-slideIn"
+                        [style.animation-delay]="i * 30 + 'ms'">
+
+                        <td class="py-5 px-6">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+                                    {{ student.studentName.charAt(0) }}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-800">{{ student.studentName }}</p>
+                                    <p class="text-xs text-gray-500">{{ student.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="py-5 px-6 text-center font-bold text-gray-800">{{ student.totalDays }}</td>
+
+                        <td class="py-5 px-6 text-center">
+                            <span class="px-3 py-1 bg-green-100 text-green-700 rounded-lg font-bold">
+                                {{ student.presentDays }}
+                            </span>
+                        </td>
+
+                        <td class="py-5 px-6 text-center">
+                            <span class="px-3 py-1 bg-red-100 text-red-700 rounded-lg font-bold">
+                                {{ student.absentDays }}
+                            </span>
+                        </td>
+
+                        <td class="py-5 px-6 text-center">
+                            <span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-lg font-bold">
+                                {{ student.lateDays }}
+                            </span>
+                        </td>
+
+                        <td class="py-5 px-6 text-center">
+                            <span
+                                [class]="'px-4 py-2 rounded-xl font-bold ' + getAttendanceRateClass(student.attendanceRate)">
+                                {{ student.attendanceRate }}%
+                            </span>
+                        </td>
+
+                        <td class="py-5 px-6 text-center">
+                            <button (click)="viewStudentDetails(student)"
+                                class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-bold transition-all hover:shadow-lg">
+                                <i class="fas fa-eye ml-2"></i>
+                                عرض التفاصيل
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Cards (Mobile) -->
+        <div class="block lg:hidden p-4 space-y-4">
+            <div *ngFor="let student of filteredStudents; let i = index"
+                class="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-3xl p-5 hover:shadow-xl hover:border-indigo-300 transition-all animate-slideIn"
+                [style.animation-delay]="i * 50 + 'ms'">
+
+                <div class="flex items-center gap-3 mb-4">
+                    <div
+                        class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black">
+                        {{ student.studentName.charAt(0) }}
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-black text-gray-800">{{ student.studentName }}</p>
+                        <p class="text-xs text-gray-500">{{ student.email }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="text-center p-3 bg-green-50 rounded-xl">
+                        <p class="text-2xl font-black text-green-600">{{ student.presentDays }}</p>
+                        <p class="text-xs text-gray-600">حاضر</p>
+                    </div>
+                    <div class="text-center p-3 bg-red-50 rounded-xl">
+                        <p class="text-2xl font-black text-red-600">{{ student.absentDays }}</p>
+                        <p class="text-xs text-gray-600">غائب</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-sm text-gray-600">نسبة الحضور</span>
+                    <span
+                        [class]="'px-3 py-1 rounded-lg font-bold text-sm ' + getAttendanceRateClass(student.attendanceRate)">
+                        {{ student.attendanceRate }}%
+                    </span>
+                </div>
+
+                <button (click)="viewStudentDetails(student)"
+                    class="w-full px-4 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-bold transition-all">
+                    <i class="fas fa-eye ml-2"></i>
+                    عرض التفاصيل
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed View -->
+    <div *ngIf="viewMode === 'detailed' && selectedStudent"
+        class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden animate-slideUp">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 sm:p-8">
+            <div class="flex items-center justify-between mb-4">
+                <button (click)="backToSummary()"
+                    class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl font-bold transition-all backdrop-blur-xl">
+                    <i class="fas fa-arrow-right ml-2"></i>
+                    رجوع
+                </button>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center text-white font-black text-2xl backdrop-blur-xl">
+                    {{ selectedStudent.studentName.charAt(0) }}
+                </div>
+                <div>
+                    <h2 class="text-2xl sm:text-3xl font-black text-white">{{ selectedStudent.studentName }}</h2>
+                    <p class="text-white/90">{{ selectedStudent.email }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Stats -->
+        <div class="p-6 bg-gray-50 border-b border-gray-200">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-white rounded-xl shadow">
+                    <p class="text-3xl font-black text-blue-600">{{ selectedStudent.totalDays }}</p>
+                    <p class="text-sm text-gray-600">إجمالي الأيام</p>
+                </div>
+                <div class="text-center p-4 bg-white rounded-xl shadow">
+                    <p class="text-3xl font-black text-green-600">{{ selectedStudent.presentDays }}</p>
+                    <p class="text-sm text-gray-600">حاضر</p>
+                </div>
+                <div class="text-center p-4 bg-white rounded-xl shadow">
+                    <p class="text-3xl font-black text-red-600">{{ selectedStudent.absentDays }}</p>
+                    <p class="text-sm text-gray-600">غائب</p>
+                </div>
+                <div class="text-center p-4 bg-white rounded-xl shadow">
+                    <p class="text-3xl font-black text-indigo-600">{{ selectedStudent.attendanceRate }}%</p>
+                    <p class="text-sm text-gray-600">نسبة الحضور</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Records List -->
+        <div class="p-6">
+            <h3 class="text-xl font-black text-gray-800 mb-4">سجلات الحضور التفصيلية</h3>
+
+            <div class="space-y-3">
+                <div *ngFor="let record of selectedStudent.records"
+                    class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-calendar text-indigo-600"></i>
+                        <span class="font-semibold text-gray-800">{{ record.date | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+
+                    <span
+                        [class]="'px-4 py-2 rounded-xl font-bold text-white flex items-center gap-2 ' + getStatusBadge(record.status).class">
+                        <i [class]="'fas ' + getStatusBadge(record.status).icon"></i>
+                        {{ getStatusBadge(record.status).label }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="studentsSummary.length === 0 && !loading"
+        class="text-center py-20 bg-white rounded-3xl shadow-xl animate-fadeIn">
+        <div
+            class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-3xl flex items-center justify-center">
+            <i class="fas fa-file-alt text-6xl text-indigo-500"></i>
+        </div>
+        <h3 class="text-2xl font-black text-gray-800 mb-3">لا يوجد تقرير</h3>
+        <p class="text-gray-600 mb-6">اختر المجموعة والتواريخ واضغط "إنشاء التقرير"</p>
+    </div>
+
+</div>

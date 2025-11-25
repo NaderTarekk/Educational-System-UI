@@ -1,0 +1,471 @@
+<!-- src/app/pages/settings/settings.component.html -->
+<div class="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+
+    <!-- Header Section -->
+    <div class="mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">إعدادات الموقع</h1>
+                <p class="text-gray-600">إدارة وتخصيص إعدادات النظام</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button (click)="saveSettings()" [disabled]="isSaving"
+                    class="px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold text-sm sm:text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas" [class.fa-save]="!isSaving" [class.fa-spinner]="isSaving" [class.fa-spin]="isSaving"></i>
+                    <span>{{isSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs and Content -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        
+        <!-- Tabs Navigation -->
+        <div class="border-b border-gray-200 overflow-x-auto">
+            <div class="flex min-w-max sm:min-w-0">
+                <button *ngFor="let tab of tabs" (click)="activeTab = tab.id"
+                    [class.border-b-4]="activeTab === tab.id"
+                    [class.border-blue-600]="activeTab === tab.id"
+                    [class.text-blue-600]="activeTab === tab.id"
+                    [class.bg-blue-50]="activeTab === tab.id"
+                    class="flex-1 sm:flex-none px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold text-gray-600 hover:bg-gray-50 transition-all flex items-center justify-center gap-2 whitespace-nowrap">
+                    <i class="fas" [ngClass]="tab.icon"></i>
+                    <span class="hidden sm:inline">{{tab.name}}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-4 sm:p-6 md:p-8">
+
+            <!-- General Settings -->
+            <div *ngIf="activeTab === 'general'" class="space-y-6">
+                <form [formGroup]="generalForm" class="space-y-6">
+                    
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <div class="w-1 h-6 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></div>
+                            المعلومات العامة
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">اسم الموقع</label>
+                                <input type="text" formControlName="siteName"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="اسم موقعك">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">البريد الإلكتروني</label>
+                                <input type="email" formControlName="contactEmail"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="info@example.com">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">رقم الهاتف</label>
+                                <input type="tel" formControlName="phoneNumber"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="01234567890">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">المنطقة الزمنية</label>
+                                <select formControlName="timezone"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer font-semibold text-sm sm:text-base">
+                                    <option *ngFor="let tz of timezones" [value]="tz.value">{{tz.label}}</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">اللغة</label>
+                                <select formControlName="language"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer font-semibold text-sm sm:text-base">
+                                    <option *ngFor="let lang of languages" [value]="lang.value">{{lang.label}}</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">العنوان</label>
+                                <input type="text" formControlName="address"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="العنوان الكامل">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">وصف الموقع</label>
+                                <textarea formControlName="siteDescription" rows="3"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base resize-none"
+                                    placeholder="وصف مختصر عن الموقع"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Appearance Settings -->
+            <div *ngIf="activeTab === 'appearance'" class="space-y-6">
+                <form [formGroup]="appearanceForm" class="space-y-6">
+                    
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <div class="w-1 h-6 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></div>
+                            تخصيص المظهر
+                        </h3>
+
+                        <div class="space-y-6">
+                            <!-- Primary Color -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">اللون الأساسي</label>
+                                <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                                    <button *ngFor="let color of colors" type="button"
+                                        (click)="appearanceForm.patchValue({primaryColor: color.value})"
+                                        [style.background-color]="color.value"
+                                        class="h-16 sm:h-20 rounded-xl hover:scale-110 transition-transform relative"
+                                        [class.ring-4]="appearanceForm.get('primaryColor')?.value === color.value"
+                                        [class.ring-blue-500]="appearanceForm.get('primaryColor')?.value === color.value">
+                                        <i *ngIf="appearanceForm.get('primaryColor')?.value === color.value" 
+                                            class="fas fa-check text-white text-xl"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Toggle Settings -->
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                    <div>
+                                        <p class="font-semibold text-gray-800 text-sm sm:text-base">الوضع الداكن</p>
+                                        <p class="text-xs sm:text-sm text-gray-500">تفعيل المظهر الداكن للموقع</p>
+                                    </div>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" formControlName="darkMode" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                    </label>
+                                </div>
+
+                                <div class="p-4 bg-gray-50 rounded-xl">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">موقع القائمة الجانبية</label>
+                                    <div class="flex gap-3">
+                                        <button type="button"
+                                            (click)="appearanceForm.patchValue({sidebarPosition: 'right'})"
+                                            [class.bg-blue-600]="appearanceForm.get('sidebarPosition')?.value === 'right'"
+                                            [class.text-white]="appearanceForm.get('sidebarPosition')?.value === 'right'"
+                                            [class.bg-white]="appearanceForm.get('sidebarPosition')?.value !== 'right'"
+                                            class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold transition-all text-sm sm:text-base">
+                                            يمين
+                                        </button>
+                                        <button type="button"
+                                            (click)="appearanceForm.patchValue({sidebarPosition: 'left'})"
+                                            [class.bg-blue-600]="appearanceForm.get('sidebarPosition')?.value === 'left'"
+                                            [class.text-white]="appearanceForm.get('sidebarPosition')?.value === 'left'"
+                                            [class.bg-white]="appearanceForm.get('sidebarPosition')?.value !== 'left'"
+                                            class="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold transition-all text-sm sm:text-base">
+                                            يسار
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="p-4 bg-gray-50 rounded-xl">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">حجم الخط</label>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <button type="button"
+                                            (click)="appearanceForm.patchValue({fontSize: 'small'})"
+                                            [class.bg-blue-600]="appearanceForm.get('fontSize')?.value === 'small'"
+                                            [class.text-white]="appearanceForm.get('fontSize')?.value === 'small'"
+                                            [class.bg-white]="appearanceForm.get('fontSize')?.value !== 'small'"
+                                            class="px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold transition-all text-xs sm:text-sm">
+                                            صغير
+                                        </button>
+                                        <button type="button"
+                                            (click)="appearanceForm.patchValue({fontSize: 'medium'})"
+                                            [class.bg-blue-600]="appearanceForm.get('fontSize')?.value === 'medium'"
+                                            [class.text-white]="appearanceForm.get('fontSize')?.value === 'medium'"
+                                            [class.bg-white]="appearanceForm.get('fontSize')?.value !== 'medium'"
+                                            class="px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold transition-all text-sm sm:text-base">
+                                            متوسط
+                                        </button>
+                                        <button type="button"
+                                            (click)="appearanceForm.patchValue({fontSize: 'large'})"
+                                            [class.bg-blue-600]="appearanceForm.get('fontSize')?.value === 'large'"
+                                            [class.text-white]="appearanceForm.get('fontSize')?.value === 'large'"
+                                            [class.bg-white]="appearanceForm.get('fontSize')?.value !== 'large'"
+                                            class="px-4 py-3 border-2 border-gray-200 rounded-xl font-semibold transition-all text-base sm:text-lg">
+                                            كبير
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notifications Settings -->
+            <div *ngIf="activeTab === 'notifications'" class="space-y-6">
+                <form [formGroup]="notificationsForm" class="space-y-6">
+                    
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <div class="w-1 h-6 bg-gradient-to-b from-amber-600 to-orange-600 rounded-full"></div>
+                            إعدادات الإشعارات
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-envelope text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800 text-sm sm:text-base">إشعارات البريد الإلكتروني</p>
+                                        <p class="text-xs sm:text-sm text-gray-500">استلام الإشعارات عبر البريد</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" formControlName="emailNotifications" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-sms text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800 text-sm sm:text-base">إشعارات الرسائل القصيرة</p>
+                                        <p class="text-xs sm:text-sm text-gray-500">استلام الإشعارات عبر SMS</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" formControlName="smsNotifications" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-bell text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800 text-sm sm:text-base">إشعارات الدفع</p>
+                                        <p class="text-xs sm:text-sm text-gray-500">إشعارات فورية على المتصفح</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" formControlName="pushNotifications" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="border-t border-gray-200 my-4"></div>
+
+                            <h4 class="text-base sm:text-lg font-bold text-gray-800 mb-3">إشعارات النظام</h4>
+
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                <div>
+                                    <p class="font-semibold text-gray-800 text-sm sm:text-base">مستخدم جديد</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">عند تسجيل مستخدم جديد</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" formControlName="notifyOnNewUser" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                <div>
+                                    <p class="font-semibold text-gray-800 text-sm sm:text-base">رسالة جديدة</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">عند استلام رسالة جديدة</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" formControlName="notifyOnNewMessage" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                <div>
+                                    <p class="font-semibold text-gray-800 text-sm sm:text-base">دفعة جديدة</p>
+                                    <p class="text-xs sm:text-sm text-gray-500">عند إتمام عملية دفع</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" formControlName="notifyOnPayment" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Settings -->
+            <div *ngIf="activeTab === 'security'" class="space-y-6">
+                <form [formGroup]="securityForm" class="space-y-6">
+                    
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <div class="w-1 h-6 bg-gradient-to-b from-red-600 to-pink-600 rounded-full"></div>
+                            إعدادات الأمان
+                        </h3>
+
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800 text-sm sm:text-base">المصادقة الثنائية</p>
+                                        <p class="text-xs sm:text-sm text-gray-500">تفعيل الحماية بخطوتين</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" formControlName="twoFactorAuth" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4 bg-red-50 rounded-xl border-2 border-red-200">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-tools text-red-600"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-800 text-sm sm:text-base">وضع الصيانة</p>
+                                        <p class="text-xs sm:text-sm text-red-600">إيقاف الموقع مؤقتاً للصيانة</p>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" formControlName="maintenanceMode" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                                </label>
+                            </div>
+
+                            <div class="border-t border-gray-200 my-4"></div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">مهلة الجلسة (دقيقة)</label>
+                                    <input type="number" formControlName="sessionTimeout"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                        min="5">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">صلاحية كلمة المرور (يوم)</label>
+                                    <input type="number" formControlName="passwordExpiry"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                        min="30">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">محاولات تسجيل الدخول</label>
+                                    <input type="number" formControlName="loginAttempts"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                        min="3">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Email Settings -->
+            <div *ngIf="activeTab === 'email'" class="space-y-6">
+                <form [formGroup]="emailForm" class="space-y-6">
+                    
+                    <div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <div class="w-1 h-6 bg-gradient-to-b from-green-600 to-emerald-600 rounded-full"></div>
+                            إعدادات البريد الإلكتروني
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">خادم SMTP</label>
+                                <input type="text" formControlName="smtpHost"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="smtp.gmail.com">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">منفذ SMTP</label>
+                                <input type="number" formControlName="smtpPort"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="587">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">اسم المستخدم</label>
+                                <input type="text" formControlName="smtpUsername"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="username@gmail.com">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">كلمة المرور</label>
+                                <input type="password" formControlName="smtpPassword"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="••••••••">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">التشفير</label>
+                                <select formControlName="smtpEncryption"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer font-semibold text-sm sm:text-base">
+                                    <option value="none">بدون</option>
+                                    <option value="ssl">SSL</option>
+                                    <option value="tls">TLS</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">البريد المرسل</label>
+                                <input type="email" formControlName="fromEmail"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="noreply@platform.com">
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">اسم المرسل</label>
+                                <input type="text" formControlName="fromName"
+                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all text-sm sm:text-base"
+                                    placeholder="منصة التعليم">
+                            </div>
+                        </div>
+
+                        <div class="mt-6">
+                            <button type="button" (click)="testEmailConnection()"
+                                class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-semibold text-sm sm:text-base flex items-center gap-2">
+                                <i class="fas fa-flask"></i>
+                                اختبار الاتصال
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="border-t border-gray-200 p-4 sm:p-6 bg-gray-50">
+            <div class="flex flex-col sm:flex-row items-center gap-3 justify-between">
+                <button (click)="resetSettings()"
+                    class="w-full sm:w-auto px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all text-sm sm:text-base flex items-center justify-center gap-2">
+                    <i class="fas fa-undo"></i>
+                    <span>إعادة تعيين</span>
+                </button>
+                <button (click)="saveSettings()" [disabled]="isSaving"
+                    class="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:shadow-xl hover:scale-105 transition-all duration-300 text-sm sm:text-base flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas" [class.fa-save]="!isSaving" [class.fa-spinner]="isSaving" [class.fa-spin]="isSaving"></i>
+                    <span>{{isSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}}</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>

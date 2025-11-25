@@ -1,0 +1,32 @@
+<div *ngIf="showLayout" class="flex min-h-screen bg-gray-100" dir="rtl">
+    <!-- Overlay -->
+    <div *ngIf="(sidenavService.isOpen$ | async) && isMobile"
+        class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" (click)="sidenavService.close()">
+    </div>
+
+    <!-- Sidenav -->
+    <div class="fixed right-0 top-0 h-screen z-50">
+        <app-sidenav></app-sidenav>
+    </div>
+
+    <!-- Content -->
+    <div class="flex flex-col flex-1 transition-all duration-300"
+        [ngClass]="{
+            'mr-0': isMobile,
+            'mr-20': !isMobile && !(sidenavService.isOpen$ | async),
+            'mr-64': !isMobile && (sidenavService.isOpen$ | async)
+        }">
+
+        <div class="p-3 sm:p-4 md:p-6 sticky top-0 bg-gray-100 z-30">
+            <app-navbar></app-navbar>
+        </div>
+
+        <main class="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+</div>
+
+<div *ngIf="!showLayout">
+    <router-outlet></router-outlet>
+</div>

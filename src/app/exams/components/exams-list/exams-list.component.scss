@@ -1,0 +1,280 @@
+// Animations
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes wiggle {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-5deg);
+    }
+
+    75% {
+        transform: rotate(5deg);
+    }
+}
+
+// Animation classes
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.animate-scaleIn {
+    animation: scaleIn 0.3s ease-out;
+}
+
+.animate-slideUp {
+    animation: slideUp 0.4s ease-out;
+}
+
+.animate-wiggle {
+    animation: wiggle 0.5s ease-in-out;
+}
+
+// Floating label styles
+.input-wrapper {
+    position: relative;
+
+    .floating-label {
+        position: absolute;
+        right: 1rem;
+        top: 0.75rem;
+        transition: all 0.2s ease-out;
+        pointer-events: none;
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .input-field:focus+.floating-label,
+    &.has-value .floating-label {
+        top: 0.25rem;
+        font-size: 0.75rem;
+        color: #3b82f6;
+    }
+
+    textarea.input-field:focus+.floating-label,
+    &.has-value textarea+.floating-label {
+        top: 0.25rem;
+    }
+}
+
+// Scrollbar styling
+.update-dialog-scroll::-webkit-scrollbar,
+.delete-dialog-scroll::-webkit-scrollbar,
+.view-dialog-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.update-dialog-scroll::-webkit-scrollbar-track,
+.delete-dialog-scroll::-webkit-scrollbar-track,
+.view-dialog-scroll::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.update-dialog-scroll::-webkit-scrollbar-thumb,
+.delete-dialog-scroll::-webkit-scrollbar-thumb,
+.view-dialog-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+
+    &:hover {
+        background: #94a3b8;
+    }
+}
+
+// Dialog overlay backdrop
+.dialog-overlay {
+    backdrop-filter: blur(8px);
+}
+
+// Smooth transitions
+* {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+// Custom animations for delayed elements
+@for $i from 1 through 10 {
+    .delay-#{$i * 50} {
+        animation-delay: #{$i * 50}ms;
+    }
+}
+
+// Pulse animation for loading states
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// Bounce animation
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+
+    50% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+.animate-bounce {
+    animation: bounce 1s infinite;
+}
+
+// Responsive design helpers
+@media (max-width: 640px) {
+    .input-wrapper {
+        .floating-label {
+            right: 0.75rem;
+            font-size: 0.75rem;
+        }
+
+        .input-field:focus+.floating-label,
+        &.has-value .floating-label {
+            font-size: 0.625rem;
+        }
+    }
+}
+
+// Print styles
+@media print {
+
+    .dialog-overlay,
+    .animate-fadeIn,
+    .animate-scaleIn,
+    .animate-slideUp,
+    .animate-bounce,
+    .animate-pulse {
+        animation: none !important;
+    }
+}
+
+// Dark mode support (optional)
+@media (prefers-color-scheme: dark) {
+
+    .update-dialog-scroll::-webkit-scrollbar-track,
+    .delete-dialog-scroll::-webkit-scrollbar-track,
+    .view-dialog-scroll::-webkit-scrollbar-track {
+        background: #1f2937;
+    }
+
+    .update-dialog-scroll::-webkit-scrollbar-thumb,
+    .delete-dialog-scroll::-webkit-scrollbar-thumb,
+    .view-dialog-scroll::-webkit-scrollbar-thumb {
+        background: #4b5563;
+
+        &:hover {
+            background: #6b7280;
+        }
+    }
+}
+
+// Custom button hover effects
+button {
+    &:active:not(:disabled) {
+        transform: scale(0.95);
+    }
+}
+
+// Gradient text effect (optional)
+.gradient-text {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+// Card hover effects
+.hover-card {
+    transition: all 0.3s ease;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+}
+
+// Focus visible styles for accessibility
+*:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+// Disabled state
+[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+// Loading spinner
+.spinner {
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

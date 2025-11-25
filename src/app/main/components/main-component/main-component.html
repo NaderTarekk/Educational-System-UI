@@ -1,0 +1,461 @@
+<!-- Main Content -->
+<main class="container mx-auto px-4 sm:px-6 py-4 sm:py-6 lg:py-8">
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+
+        <!-- Total Students -->
+        <div
+            class="stat-card gradient-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-blue-100 animate-slide-in delay-1">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+                <div
+                    class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i class="fas fa-users text-white text-xl sm:text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-xs sm:text-sm text-gray-600 mb-1">إجمالي الطلاب</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-800">1,248</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+                <span class="px-2 py-1 bg-green-100 text-green-600 rounded-lg font-semibold whitespace-nowrap">
+                    <i class="fas fa-arrow-up text-xs"></i> 12%
+                </span>
+                <span class="text-gray-500">عن الشهر السابق</span>
+            </div>
+        </div>
+
+        <!-- Total Revenue -->
+        <div
+            class="stat-card gradient-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-green-100 animate-slide-in delay-2">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+                <div
+                    class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-green-500/30">
+                    <i class="fas fa-dollar-sign text-white text-xl sm:text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-xs sm:text-sm text-gray-600 mb-1">إجمالي الإيرادات</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-800">524,300</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+                <span class="px-2 py-1 bg-green-100 text-green-600 rounded-lg font-semibold whitespace-nowrap">
+                    <i class="fas fa-arrow-up text-xs"></i> 8%
+                </span>
+                <span class="text-gray-500">عن الشهر السابق</span>
+            </div>
+        </div>
+
+        <!-- Pending Payments -->
+        <div
+            class="stat-card gradient-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-orange-100 animate-slide-in delay-3">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+                <div
+                    class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/30">
+                    <i class="fas fa-clock text-white text-xl sm:text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-xs sm:text-sm text-gray-600 mb-1">مدفوعات معلقة</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-800">87,200</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+                <span class="px-2 py-1 bg-orange-100 text-orange-600 rounded-lg font-semibold whitespace-nowrap">
+                    <i class="fas fa-exclamation-triangle text-xs"></i> 23 طالب
+                </span>
+                <span class="text-gray-500">لم يدفعوا بعد</span>
+            </div>
+        </div>
+
+        <!-- Total Groups -->
+        <div
+            class="stat-card gradient-card rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-purple-100 animate-slide-in delay-4">
+            <div class="flex items-center justify-between mb-3 sm:mb-4">
+                <div
+                    class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                    <i class="fas fa-layer-group text-white text-xl sm:text-2xl"></i>
+                </div>
+                <div class="text-left">
+                    <p class="text-xs sm:text-sm text-gray-600 mb-1">المجموعات النشطة</p>
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-800">24</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+                <span class="px-2 py-1 bg-purple-100 text-purple-600 rounded-lg font-semibold whitespace-nowrap">
+                    <i class="fas fa-check text-xs"></i> 6 جديدة
+                </span>
+                <span class="text-gray-500">هذا الشهر</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts & Tables Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+
+        <!-- Revenue Chart -->
+        <div
+            class="lg:col-span-2 bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 animate-slide-in delay-5">
+            <div
+                class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800">تقرير الإيرادات والنفقات</h2>
+                <select
+                    class="w-full sm:w-auto px-3 sm:px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-blue-500">
+                    <option>آخر 7 أيام</option>
+                    <option>آخر 30 يوم</option>
+                    <option>آخر 3 شهور</option>
+                </select>
+            </div>
+
+            <!-- Simple Bar Chart -->
+            <div class="space-y-3 sm:space-y-4">
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <span class="text-xs sm:text-sm text-gray-600 w-16 sm:w-20">يناير</span>
+                    <div class="flex-1 h-8 sm:h-10 bg-gray-100 rounded-lg overflow-hidden relative">
+                        <div class="progress-bar absolute h-full bg-gradient-to-l from-blue-500 to-blue-600 rounded-lg"
+                            style="width: 75%;"></div>
+                    </div>
+                    <span class="text-xs sm:text-sm font-semibold text-gray-800 w-16 sm:w-24 text-left">85,000</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <span class="text-xs sm:text-sm text-gray-600 w-16 sm:w-20">فبراير</span>
+                    <div class="flex-1 h-8 sm:h-10 bg-gray-100 rounded-lg overflow-hidden relative">
+                        <div class="progress-bar absolute h-full bg-gradient-to-l from-green-500 to-green-600 rounded-lg"
+                            style="width: 90%;"></div>
+                    </div>
+                    <span class="text-xs sm:text-sm font-semibold text-gray-800 w-16 sm:w-24 text-left">102,000</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <span class="text-xs sm:text-sm text-gray-600 w-16 sm:w-20">مارس</span>
+                    <div class="flex-1 h-8 sm:h-10 bg-gray-100 rounded-lg overflow-hidden relative">
+                        <div class="progress-bar absolute h-full bg-gradient-to-l from-purple-500 to-purple-600 rounded-lg"
+                            style="width: 65%;"></div>
+                    </div>
+                    <span class="text-xs sm:text-sm font-semibold text-gray-800 w-16 sm:w-24 text-left">73,500</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <span class="text-xs sm:text-sm text-gray-600 w-16 sm:w-20">أبريل</span>
+                    <div class="flex-1 h-8 sm:h-10 bg-gray-100 rounded-lg overflow-hidden relative">
+                        <div class="progress-bar absolute h-full bg-gradient-to-l from-orange-500 to-orange-600 rounded-lg"
+                            style="width: 85%;"></div>
+                    </div>
+                    <span class="text-xs sm:text-sm font-semibold text-gray-800 w-16 sm:w-24 text-left">96,400</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <span class="text-xs sm:text-sm text-gray-600 w-16 sm:w-20">مايو</span>
+                    <div class="flex-1 h-8 sm:h-10 bg-gray-100 rounded-lg overflow-hidden relative">
+                        <div class="progress-bar absolute h-full bg-gradient-to-l from-pink-500 to-pink-600 rounded-lg"
+                            style="width: 95%;"></div>
+                    </div>
+                    <span class="text-xs sm:text-sm font-semibold text-gray-800 w-16 sm:w-24 text-left">108,200</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div
+            class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 animate-slide-in delay-6">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4 sm:mb-6">إحصائيات سريعة</h2>
+
+            <div class="space-y-3 sm:space-y-5">
+                <div class="flex items-center justify-between p-3 sm:p-4 bg-blue-50 rounded-lg sm:rounded-xl">
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-1">المدفوعات اليوم</p>
+                        <p class="text-xl sm:text-2xl font-bold text-blue-600">12,400</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-money-bill-wave text-white text-sm sm:text-base"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 sm:p-4 bg-green-50 rounded-lg sm:rounded-xl">
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-1">طلاب جدد</p>
+                        <p class="text-xl sm:text-2xl font-bold text-green-600">18</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-user-plus text-white text-sm sm:text-base"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 sm:p-4 bg-orange-50 rounded-lg sm:rounded-xl">
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-1">نفقات الشهر</p>
+                        <p class="text-xl sm:text-2xl font-bold text-orange-600">45,200</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-receipt text-white text-sm sm:text-base"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 sm:p-4 bg-purple-50 rounded-lg sm:rounded-xl">
+                    <div>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-1">معدل الحضور</p>
+                        <p class="text-xl sm:text-2xl font-bold text-purple-600">94%</p>
+                    </div>
+                    <div
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-chart-line text-white text-sm sm:text-base"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Students Table -->
+    <div
+        class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm border border-gray-100 animate-slide-in delay-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl font-bold text-gray-800">أحدث الطلاب المسجلين</h2>
+            <button
+                class="w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-semibold text-sm sm:text-base">
+                <i class="fas fa-plus ml-2"></i>
+                إضافة طالب جديد
+            </button>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="block lg:hidden space-y-3">
+            <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all">
+                <div class="flex items-start gap-3 mb-3">
+                    <div
+                        class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        أ
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-gray-800 text-base truncate">أحمد محمد</p>
+                        <p class="text-sm text-gray-500 truncate">ahmedemail.com</p>
+                    </div>
+                </div>
+                <div class="space-y-2 mb-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">المجموعة:</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded-lg text-xs font-semibold">المجموعة
+                            A</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">المصاريف:</span>
+                        <span class="font-semibold text-gray-800">5,000</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">المدفوع:</span>
+                        <span class="font-semibold text-green-600">5,000</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">الحالة:</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-600 rounded-lg text-xs font-semibold">
+                            <i class="fas fa-check text-xs"></i> مكتمل
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="flex-1 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-semibold">
+                        <i class="fas fa-eye ml-1"></i> عرض
+                    </button>
+                    <button
+                        class="flex-1 py-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors text-sm font-semibold">
+                        <i class="fas fa-edit ml-1"></i> تعديل
+                    </button>
+                    <button
+                        class="w-10 h-10 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all">
+                <div class="flex items-start gap-3 mb-3">
+                    <div
+                        class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        س
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-gray-800 text-base truncate">سارة علي</p>
+                        <p class="text-sm text-gray-500 truncate">saraemail.com</p>
+                    </div>
+                </div>
+                <div class="space-y-2 mb-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">المجموعة:</span>
+                        <span class="px-2 py-1 bg-purple-100 text-purple-600 rounded-lg text-xs font-semibold">المجموعة
+                            B</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">المصاريف:</span>
+                        <span class="font-semibold text-gray-800">4,500</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">المدفوع:</span>
+                        <span class="font-semibold text-orange-600">2,500</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-gray-600">الحالة:</span>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-600 rounded-lg text-xs font-semibold">
+                            <i class="fas fa-clock text-xs"></i> معلق
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="flex-1 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-semibold">
+                        <i class="fas fa-eye ml-1"></i> عرض
+                    </button>
+                    <button
+                        class="flex-1 py-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors text-sm font-semibold">
+                        <i class="fas fa-edit ml-1"></i> تعديل
+                    </button>
+                    <button
+                        class="w-10 h-10 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200">
+                        <th class="text-right py-4 px-4 text-sm font-semibold text-gray-600">اسم الطالب</th>
+                        <th class="text-right py-4 px-4 text-sm font-semibold text-gray-600">المجموعة</th>
+                        <th class="text-right py-4 px-4 text-sm font-semibold text-gray-600">المصاريف</th>
+                        <th class="text-right py-4 px-4 text-sm font-semibold text-gray-600">المدفوع</th>
+                        <th class="text-right py-4 px-4 text-sm font-semibold text-gray-600">الحالة</th>
+                        <th class="text-right py-4 px-4 text-sm font-semibold text-gray-600">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold">
+                                    أ
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">أحمد محمد</p>
+                                    <p class="text-sm text-gray-500">ahmedemail.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-lg text-sm font-semibold">المجموعة
+                                A</span>
+                        </td>
+                        <td class="py-4 px-4 font-semibold text-gray-800">5,000</td>
+                        <td class="py-4 px-4 font-semibold text-green-600">5,000</td>
+                        <td class="py-4 px-4">
+                            <span class="px-3 py-1 bg-green-100 text-green-600 rounded-lg text-sm font-semibold">
+                                <i class="fas fa-check ml-1"></i>مكتمل
+                            </span>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="flex items-center gap-2">
+                                <button
+                                    class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center text-white font-bold">
+                                    س
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">سارة علي</p>
+                                    <p class="text-sm text-gray-500">saraemail.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span
+                                class="px-3 py-1 bg-purple-100 text-purple-600 rounded-lg text-sm font-semibold">المجموعة
+                                B</span>
+                        </td>
+                        <td class="py-4 px-4 font-semibold text-gray-800">4,500</td>
+                        <td class="py-4 px-4 font-semibold text-orange-600">2,500</td>
+                        <td class="py-4 px-4">
+                            <span class="px-3 py-1 bg-orange-100 text-orange-600 rounded-lg text-sm font-semibold">
+                                <i class="fas fa-clock ml-1"></i>معلق
+                            </span>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="flex items-center gap-2">
+                                <button
+                                    class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center text-white font-bold">
+                                    م
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">محمود حسن</p>
+                                    <p class="text-sm text-gray-500">mahmoudemail.com</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-4">
+                            <span
+                                class="px-3 py-1 bg-green-100 text-green-600 rounded-lg text-sm font-semibold">المجموعة
+                                C</span>
+                        </td>
+                        <td class="py-4 px-4 font-semibold text-gray-800">6,000</td>
+                        <td class="py-4 px-4 font-semibold text-green-600">6,000</td>
+                        <td class="py-4 px-4">
+                            <span class="px-3 py-1 bg-green-100 text-green-600 rounded-lg text-sm font-semibold">
+                                <i class="fas fa-check ml-1"></i>مكتمل
+                            </span>
+                        </td>
+                        <td class="py-4 px-4">
+                            <div class="flex items-center gap-2">
+                                <button
+                                    class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button
+                                    class="w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>

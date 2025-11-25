@@ -1,0 +1,1000 @@
+<div class="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8" dir="rtl">
+
+    <!-- Loading Overlay -->
+    <app-loader-component *ngIf="isLoading"></app-loader-component>
+
+    <!-- Header Section -->
+    <div class="mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 mb-2">إدارة الامتحانات</h1>
+                <p class="text-gray-600">إدارة جميع الامتحانات في النظام</p>
+            </div>
+            <button *ngIf="userRole !== 'Student'" (click)="openDialog()"
+                class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold text-lg flex items-center justify-center gap-2">
+                <i class="fas fa-plus-circle"></i>
+                <span>إضافة امتحان جديد</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-2xl p-6 border border-blue-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">إجمالي الامتحانات</p>
+                    <p class="text-3xl font-bold text-gray-800">{{allExams.length}}</p>
+                </div>
+                <div class="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-file-alt text-blue-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-green-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">نشط</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ activeCount }}</p>
+                </div>
+                <div class="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-orange-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">قادم</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ upcomingCount }}</p>
+                </div>
+                <div class="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-clock text-orange-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 border border-purple-100 hover:shadow-lg transition-all">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">مكتمل</p>
+                    <p class="text-3xl font-bold text-gray-800">{{ completedCount }}</p>
+                </div>
+                <div class="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-check-double text-purple-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="bg-white rounded-2xl p-4 sm:p-6 mb-6 shadow-sm border border-gray-100">
+        <div class="flex flex-col lg:flex-row gap-4">
+            <!-- Search Input -->
+            <div class="flex-1 relative">
+                <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+                    placeholder="ابحث عن امتحان (العنوان، المجموعة، التاريخ...)"
+                    class="w-full pr-12 pl-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all">
+                <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <!-- Status Filter -->
+            <div class="w-full lg:w-64">
+                <select [(ngModel)]="selectedStatus" (change)="onStatusChange($event)"
+                    class="w-full pr-4 pl-10 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer font-semibold">
+                    <option value="all">جميع الامتحانات</option>
+                    <option value="active">نشط</option>
+                    <option value="upcoming">قادم</option>
+                    <option value="completed">مكتمل</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Filter indicator -->
+        <div *ngIf="searchTerm || selectedStatus !== 'all'" class="mt-3 flex items-center gap-2 text-sm">
+            <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full font-semibold">
+                <i class="fas fa-filter ml-1"></i>
+                عرض {{totalCount}} من {{allExams.length}} امتحان
+            </span>
+            <button (click)="searchTerm = ''; selectedStatus = 'all'; onSearchChange()"
+                class="px-3 py-1 bg-red-100 text-red-700 rounded-full font-semibold hover:bg-red-200 transition-colors">
+                <i class="fas fa-times ml-1"></i>
+                إلغاء الفلترة
+            </button>
+        </div>
+    </div>
+
+    <!-- Exams Table/Cards -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+
+        <!-- Mobile Card View -->
+        <div class="block lg:hidden p-4 space-y-4">
+            <div *ngFor="let exam of filteredExams"
+                class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all">
+                <div class="flex items-start gap-3 mb-3">
+                    <div
+                        class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                        {{getExamAvatar(exam.title)}}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-gray-800 text-base truncate">{{exam.title}}</p>
+                        <p class="text-sm text-gray-500 truncate">{{exam.description}}</p>
+                    </div>
+                </div>
+
+                <div class="space-y-2 mb-3">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">المجموعة:</span>
+                        <span class="font-semibold text-gray-800">{{exam.group?.name}}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">المدة:</span>
+                        <span class="font-semibold text-gray-800">{{exam.duration}} دقيقة</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">الدرجة الكلية:</span>
+                        <span class="font-semibold text-gray-800">{{exam.totalMarks}}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="text-gray-600">الحالة:</span>
+                        <span class="px-3 py-1 rounded-lg text-xs font-semibold"
+                            [ngClass]="getStatusBadgeClass(exam.status || '')">
+                            {{exam.statusText}}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button (click)="viewExam(exam.id)"
+                        class="flex-1 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm font-semibold">
+                        <i class="fas fa-eye ml-1"></i> عرض
+                    </button>
+                    <button *ngIf="userRole !== 'Student'" (click)="openDialog(exam)"
+                        class="flex-1 py-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors text-sm font-semibold">
+                        <i class="fas fa-edit ml-1"></i> تعديل
+                    </button>
+                    <button *ngIf="userRole === 'Admin'" (click)="openDeleteDialog(exam)"
+                        class="w-10 h-10 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div *ngIf="filteredExams.length === 0" class="text-center py-12">
+                <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">لا توجد نتائج</p>
+            </div>
+        </div>
+
+        <!-- Desktop Table View -->
+        <div class="hidden lg:block overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200 bg-gray-50">
+                        <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">عنوان الامتحان</th>
+                        <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">المجموعة</th>
+                        <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">المدة</th>
+                        <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">الدرجة الكلية</th>
+                        <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">التاريخ</th>
+                        <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">الحالة</th>
+                        <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let exam of filteredExams"
+                        class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold">
+                                    {{getExamAvatar(exam.title)}}
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-gray-800">{{exam.title}}</p>
+                                    <p class="text-sm text-gray-500 truncate max-w-xs">{{exam.description}}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
+                                {{exam.group?.name}}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-700">{{exam.duration}} دقيقة</td>
+                        <td class="py-4 px-6">
+                            <span class="font-bold text-gray-900">{{exam.totalMarks}}</span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-600 text-sm">
+                            <div>
+                                <p>{{exam.startDate | date: 'dd/MM/yyyy'}}</p>
+                                <p class="text-xs text-gray-500">{{exam.startDate | date: 'hh:mm a'}}</p>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="px-3 py-1 rounded-lg text-sm font-semibold"
+                                [ngClass]="getStatusBadgeClass(exam.status || '')">
+                                {{exam.statusText}}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6">
+                            <div class="flex items-center gap-2">
+                                <button (click)="viewExam(exam.id)"
+                                    class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                                    title="عرض التفاصيل">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button *ngIf="userRole !== 'Student'" (click)="openDialog(exam)"
+                                    class="w-8 h-8 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors"
+                                    title="تعديل">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button *ngIf="userRole === 'Admin'" (click)="openDeleteDialog(exam)"
+                                    class="w-10 h-10 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr *ngIf="filteredExams.length === 0">
+                        <td colspan="7" class="text-center py-12">
+                            <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500 text-lg">لا توجد نتائج</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="border-t border-gray-200 bg-gray-50 px-4 py-3 sm:px-6" *ngIf="totalCount > 0">
+            <mat-paginator [length]="totalCount" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+                [pageIndex]="pageNumber - 1" (page)="onPageChange($event)" showFirstLastButtons
+                class="custom-paginator">
+            </mat-paginator>
+        </div>
+    </div>
+
+</div>
+
+<!-- Create/Edit Dialog -->
+<div *ngIf="isDialogOpen" (click)="onOverlayClick($event)"
+    class="dialog-overlay fixed inset-0 bg-black/40 flex items-center justify-center z-[60] p-4 sm:p-6 md:p-8 animate-fadeIn"
+    style="backdrop-filter: blur(8px);">
+
+    <div (click)="$event.stopPropagation()"
+        class="dialog-content update-dialog-scroll bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-4xl my-4 sm:my-6 md:my-8 max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] md:max-h-[calc(100vh-4rem)] overflow-y-auto">
+
+        <!-- Dialog Header -->
+        <div
+            class="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-t-2xl sm:rounded-t-3xl p-4 sm:p-6 flex items-center justify-between z-10">
+            <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+                <div
+                    class="w-10 h-10 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-xl rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-file-alt text-white text-lg sm:text-2xl"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h2 class="text-lg sm:text-2xl font-bold text-white truncate">
+                        {{isEditMode ? 'تعديل امتحان' : 'إضافة امتحان جديد'}}
+                    </h2>
+                    <p class="text-white/80 text-xs sm:text-sm truncate">املأ البيانات التالية</p>
+                </div>
+            </div>
+            <button (click)="closeDialog()"
+                class="w-9 h-9 sm:w-10 sm:h-10 bg-white/20 hover:bg-white/30 rounded-lg sm:rounded-xl transition-all flex items-center justify-center group flex-shrink-0 mr-2">
+                <i
+                    class="fas fa-times text-white text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-300"></i>
+            </button>
+        </div>
+
+        <!-- Dialog Body -->
+        <form [formGroup]="examForm" (ngSubmit)="saveExam()" class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+
+            <!-- Basic Info -->
+            <div class="space-y-3 sm:space-y-4">
+                <h3 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <div class="w-1 h-5 sm:h-6 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></div>
+                    المعلومات الأساسية
+                </h3>
+
+                <div class="grid grid-cols-1 gap-3 sm:gap-4">
+                    <!-- Title -->
+                    <div class="input-wrapper relative" [class.has-value]="examForm.get('title')?.value">
+                        <label
+                            class="floating-label absolute right-3 sm:right-4 top-1 sm:top-2 text-gray-500 font-semibold pointer-events-none transition-all text-xs sm:text-sm">
+                            عنوان الامتحان
+                        </label>
+                        <input type="text" formControlName="title" (input)="checkValue($event)"
+                            class="input-field w-full pr-3 pl-3 sm:pr-4 sm:pl-4 pt-5 sm:pt-6 pb-2 sm:pb-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all text-sm sm:text-base"
+                            [class.border-red-500]="examForm.get('title')?.invalid && examForm.get('title')?.touched"
+                            [class.border-gray-200]="!examForm.get('title')?.invalid || !examForm.get('title')?.touched">
+                        <p *ngIf="examForm.get('title')?.invalid && examForm.get('title')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs mt-1">العنوان مطلوب (3 أحرف على الأقل)</p>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="input-wrapper relative" [class.has-value]="examForm.get('description')?.value">
+                        <label
+                            class="floating-label absolute right-3 sm:right-4 top-1 sm:top-2 text-gray-500 font-semibold pointer-events-none transition-all text-xs sm:text-sm">
+                            الوصف
+                        </label>
+                        <textarea formControlName="description" (input)="checkValue($event)" rows="3"
+                            class="input-field w-full pr-3 pl-3 sm:pr-4 sm:pl-4 pt-5 sm:pt-6 pb-2 sm:pb-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white transition-all resize-none text-sm sm:text-base"
+                            [class.border-red-500]="examForm.get('description')?.invalid && examForm.get('description')?.touched"
+                            [class.border-gray-200]="!examForm.get('description')?.invalid || !examForm.get('description')?.touched"></textarea>
+                        <p *ngIf="examForm.get('description')?.invalid && examForm.get('description')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs mt-1">الوصف مطلوب</p>
+                    </div>
+
+                    <!-- Group -->
+                    <div class="space-y-2">
+                        <label class="block text-xs sm:text-sm font-semibold text-gray-700">المجموعة</label>
+                        <div class="relative">
+                            <select formControlName="groupId"
+                                class="w-full pr-3 pl-8 sm:pr-4 sm:pl-10 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white appearance-none cursor-pointer font-semibold text-gray-800 transition-all text-sm sm:text-base">
+                                <option value="">اختر المجموعة</option>
+                                <option *ngFor="let group of groups" [value]="group.id">{{group.name}}</option>
+                            </select>
+                            <div class="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400 text-xs sm:text-sm"></i>
+                            </div>
+                        </div>
+                        <p *ngIf="examForm.get('groupId')?.invalid && examForm.get('groupId')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs mt-1">المجموعة مطلوبة</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Settings -->
+            <div class="space-y-3 sm:space-y-4">
+                <h3 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <div class="w-1 h-5 sm:h-6 bg-gradient-to-b from-green-600 to-emerald-600 rounded-full"></div>
+                    إعدادات الامتحان
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                    <!-- Duration -->
+                    <div class="input-wrapper relative" [class.has-value]="examForm.get('duration')?.value">
+                        <label
+                            class="floating-label absolute right-3 sm:right-4 top-1 sm:top-2 text-gray-500 font-semibold pointer-events-none transition-all text-xs sm:text-sm">
+                            المدة (دقيقة)
+                        </label>
+                        <input type="number" formControlName="duration" (input)="checkValue($event)" min="1"
+                            class="input-field w-full pr-3 pl-3 sm:pr-4 sm:pl-4 pt-5 sm:pt-6 pb-2 sm:pb-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-green-500 bg-gray-50 focus:bg-white transition-all text-sm sm:text-base"
+                            [class.border-red-500]="examForm.get('duration')?.invalid && examForm.get('duration')?.touched"
+                            [class.border-gray-200]="!examForm.get('duration')?.invalid || !examForm.get('duration')?.touched">
+                        <p *ngIf="examForm.get('duration')?.invalid && examForm.get('duration')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs mt-1">المدة مطلوبة</p>
+                    </div>
+
+                    <!-- Total Marks -->
+                    <div class="input-wrapper relative" [class.has-value]="examForm.get('totalMarks')?.value">
+                        <label
+                            class="floating-label absolute right-3 sm:right-4 top-1 sm:top-2 text-gray-500 font-semibold pointer-events-none transition-all text-xs sm:text-sm">
+                            الدرجة الكلية
+                        </label>
+                        <input type="number" formControlName="totalMarks" (input)="checkValue($event)" min="1"
+                            class="input-field w-full pr-3 pl-3 sm:pr-4 sm:pl-4 pt-5 sm:pt-6 pb-2 sm:pb-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-green-500 bg-gray-50 focus:bg-white transition-all text-sm sm:text-base"
+                            [class.border-red-500]="examForm.get('totalMarks')?.invalid && examForm.get('totalMarks')?.touched"
+                            [class.border-gray-200]="!examForm.get('totalMarks')?.invalid || !examForm.get('totalMarks')?.touched">
+                        <p *ngIf="examForm.get('totalMarks')?.invalid && examForm.get('totalMarks')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs mt-1">الدرجة الكلية مطلوبة</p>
+                    </div>
+
+                    <!-- Passing Marks -->
+                    <div class="input-wrapper relative" [class.has-value]="examForm.get('passingMarks')?.value">
+                        <label
+                            class="floating-label absolute right-3 sm:right-4 top-1 sm:top-2 text-gray-500 font-semibold pointer-events-none transition-all text-xs sm:text-sm">
+                            درجة النجاح
+                        </label>
+                        <input type="number" formControlName="passingMarks" (input)="checkValue($event)" min="1"
+                            class="input-field w-full pr-3 pl-3 sm:pr-4 sm:pl-4 pt-5 sm:pt-6 pb-2 sm:pb-3 border-2 rounded-lg sm:rounded-xl focus:outline-none focus:border-green-500 bg-gray-50 focus:bg-white transition-all text-sm sm:text-base"
+                            [class.border-red-500]="examForm.get('passingMarks')?.invalid && examForm.get('passingMarks')?.touched"
+                            [class.border-gray-200]="!examForm.get('passingMarks')?.invalid || !examForm.get('passingMarks')?.touched">
+                        <p *ngIf="examForm.get('passingMarks')?.invalid && examForm.get('passingMarks')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs mt-1">درجة النجاح مطلوبة</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date & Time -->
+            <div class="space-y-3 sm:space-y-4">
+                <h3 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <div class="w-1 h-5 sm:h-6 bg-gradient-to-b from-purple-600 to-pink-600 rounded-full"></div>
+                    التاريخ والوقت
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <!-- Start Date -->
+                    <div class="space-y-2">
+                        <label class="block text-xs sm:text-sm font-semibold text-gray-700">تاريخ البدء</label>
+                        <input type="datetime-local" formControlName="startDate"
+                            class="w-full pr-3 pl-3 sm:pr-4 sm:pl-4 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:border-purple-500 bg-gray-50 focus:bg-white transition-all text-sm sm:text-base"
+                            [class.border-red-500]="examForm.get('startDate')?.invalid && examForm.get('startDate')?.touched">
+                        <p *ngIf="examForm.get('startDate')?.invalid && examForm.get('startDate')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs">تاريخ البدء مطلوب</p>
+                    </div>
+
+                    <!-- End Date -->
+                    <div class="space-y-2">
+                        <label class="block text-xs sm:text-sm font-semibold text-gray-700">تاريخ الانتهاء</label>
+                        <input type="datetime-local" formControlName="endDate"
+                            class="w-full pr-3 pl-3 sm:pr-4 sm:pl-4 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:border-purple-500 bg-gray-50 focus:bg-white transition-all text-sm sm:text-base"
+                            [class.border-red-500]="examForm.get('endDate')?.invalid && examForm.get('endDate')?.touched">
+                        <p *ngIf="examForm.get('endDate')?.invalid && examForm.get('endDate')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs">تاريخ الانتهاء مطلوب</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Section (Only for Create) -->
+            <div *ngIf="!isEditMode" class="space-y-3 sm:space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <div class="w-1 h-5 sm:h-6 bg-gradient-to-b from-orange-600 to-red-600 rounded-full"></div>
+                        الأسئلة (اختياري)
+                    </h3>
+                    <button type="button" (click)="addQuestion()"
+                        class="px-3 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg text-xs sm:text-sm font-semibold hover:shadow-lg transition-all flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        <span>إضافة سؤال</span>
+                    </button>
+                </div>
+
+                <!-- Questions List -->
+                <div *ngIf="questions.length > 0" class="space-y-4" formArrayName="questions">
+                    <div *ngFor="let question of questions.controls; let i = index" [formGroupName]="i"
+                        class="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-xl p-4 space-y-3">
+
+                        <!-- Question Header -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="w-8 h-8 bg-gradient-to-br from-orange-600 to-red-600 text-white rounded-lg flex items-center justify-center font-bold text-sm">
+                                    {{i + 1}}
+                                </span>
+                                <span class="text-sm font-bold text-gray-800">سؤال رقم {{i + 1}}</span>
+                            </div>
+                            <button type="button" (click)="removeQuestion(i)"
+                                class="w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+
+                        <!-- Question Type -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-gray-700">نوع السؤال</label>
+                            <select formControlName="type" (change)="onQuestionTypeChange(i)"
+                                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white text-sm">
+                                <option [value]="0">اختيار من متعدد</option>
+                                <option [value]="1">صح أو خطأ</option>
+                                <option [value]="2">مقالي</option>
+                            </select>
+                        </div>
+
+                        <!-- Question Text -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-gray-700">نص السؤال</label>
+                            <textarea formControlName="questionText" rows="2"
+                                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white resize-none text-sm"
+                                placeholder="اكتب نص السؤال هنا..."></textarea>
+                        </div>
+
+                        <!-- Question Marks -->
+                        <div class="space-y-2">
+                            <label class="block text-xs font-semibold text-gray-700">الدرجة</label>
+                            <input type="number" formControlName="marks" step="0.5" min="0.5"
+                                (change)="calculateTotalMarks()"
+                                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white text-sm"
+                                placeholder="1">
+                        </div>
+
+                        <!-- Options (for Multiple Choice and True/False) -->
+                        <div *ngIf="question.get('type')?.value !== 2" class="space-y-2" formArrayName="options">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-xs font-semibold text-gray-700">الاختيارات</label>
+                                <button *ngIf="question.get('type')?.value === 0" type="button" (click)="addOption(i)"
+                                    class="px-2 py-1 bg-orange-100 text-orange-600 rounded text-xs font-semibold hover:bg-orange-200 transition-colors flex items-center gap-1">
+                                    <i class="fas fa-plus text-xs"></i>
+                                    <span>إضافة اختيار</span>
+                                </button>
+                            </div>
+
+                            <div *ngFor="let option of getQuestionOptions(i).controls; let j = index"
+                                [formGroupName]="j"
+                                class="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200">
+
+                                <!-- Correct Answer Radio -->
+                                <input type="radio" [name]="'correct_' + i" [checked]="option.get('isCorrect')?.value"
+                                    (change)="setCorrectOption(i, j)" class="w-4 h-4 text-green-600 cursor-pointer"
+                                    title="الإجابة الصحيحة">
+
+                                <!-- Option Text -->
+                                <input type="text" formControlName="optionText"
+                                    class="flex-1 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-orange-500"
+                                    placeholder="نص الاختيار">
+
+                                <!-- Remove Option Button (only for Multiple Choice) -->
+                                <button *ngIf="question.get('type')?.value === 0 && getQuestionOptions(i).length > 2"
+                                    type="button" (click)="removeOption(i, j)"
+                                    class="w-7 h-7 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors flex items-center justify-center">
+                                    <i class="fas fa-times text-xs"></i>
+                                </button>
+                            </div>
+
+                            <!-- No Options Warning -->
+                            <p *ngIf="getQuestionOptions(i).length === 0" class="text-xs text-orange-600">
+                                <i class="fas fa-exclamation-triangle ml-1"></i>
+                                لا توجد اختيارات لهذا السؤال
+                            </p>
+                        </div>
+
+                        <!-- Essay Note -->
+                        <div *ngIf="question.get('type')?.value === 2"
+                            class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <p class="text-xs text-blue-700 flex items-center gap-2">
+                                <i class="fas fa-info-circle"></i>
+                                <span>الأسئلة المقالية لا تحتاج إلى اختيارات. سيتم تصحيحها يدوياً.</span>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- No Questions Yet -->
+                <div *ngIf="questions.length === 0"
+                    class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
+                    <i class="fas fa-question-circle text-4xl text-gray-400 mb-2"></i>
+                    <p class="text-gray-600 font-semibold mb-1">لم تتم إضافة أي أسئلة بعد</p>
+                    <p class="text-sm text-gray-500">يمكنك إضافة الأسئلة لاحقاً من صفحة تفاصيل الامتحان</p>
+                </div>
+
+                <!-- Questions Summary -->
+                <div *ngIf="questions.length > 0"
+                    class="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3">
+                    <div class="flex items-center justify-between text-sm">
+                        <span class="font-semibold text-gray-700">
+                            <i class="fas fa-list-ol ml-1 text-orange-600"></i>
+                            إجمالي الأسئلة: <span class="text-orange-600">{{questions.length}}</span>
+                        </span>
+                        <span class="font-semibold text-gray-700">
+                            <i class="fas fa-award ml-1 text-orange-600"></i>
+                            إجمالي الدرجات المحسوبة: <span
+                                class="text-orange-600">{{examForm.get('totalMarks')?.value}}</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Status -->
+            <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                <input type="checkbox" formControlName="isActive" id="isActive"
+                    class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer" />
+                <label for="isActive" class="text-sm font-semibold text-gray-700 cursor-pointer flex-1">
+                    تفعيل الامتحان
+                </label>
+                <span class="px-3 py-1 rounded-full text-xs font-medium transition-all duration-300"
+                    [class.bg-green-100]="examForm.get('isActive')?.value"
+                    [class.text-green-700]="examForm.get('isActive')?.value"
+                    [class.bg-gray-200]="!examForm.get('isActive')?.value"
+                    [class.text-gray-600]="!examForm.get('isActive')?.value">
+                    {{ examForm.get('isActive')?.value ? 'نشط' : 'غير نشط' }}
+                </span>
+            </div>
+        </form>
+
+        <!-- Dialog Footer -->
+        <div
+            class="sticky bottom-0 bg-gray-50 border-t border-gray-200 rounded-b-2xl sm:rounded-b-3xl p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+            <button (click)="saveExam()" [disabled]="examForm.invalid || isLoading"
+                class="w-full sm:flex-1 py-3 sm:py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm sm:text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2">
+                <i class="fas fa-check text-sm sm:text-base"></i>
+                <span>{{isEditMode ? 'تحديث البيانات' : 'حفظ البيانات'}}</span>
+            </button>
+            <button (click)="closeDialog()" type="button"
+                class="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-3.5 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-sm sm:text-base hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-times"></i>
+                <span>إلغاء</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Dialog -->
+<div *ngIf="isDeleteDialogOpen"
+    class="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4 sm:p-6 md:p-8 animate-fadeIn"
+    style="backdrop-filter: blur(3px);">
+
+    <div
+        class="delete-dialog-scroll bg-white rounded-3xl shadow-2xl w-full max-w-md my-4 sm:my-6 md:my-8 overflow-hidden animate-scaleIn max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] md:max-h-[calc(100vh-4rem)] overflow-y-auto">
+
+        <!-- Warning Icon Header -->
+        <div class="relative bg-gradient-to-br from-red-500 via-red-600 to-pink-600 p-6 sm:p-8 text-center">
+            <div class="absolute inset-0 overflow-hidden">
+                <div
+                    class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 animate-pulse">
+                </div>
+                <div
+                    class="absolute bottom-0 left-0 w-32 h-32 sm:w-40 sm:h-40 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2 animate-pulse delay-150">
+                </div>
+            </div>
+
+            <div class="relative">
+                <div
+                    class="mx-auto w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center mb-3 sm:mb-4 animate-bounce">
+                    <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-3xl sm:text-4xl"></i>
+                    </div>
+                </div>
+                <h2 class="text-xl sm:text-2xl font-bold text-white mb-2">تأكيد الحذف</h2>
+                <p class="text-red-100 text-xs sm:text-sm">هذا الإجراء لا يمكن التراجع عنه</p>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-4 sm:p-6 space-y-3 sm:space-y-4">
+            <!-- Exam Info Card -->
+            <div
+                class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-gray-200">
+                <div class="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div
+                        class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg flex-shrink-0">
+                        {{getExamAvatar(examToDelete?.title || '')}}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-bold text-gray-800 text-sm sm:text-base truncate">
+                            {{examToDelete?.title}}
+                        </p>
+                        <p class="text-xs sm:text-sm text-gray-600 truncate">{{examToDelete?.description}}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 text-xs sm:text-sm flex-wrap">
+                    <span class="px-2 sm:px-3 py-1 bg-blue-100 text-blue-700 rounded-lg font-semibold">
+                        <i class="fas fa-layer-group ml-1"></i>
+                        {{examToDelete?.group?.name}}
+                    </span>
+                    <span class="px-2 sm:px-3 py-1 bg-purple-100 text-purple-700 rounded-lg font-semibold">
+                        <i class="fas fa-award ml-1"></i>
+                        {{examToDelete?.totalMarks}} درجة
+                    </span>
+                </div>
+            </div>
+
+            <!-- Warning Message -->
+            <div class="bg-red-50 border-2 border-red-200 rounded-xl p-3 sm:p-4">
+                <div class="flex gap-2 sm:gap-3">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-red-600 text-lg sm:text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-red-800 mb-1 text-sm sm:text-base">تحذير مهم!</h4>
+                        <p class="text-xs sm:text-sm text-red-700 leading-relaxed">
+                            سيتم حذف الامتحان وجميع الأسئلة المرتبطة به بشكل نهائي. لن تتمكن من استعادة هذه البيانات
+                            لاحقاً.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consequences List -->
+            <div class="space-y-2">
+                <p class="text-xs sm:text-sm font-semibold text-gray-700">سيتم حذف:</p>
+                <div class="space-y-1 sm:space-y-1.5">
+                    <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-red-500 text-sm"></i>
+                        <span>بيانات الامتحان الأساسية</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-red-500 text-sm"></i>
+                        <span>جميع الأسئلة والاختيارات</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                        <i class="fas fa-check-circle text-red-500 text-sm"></i>
+                        <span>إجابات الطلاب ونتائجهم</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div
+            class="bg-gray-50 border-t border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+            <button (click)="confirmDelete()" [disabled]="isLoading"
+                class="w-full sm:flex-1 py-3 sm:py-3.5 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-bold text-sm sm:text-base hover:shadow-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group">
+                <i class="fas fa-trash-alt group-hover:animate-wiggle"></i>
+                <span>نعم، احذف الامتحان</span>
+            </button>
+            <button (click)="closeDeleteDialog()" [disabled]="isLoading"
+                class="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-3.5 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-sm sm:text-base hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-times"></i>
+                <span>إلغاء</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- View Exam Dialog -->
+<div *ngIf="isViewDialogOpen"
+    class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 sm:p-6 md:p-8 animate-fadeIn"
+    style="backdrop-filter: blur(10px);">
+
+    <div
+        class="view-dialog-scroll bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-5xl my-4 sm:my-6 md:my-8 max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] md:max-h-[calc(100vh-4rem)] overflow-y-auto animate-slideUp">
+
+        <!-- Loading State -->
+        <div *ngIf="isLoadingExamDetails" class="p-8 sm:p-12 flex flex-col items-center justify-center">
+            <div
+                class="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-4 border-blue-500 border-t-transparent mb-3 sm:mb-4">
+            </div>
+            <p class="text-gray-600 font-semibold text-sm sm:text-base">جاري تحميل البيانات...</p>
+        </div>
+
+        <!-- Exam Details Content -->
+        <div *ngIf="!isLoadingExamDetails && viewedExam">
+
+            <!-- Header with Cover -->
+            <div class="relative h-40 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 overflow-hidden">
+                <!-- Animated Background Pattern -->
+                <div class="absolute inset-0 opacity-20">
+                    <div
+                        class="absolute top-0 left-0 w-48 h-48 sm:w-64 sm:h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2">
+                    </div>
+                    <div
+                        class="absolute bottom-0 right-0 w-60 h-60 sm:w-80 sm:h-80 bg-white rounded-full translate-x-1/2 translate-y-1/2">
+                    </div>
+                    <div
+                        class="absolute top-1/2 left-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse">
+                    </div>
+                </div>
+
+                <!-- Close Button -->
+                <button (click)="closeViewDialog()"
+                    class="absolute top-3 left-3 sm:top-4 sm:left-4 w-9 h-9 sm:w-10 sm:h-10 bg-white/20 hover:bg-white/30 backdrop-blur-xl rounded-lg sm:rounded-xl transition-all flex items-center justify-center group z-10">
+                    <i
+                        class="fas fa-times text-white text-lg sm:text-xl group-hover:rotate-90 transition-transform duration-300"></i>
+                </button>
+
+                <!-- Profile Section -->
+                <div class="mt-4 -bottom-12 sm:-bottom-16 right-0 left-0 flex justify-center">
+                    <div class="relative">
+                        <!-- Avatar -->
+                        <div
+                            class="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-white font-bold text-2xl sm:text-4xl shadow-2xl border-4 border-white">
+                            {{getExamAvatar(viewedExam.title)}}
+                        </div>
+                        <!-- Status Badge -->
+                        <div
+                            class="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 px-2 py-1 sm:px-3 sm:py-1 bg-white rounded-full shadow-lg border-2 border-gray-100">
+                            <span class="text-xs sm:text-sm font-bold" [ngClass]="{
+                                'text-green-600': viewedExam.status === 'active',
+                                'text-orange-600': viewedExam.status === 'upcoming',
+                                'text-purple-600': viewedExam.status === 'completed'
+                            }">
+                                {{viewedExam.statusText}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exam Title -->
+            <div class="pt-16 sm:pt-20 pb-4 sm:pb-6 px-4 text-center border-b border-gray-200">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                    {{viewedExam.title}}
+                </h2>
+                <p class="text-base sm:text-lg text-gray-600 mb-2 sm:mb-3">{{viewedExam.description}}</p>
+                <div class="flex justify-center gap-2">
+                    <span
+                        class="px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold text-white shadow-lg"
+                        [ngClass]="getStatusBadgeClass(viewedExam.status || '')">
+                        <i class="fas fa-circle-notch ml-1"></i>
+                        {{viewedExam.statusText}}
+                    </span>
+                    <span
+                        class="px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-500 text-white rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold shadow-lg">
+                        <i class="fas fa-layer-group ml-1"></i>
+                        {{viewedExam.group?.name}}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Information Grid -->
+            <div class="p-4 sm:p-6 space-y-4 sm:space-y-6">
+
+                <!-- Quick Stats -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                        <div class="w-1 h-5 sm:h-6 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></div>
+                        إحصائيات الامتحان
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                        <!-- Duration -->
+                        <div
+                            class="group bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-blue-200 hover:shadow-lg transition-all text-center">
+                            <div
+                                class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-clock text-white text-base sm:text-xl"></i>
+                            </div>
+                            <p class="text-2xl sm:text-3xl font-bold text-gray-800">{{viewedExam.duration}}</p>
+                            <p class="text-[10px] sm:text-xs text-gray-600 font-semibold">دقيقة</p>
+                        </div>
+
+                        <!-- Total Marks -->
+                        <div
+                            class="group bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-purple-200 hover:shadow-lg transition-all text-center">
+                            <div
+                                class="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-award text-white text-base sm:text-xl"></i>
+                            </div>
+                            <p class="text-2xl sm:text-3xl font-bold text-gray-800">{{viewedExam.totalMarks}}</p>
+                            <p class="text-[10px] sm:text-xs text-gray-600 font-semibold">الدرجة الكلية</p>
+                        </div>
+
+                        <!-- Passing Marks -->
+                        <div
+                            class="group bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-green-200 hover:shadow-lg transition-all text-center">
+                            <div
+                                class="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-check-circle text-white text-base sm:text-xl"></i>
+                            </div>
+                            <p class="text-2xl sm:text-3xl font-bold text-gray-800">{{viewedExam.passingMarks}}</p>
+                            <p class="text-[10px] sm:text-xs text-gray-600 font-semibold">درجة النجاح</p>
+                        </div>
+
+                        <!-- Questions Count -->
+                        <div
+                            class="group bg-gradient-to-br from-orange-50 to-orange-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-orange-200 hover:shadow-lg transition-all text-center">
+                            <div
+                                class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-500 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-question-circle text-white text-base sm:text-xl"></i>
+                            </div>
+                            <p class="text-2xl sm:text-3xl font-bold text-gray-800">
+                                {{viewedExam.questionsCount || 0}}</p>
+                            <p class="text-[10px] sm:text-xs text-gray-600 font-semibold">سؤال</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date & Time -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                        <div class="w-1 h-5 sm:h-6 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full"></div>
+                        التاريخ والوقت
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                        <!-- Start Date -->
+                        <div
+                            class="group bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-green-200 hover:shadow-lg transition-all">
+                            <div class="flex items-start gap-2 sm:gap-3">
+                                <div
+                                    class="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-play-circle text-white text-base sm:text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-semibold text-green-600 mb-1">تاريخ البدء</p>
+                                    <p class="text-sm sm:text-base font-bold text-gray-800">
+                                        {{viewedExam.startDate | date: 'dd/MM/yyyy'}}
+                                    </p>
+                                    <p class="text-xs text-gray-500">{{viewedExam.startDate | date: 'hh:mm a'}}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- End Date -->
+                        <div
+                            class="group bg-gradient-to-br from-red-50 to-red-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-red-200 hover:shadow-lg transition-all">
+                            <div class="flex items-start gap-2 sm:gap-3">
+                                <div
+                                    class="w-10 h-10 sm:w-12 sm:h-12 bg-red-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-stop-circle text-white text-base sm:text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-semibold text-red-600 mb-1">تاريخ الانتهاء</p>
+                                    <p class="text-sm sm:text-base font-bold text-gray-800">
+                                        {{viewedExam.endDate | date: 'dd/MM/yyyy'}}
+                                    </p>
+                                    <p class="text-xs text-gray-500">{{viewedExam.endDate | date: 'hh:mm a'}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Info -->
+                <div>
+                    <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-3 sm:mb-4 flex items-center gap-2">
+                        <div class="w-1 h-5 sm:h-6 bg-gradient-to-b from-pink-500 to-pink-600 rounded-full"></div>
+                        معلومات إضافية
+                    </h3>
+
+                    <!-- Active Status & Pass Percentage -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                        <!-- Active Status -->
+                        <div
+                            class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center"
+                                        [class.bg-green-100]="viewedExam.isActive"
+                                        [class.bg-gray-200]="!viewedExam.isActive">
+                                        <i class="fas fa-power-off text-base sm:text-xl"
+                                            [class.text-green-600]="viewedExam.isActive"
+                                            [class.text-gray-500]="!viewedExam.isActive"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-600">حالة التفعيل</p>
+                                        <p class="text-sm sm:text-base font-bold text-gray-800">
+                                            {{viewedExam.isActive ? 'نشط' : 'غير نشط'}}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pass Percentage -->
+                        <div
+                            class="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-purple-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-xs font-semibold text-purple-600">نسبة النجاح المطلوبة</p>
+                                <span class="text-lg font-bold text-purple-600">
+                                    {{getPassPercentage(viewedExam)}}%
+                                </span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
+                                    [style.width.%]="getPassPercentage(viewedExam)"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Created At -->
+                    <div
+                        class="mt-3 sm:mt-4 bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 border-2 border-blue-200">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar-plus text-white text-base sm:text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-blue-600">تاريخ الإنشاء</p>
+                                <p class="text-sm sm:text-base font-bold text-gray-800">
+                                    {{viewedExam.createdAt | date: 'dd/MM/yyyy - hh:mm a'}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Action Footer -->
+            <div
+                class="sticky bottom-0 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-2 sm:gap-3 rounded-b-2xl sm:rounded-b-3xl">
+                <button *ngIf="userRole === 'Student'" (click)="startExam(viewedExam.id)"
+                    class="w-full sm:flex-1 py-3 sm:py-3.5 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-bold text-sm sm:text-base hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                    <i class="fas fa-play"></i>
+                    <span>ابدأ الامتحان</span>
+                </button>
+                <button *ngIf="userRole !== 'Student'" (click)="closeViewDialog(); openDialog(viewedExam)"
+                    class="w-full sm:flex-1 py-3 sm:py-3.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold text-sm sm:text-base hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                    <i class="fas fa-edit"></i>
+                    <span>تعديل البيانات</span>
+                </button>
+                <button *ngIf="userRole === 'Admin'" (click)="closeViewDialog(); openDeleteDialog(viewedExam)"
+                    class="w-full sm:flex-1 py-3 sm:py-3.5 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-bold text-sm sm:text-base hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                    <i class="fas fa-trash-alt"></i>
+                    <span>حذف الامتحان</span>
+                </button>
+                <button (click)="closeViewDialog()"
+                    class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold text-sm sm:text-base hover:bg-gray-50 hover:border-gray-400 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-times"></i>
+                    <span>إغلاق</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,275 @@
+<!-- src/app/components/exams/create-edit-exam/create-edit-exam.component.html -->
+<div class="min-h-screen bg-gray-100 p-4 md:p-6 lg:p-8" dir="rtl">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+            <div class="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600"></div>
+            <p class="mt-4 text-gray-600 text-lg">جاري التحميل...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!isLoading" class="max-w-6xl mx-auto animate-fade-in">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                {{ isEditMode ? 'تعديل الامتحان' : 'إنشاء امتحان جديد' }}
+            </h1>
+            <p class="text-gray-600">
+                {{ isEditMode ? 'قم بتعديل بيانات الامتحان والأسئلة' : 'قم بإنشاء امتحان جديد وإضافة الأسئلة' }}
+            </p>
+        </div>
+
+        <!-- Exam Basic Info -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                </svg>
+                معلومات الامتحان الأساسية
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Title -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">عنوان الامتحان *</label>
+                    <input type="text" [(ngModel)]="examData.title" placeholder="مثال: امتحان نصف الترم - رياضيات"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                </div>
+
+                <!-- Description -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">وصف الامتحان *</label>
+                    <textarea [(ngModel)]="examData.description" rows="3" placeholder="وصف مختصر للامتحان..."
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"></textarea>
+                </div>
+
+                <!-- Group -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">المجموعة *</label>
+                    <select [(ngModel)]="examData.groupId"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                        <option value="">اختر المجموعة</option>
+                        <option *ngFor="let group of groups" [value]="group.id">{{ group.name }}</option>
+                    </select>
+                </div>
+
+                <!-- Duration -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">المدة (بالدقائق) *</label>
+                    <input type="number" [(ngModel)]="examData.duration" min="1"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                </div>
+
+                <!-- Total Marks -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">الدرجة الكلية</label>
+                    <input type="number" [(ngModel)]="examData.totalMarks" [disabled]="true"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed">
+                    <p class="text-xs text-gray-500 mt-1">يتم حسابها تلقائياً من مجموع درجات الأسئلة</p>
+                </div>
+
+                <!-- Passing Marks -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">درجة النجاح *</label>
+                    <input type="number" [(ngModel)]="examData.passingMarks" min="0" [max]="examData.totalMarks"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                </div>
+
+                <!-- Start Date & Time -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">تاريخ البداية *</label>
+                    <input type="date" [(ngModel)]="examData.startDate"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">وقت البداية *</label>
+                    <input type="time" [(ngModel)]="examData.startTime"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                </div>
+
+                <!-- End Date & Time -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">تاريخ النهاية *</label>
+                    <input type="date" [(ngModel)]="examData.endDate"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">وقت النهاية *</label>
+                    <input type="time" [(ngModel)]="examData.endTime"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                </div>
+
+                <!-- Is Active -->
+                <div class="md:col-span-2">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" [(ngModel)]="examData.isActive"
+                            class="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">الامتحان نشط</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Section -->
+        <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                    الأسئلة ({{ questions.length }})
+                </h2>
+                <button (click)="addQuestion()"
+                    class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    إضافة سؤال
+                </button>
+            </div>
+
+            <!-- Questions List -->
+            <div class="space-y-6">
+                <div *ngFor="let question of questions; let i = index"
+                    class="border-2 border-gray-200 rounded-xl p-4 md:p-6 hover:border-blue-300 transition-colors">
+                    <!-- Question Header -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-bold">
+                                السؤال {{ i + 1 }}
+                            </span>
+                            <div class="flex gap-2">
+                                <button (click)="moveQuestionUp(i)" [disabled]="i === 0" [class.opacity-50]="i === 0"
+                                    class="p-1 text-gray-600 hover:text-blue-600 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 15l7-7 7 7"></path>
+                                    </svg>
+                                </button>
+                                <button (click)="moveQuestionDown(i)" [disabled]="i === questions.length - 1"
+                                    [class.opacity-50]="i === questions.length - 1"
+                                    class="p-1 text-gray-600 hover:text-blue-600 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button (click)="removeQuestion(i)"
+                            class="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Question Text -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">نص السؤال *</label>
+                        <textarea [(ngModel)]="question.questionText" rows="2" placeholder="اكتب نص السؤال هنا..."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"></textarea>
+                    </div>
+
+                    <!-- Question Type & Marks -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">نوع السؤال *</label>
+                            <select [(ngModel)]="question.type" (ngModelChange)="onQuestionTypeChange(question)"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                                <option [value]="QuestionType.MultipleChoice">اختيار من متعدد</option>
+                                <option [value]="QuestionType.TrueFalse">صح أو خطأ</option>
+                                <option [value]="QuestionType.Essay">مقالي</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">الدرجة *</label>
+                            <input type="number" [(ngModel)]="question.marks" (ngModelChange)="calculateTotalMarks()"
+                                min="1"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                        </div>
+                    </div>
+
+                    <!-- Options -->
+                    <div *ngIf="question.type !== QuestionType.Essay" class="space-y-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">الخيارات *</label>
+
+                        <div *ngFor="let option of question.options; let j = index" class="flex items-center gap-3">
+                            <input type="radio" [name]="'correct_' + i" [checked]="option.isCorrect"
+                                (change)="setCorrectOption(question, j)"
+                                class="w-5 h-5 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500">
+                            <input type="text" [(ngModel)]="option.optionText" [placeholder]="'الخيار ' + (j + 1)"
+                                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
+                            <button
+                                *ngIf="question.type === QuestionType.MultipleChoice && (question.options?.length || 0) > 2"
+                                (click)="removeOption(question, j)"
+                                class="text-red-600 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <button *ngIf="question.type === QuestionType.MultipleChoice" (click)="addOption(question)"
+                            class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            إضافة خيار
+                        </button>
+
+                        <p class="text-xs text-gray-500 mt-2">
+                            <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            اختر الإجابة الصحيحة بالضغط على الدائرة
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="questions.length === 0" class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                    <p class="text-gray-600 text-lg">لا توجد أسئلة</p>
+                    <p class="text-gray-500 text-sm mt-2">ابدأ بإضافة سؤال</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-end">
+            <button (click)="cancel()" [disabled]="isSaving"
+                class="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-bold transition-all duration-200 disabled:opacity-50">
+                إلغاء
+            </button>
+            <button (click)="saveExam()" [disabled]="isSaving"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-bold transition-all duration-200 transform hover:scale-105 disabled:opacity-50 flex items-center justify-center gap-2">
+                <svg *ngIf="!isSaving" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4">
+                    </path>
+                </svg>
+                <div *ngIf="isSaving"
+                    class="inline-block animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                <span>{{ isSaving ? 'جاري الحفظ...' : (isEditMode ? 'تحديث الامتحان' : 'إنشاء الامتحان') }}</span>
+            </button>
+        </div>
+    </div>
+</div>
