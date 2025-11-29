@@ -269,6 +269,20 @@ button {
     animation: spin 1s linear infinite;
 }
 
+.dialog-content {
+    // Hide scrollbar
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    // Add smooth scrolling
+    scroll-behavior: smooth;
+}
+
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
