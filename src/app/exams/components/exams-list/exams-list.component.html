@@ -155,14 +155,14 @@
                         class="flex-1 py-2 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors text-sm font-semibold">
                         <i class="fas fa-edit ml-1"></i> تعديل
                     </button>
-                    <button *ngIf="userRole === 'Admin'" (click)="openDeleteDialog(exam)"
+                    <button *ngIf="userRole == 'Admin'" (click)="openDeleteDialog(exam)"
                         class="w-10 h-10 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center">
                         <i class="fas fa-trash text-sm"></i>
                     </button>
                 </div>
             </div>
 
-            <div *ngIf="filteredExams.length === 0" class="text-center py-12">
+            <div *ngIf="filteredExams.length == 0" class="text-center py-12">
                 <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
                 <p class="text-gray-500 text-lg">لا توجد نتائج</p>
             </div>
@@ -230,7 +230,7 @@
                                     title="تعديل">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button *ngIf="userRole === 'Admin'" (click)="openDeleteDialog(exam)"
+                                <button *ngIf="userRole == 'Admin'" (click)="openDeleteDialog(exam)"
                                     class="w-10 h-10 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center">
                                     <i class="fas fa-trash text-sm"></i>
                                 </button>
@@ -238,7 +238,7 @@
                         </td>
                     </tr>
 
-                    <tr *ngIf="filteredExams.length === 0">
+                    <tr *ngIf="filteredExams.length == 0">
                         <td colspan="7" class="text-center py-12">
                             <i class="fas fa-file-alt text-6xl text-gray-300 mb-4"></i>
                             <p class="text-gray-500 text-lg">لا توجد نتائج</p>
@@ -446,16 +446,21 @@
                 <!-- Questions List -->
                 <div *ngIf="questions.length > 0" class="space-y-4" formArrayName="questions">
                     <div *ngFor="let question of questions.controls; let i = index" [formGroupName]="i"
-                        class="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-xl p-4 space-y-3">
+                        class="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-xl p-4 space-y-4">
 
                         <!-- Question Header -->
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span
-                                    class="w-8 h-8 bg-gradient-to-br from-orange-600 to-red-600 text-white rounded-lg flex items-center justify-center font-bold text-sm">
-                                    {{i + 1}}
+                                    class="w-10 h-10 bg-gradient-to-br text-white rounded-lg flex items-center justify-center font-bold text-sm"
+                                    [ngClass]="'bg-gradient-to-br ' + getQuestionTypeColor(question.get('type')?.value)">
+                                    <i class="fas" [ngClass]="getQuestionTypeIcon(question.get('type')?.value)"></i>
                                 </span>
-                                <span class="text-sm font-bold text-gray-800">سؤال رقم {{i + 1}}</span>
+                                <div>
+                                    <span class="text-sm font-bold text-gray-800">سؤال رقم {{i + 1}}</span>
+                                    <p class="text-xs text-gray-500">
+                                        {{getQuestionTypeName(question.get('type')?.value)}}</p>
+                                </div>
                             </div>
                             <button type="button" (click)="removeQuestion(i)"
                                 class="w-8 h-8 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors flex items-center justify-center">
@@ -463,107 +468,285 @@
                             </button>
                         </div>
 
-                        <!-- Question Type -->
+                        <!-- Question Type Selector -->
                         <div class="space-y-2">
-                            <label class="block text-xs font-semibold text-gray-700">نوع السؤال</label>
+                            <label class="block text-xs font-semibold text-gray-700">
+                                <i class="fas fa-layer-group ml-1 text-orange-600"></i>
+                                نوع السؤال
+                            </label>
                             <select formControlName="type" (change)="onQuestionTypeChange(i)"
-                                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white text-sm">
-                                <option [value]="0">اختيار من متعدد</option>
-                                <option [value]="1">صح أو خطأ</option>
-                                <option [value]="2">مقالي</option>
+                                class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white text-sm font-semibold">
+                                <option [value]="0">اختيار من متعدد (Multiple Choice)</option>
+                                <option [value]="1">صح أو خطأ (True/False)</option>
+                                <option [value]="2">سؤال مقالي (Essay)</option>
                             </select>
                         </div>
 
                         <!-- Question Text -->
                         <div class="space-y-2">
-                            <label class="block text-xs font-semibold text-gray-700">نص السؤال</label>
-                            <textarea formControlName="questionText" rows="2"
-                                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white resize-none text-sm"
-                                placeholder="اكتب نص السؤال هنا..."></textarea>
+                            <label class="block text-xs font-semibold text-gray-700">
+                                <i class="fas fa-question-circle ml-1 text-orange-600"></i>
+                                نص السؤال
+                            </label>
+                            <textarea formControlName="questionText" rows="3"
+                                class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white resize-none text-sm"
+                                placeholder="اكتب نص السؤال هنا..."
+                                [class.border-red-500]="question.get('questionText')?.invalid && question.get('questionText')?.touched"></textarea>
+                            <p *ngIf="question.get('questionText')?.invalid && question.get('questionText')?.touched"
+                                class="text-red-500 text-xs">
+                                <i class="fas fa-exclamation-circle ml-1"></i>
+                                نص السؤال مطلوب
+                            </p>
                         </div>
 
                         <!-- Question Marks -->
-                        <div class="space-y-2">
-                            <label class="block text-xs font-semibold text-gray-700">الدرجة</label>
-                            <input type="number" formControlName="marks" step="0.5" min="0.5"
-                                (change)="calculateTotalMarks()"
-                                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white text-sm"
-                                placeholder="1">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-2">
+                                <label class="block text-xs font-semibold text-gray-700">
+                                    <i class="fas fa-award ml-1 text-orange-600"></i>
+                                    الدرجة
+                                </label>
+                                <input type="number" formControlName="marks" step="0.5" min="0.5"
+                                    (change)="calculateTotalMarks()"
+                                    class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-orange-500 bg-white text-sm font-semibold"
+                                    placeholder="1">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="block text-xs font-semibold text-gray-700">
+                                    <i class="fas fa-sort-numeric-down ml-1 text-orange-600"></i>
+                                    الترتيب
+                                </label>
+                                <input type="number" formControlName="order" readonly
+                                    class="w-full px-3 py-2.5 border-2 border-gray-200 rounded-lg bg-gray-100 text-sm font-semibold text-gray-600"
+                                    [value]="i + 1">
+                            </div>
                         </div>
 
-                        <!-- Options (for Multiple Choice and True/False) -->
-                        <div *ngIf="question.get('type')?.value !== 2" class="space-y-2" formArrayName="options">
+                        <!-- Multiple Choice Options -->
+                        <div *ngIf="question.get('type')?.value == 0" class="space-y-3" formArrayName="options">
                             <div class="flex items-center justify-between">
-                                <label class="block text-xs font-semibold text-gray-700">الاختيارات</label>
-                                <button *ngIf="question.get('type')?.value === 0" type="button" (click)="addOption(i)"
-                                    class="px-2 py-1 bg-orange-100 text-orange-600 rounded text-xs font-semibold hover:bg-orange-200 transition-colors flex items-center gap-1">
+                                <label class="block text-xs font-semibold text-gray-700">
+                                    <i class="fas fa-list-ul ml-1 text-blue-600"></i>
+                                    الاختيارات (Multiple Choice)
+                                </label>
+                                <button type="button" (click)="addOption(i)"
+                                    class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs font-semibold hover:bg-blue-200 transition-colors flex items-center gap-1">
                                     <i class="fas fa-plus text-xs"></i>
                                     <span>إضافة اختيار</span>
                                 </button>
                             </div>
 
-                            <div *ngFor="let option of getQuestionOptions(i).controls; let j = index"
-                                [formGroupName]="j"
-                                class="flex items-center gap-2 bg-white p-2 rounded-lg border border-gray-200">
+                            <div class="space-y-2">
+                                <div *ngFor="let option of getQuestionOptions(i).controls; let j = index"
+                                    [formGroupName]="j"
+                                    class="flex items-center gap-2 bg-white p-3 rounded-lg border-2 transition-all"
+                                    [class.border-green-400]="option.get('isCorrect')?.value"
+                                    [class.border-gray-200]="!option.get('isCorrect')?.value"
+                                    [class.shadow-md]="option.get('isCorrect')?.value">
 
-                                <!-- Correct Answer Radio -->
-                                <input type="radio" [name]="'correct_' + i" [checked]="option.get('isCorrect')?.value"
-                                    (change)="setCorrectOption(i, j)" class="w-4 h-4 text-green-600 cursor-pointer"
-                                    title="الإجابة الصحيحة">
+                                    <!-- Correct Answer Radio -->
+                                    <div class="flex-shrink-0">
+                                        <input type="radio" [name]="'correct_' + i" [id]="'correct_' + i + '_' + j"
+                                            [checked]="option.get('isCorrect')?.value" (change)="setCorrectOption(i, j)"
+                                            class="w-5 h-5 text-green-600 cursor-pointer focus:ring-2 focus:ring-green-500"
+                                            title="حدد كإجابة صحيحة">
+                                        <label [for]="'correct_' + i + '_' + j" class="sr-only">إجابة صحيحة</label>
+                                    </div>
 
-                                <!-- Option Text -->
-                                <input type="text" formControlName="optionText"
-                                    class="flex-1 px-2 py-1 border border-gray-200 rounded text-sm focus:outline-none focus:border-orange-500"
-                                    placeholder="نص الاختيار">
+                                    <!-- Option Letter -->
+                                    <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                                        [class.bg-green-500]="option.get('isCorrect')?.value"
+                                        [class.text-white]="option.get('isCorrect')?.value"
+                                        [class.bg-gray-200]="!option.get('isCorrect')?.value"
+                                        [class.text-gray-600]="!option.get('isCorrect')?.value">
+                                        {{String.fromCharCode(65 + j)}}
+                                    </div>
 
-                                <!-- Remove Option Button (only for Multiple Choice) -->
-                                <button *ngIf="question.get('type')?.value === 0 && getQuestionOptions(i).length > 2"
-                                    type="button" (click)="removeOption(i, j)"
-                                    class="w-7 h-7 bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors flex items-center justify-center">
-                                    <i class="fas fa-times text-xs"></i>
-                                </button>
+                                    <!-- Option Text Input -->
+                                    <input type="text" formControlName="optionText"
+                                        class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                                        [placeholder]="'الاختيار ' + String.fromCharCode(65 + j)"
+                                        [class.font-semibold]="option.get('isCorrect')?.value">
+
+                                    <!-- Correct Badge -->
+                                    <div *ngIf="option.get('isCorrect')?.value"
+                                        class="flex-shrink-0 px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">
+                                        <i class="fas fa-check ml-1"></i>
+                                        صحيح
+                                    </div>
+
+                                    <!-- Remove Option Button -->
+                                    <button *ngIf="getQuestionOptions(i).length > 2" type="button"
+                                        (click)="removeOption(i, j)"
+                                        class="flex-shrink-0 w-8 h-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center">
+                                        <i class="fas fa-times text-sm"></i>
+                                    </button>
+                                </div>
                             </div>
 
-                            <!-- No Options Warning -->
-                            <p *ngIf="getQuestionOptions(i).length === 0" class="text-xs text-orange-600">
-                                <i class="fas fa-exclamation-triangle ml-1"></i>
-                                لا توجد اختيارات لهذا السؤال
-                            </p>
+                            <!-- No Correct Answer Warning -->
+                            <div *ngIf="!hasCorrectAnswer(i)"
+                                class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                                <p class="text-xs text-yellow-700 flex items-center gap-2">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>لم يتم تحديد الإجابة الصحيحة بعد</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- True/False Options -->
+                        <div *ngIf="question.get('type')?.value == 1" class="space-y-3" formArrayName="options">
+                            <label class="block text-xs font-semibold text-gray-700">
+                                <i class="fas fa-check-circle ml-1 text-green-600"></i>
+                                اختر الإجابة الصحيحة (True/False)
+                            </label>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <ng-container *ngFor="let option of getQuestionOptions(i).controls; let j = index">
+                                    <div [formGroupName]="j" class="relative cursor-pointer"
+                                        (click)="setCorrectOption(i, j)">
+
+                                        <input type="radio" [name]="'correct_tf_' + i" [id]="'tf_' + i + '_' + j"
+                                            [value]="j" [checked]="option.get('isCorrect')?.value" class="sr-only">
+
+                                        <label [for]="'tf_' + i + '_' + j"
+                                            class="flex flex-col items-centتer justify-center gap-3 p-4 border-2 rounded-xl transition-all cursor-pointer min-h-[120px]"
+                                            [class.border-green-500]="option.get('isCorrect')?.value && j == 0"
+                                            [class.bg-green-50]="option.get('isCorrect')?.value && j == 0"
+                                            [class.shadow-lg]="option.get('isCorrect')?.value && j == 0"
+                                            [class.border-red-500]="option.get('isCorrect')?.value && j == 1"
+                                            [class.bg-red-50]="option.get('isCorrect')?.value && j == 1"
+                                            [class.shadow-lg]="option.get('isCorrect')?.value && j == 1"
+                                            [class.border-gray-200]="!option.get('isCorrect')?.value"
+                                            [class.bg-white]="!option.get('isCorrect')?.value"
+                                            [class.hover:border-gray-300]="!option.get('isCorrect')?.value"
+                                            [class.hover:shadow-md]="!option.get('isCorrect')?.value">
+
+                                            <!-- Icon -->
+                                            <div class="w-14 h-14 rounded-full flex items-center justify-center transition-all"
+                                                [class.bg-green-500]="option.get('isCorrect')?.value && j == 0"
+                                                [class.bg-red-500]="option.get('isCorrect')?.value && j == 1"
+                                                [class.bg-gray-200]="!option.get('isCorrect')?.value"
+                                                [class.scale-110]="option.get('isCorrect')?.value">
+                                                <i class="fas text-2xl transition-all" [class.fa-check]="j == 0"
+                                                    [class.fa-times]="j == 1"
+                                                    [class.text-white]="option.get('isCorrect')?.value"
+                                                    [class.text-gray-400]="!option.get('isCorrect')?.value"></i>
+                                            </div>
+
+                                            <!-- Text -->
+                                            <div class="text-center">
+                                                <p class="font-bold text-xl mb-1"
+                                                    [class.text-green-700]="option.get('isCorrect')?.value && j == 0"
+                                                    [class.text-red-700]="option.get('isCorrect')?.value && j == 1"
+                                                    [class.text-gray-700]="!option.get('isCorrect')?.value">
+                                                    {{option.get('optionText')?.value}}
+                                                </p>
+                                                <p *ngIf="option.get('isCorrect')?.value"
+                                                    class="text-xs font-semibold flex items-center justify-center gap-1"
+                                                    [class.text-green-600]="j == 0" [class.text-red-600]="j == 1">
+                                                    <i class="fas fa-check-circle"></i>
+                                                    <span>الإجابة الصحيحة</span>
+                                                </p>
+                                                <p *ngIf="!option.get('isCorrect')?.value"
+                                                    class="text-xs text-gray-500">
+                                                    اضغط للتحديد
+                                                </p>
+                                            </div>
+                                        </label>
+
+                                        <!-- Hidden input to maintain form control -->
+                                        <input type="hidden" formControlName="optionText">
+                                        <input type="hidden" formControlName="isCorrect">
+                                        <input type="hidden" formControlName="order">
+                                    </div>
+                                </ng-container>
+                            </div>
+
+                            <!-- No Correct Answer Warning for True/False -->
+                            <div *ngIf="!hasCorrectAnswer(i)"
+                                class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600 text-lg"></i>
+                                    <div>
+                                        <p class="text-xs font-semibold text-yellow-800">تنبيه</p>
+                                        <p class="text-xs text-yellow-700">لم يتم تحديد الإجابة الصحيحة بعد. اضغط على
+                                            أحد الخيارات.</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Essay Note -->
-                        <div *ngIf="question.get('type')?.value === 2"
-                            class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <p class="text-xs text-blue-700 flex items-center gap-2">
-                                <i class="fas fa-info-circle"></i>
-                                <span>الأسئلة المقالية لا تحتاج إلى اختيارات. سيتم تصحيحها يدوياً.</span>
-                            </p>
+                        <div *ngIf="question.get('type')?.value == 2"
+                            class="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 rounded-xl p-4">
+                            <div class="flex items-start gap-3">
+                                <div
+                                    class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-pen text-white"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-purple-800 mb-1 text-sm">سؤال مقالي (Essay Question)</h4>
+                                    <p class="text-xs text-purple-700 leading-relaxed">
+                                        هذا السؤال لا يحتاج إلى اختيارات. سيتم تصحيحه يدوياً من قبل المدرس.
+                                        الطالب سيكتب إجابته في مربع نص مخصص.
+                                    </p>
+                                    <div class="mt-3 bg-white/50 rounded-lg p-2 border border-purple-200">
+                                        <p class="text-xs text-purple-600 flex items-center gap-2">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <span>نصيحة: استخدم الأسئلة المقالية لتقييم الفهم العميق والتفكير
+                                                النقدي</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                     </div>
                 </div>
 
                 <!-- No Questions Yet -->
-                <div *ngIf="questions.length === 0"
-                    class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
-                    <i class="fas fa-question-circle text-4xl text-gray-400 mb-2"></i>
-                    <p class="text-gray-600 font-semibold mb-1">لم تتم إضافة أي أسئلة بعد</p>
-                    <p class="text-sm text-gray-500">يمكنك إضافة الأسئلة لاحقاً من صفحة تفاصيل الامتحان</p>
+                <div *ngIf="questions.length == 0"
+                    class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-question-circle text-3xl text-gray-400"></i>
+                    </div>
+                    <p class="text-gray-600 font-semibold mb-2">لم تتم إضافة أي أسئلة بعد</p>
+                    <p class="text-sm text-gray-500 mb-4">يمكنك إضافة الأسئلة الآن أو لاحقاً من صفحة تفاصيل الامتحان</p>
+                    <button type="button" (click)="addQuestion()"
+                        class="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg text-sm font-semibold hover:shadow-lg transition-all inline-flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        <span>إضافة أول سؤال</span>
+                    </button>
                 </div>
 
                 <!-- Questions Summary -->
                 <div *ngIf="questions.length > 0"
-                    class="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-lg p-3">
-                    <div class="flex items-center justify-between text-sm">
-                        <span class="font-semibold text-gray-700">
-                            <i class="fas fa-list-ol ml-1 text-orange-600"></i>
-                            إجمالي الأسئلة: <span class="text-orange-600">{{questions.length}}</span>
-                        </span>
-                        <span class="font-semibold text-gray-700">
-                            <i class="fas fa-award ml-1 text-orange-600"></i>
-                            إجمالي الدرجات المحسوبة: <span
-                                class="text-orange-600">{{examForm.get('totalMarks')?.value}}</span>
-                        </span>
+                    class="bg-gradient-to-r from-orange-50 to-red-50 border-2 border-orange-200 rounded-xl p-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-white rounded-lg p-3 text-center">
+                            <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-list-ol text-white"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">{{questions.length}}</p>
+                            <p class="text-xs text-gray-600">إجمالي الأسئلة</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 text-center">
+                            <div
+                                class="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-award text-white"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">{{examForm.get('totalMarks')?.value}}</p>
+                            <p class="text-xs text-gray-600">إجمالي الدرجات</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-3 text-center">
+                            <div
+                                class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-check-double text-white"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-gray-800">{{getCompletedQuestionsCount()}}</p>
+                            <p class="text-xs text-gray-600">أسئلة مكتملة</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -769,9 +952,9 @@
                         <div
                             class="absolute -bottom-1 -right-1 sm:-bottom-2 sm:-right-2 px-2 py-1 sm:px-3 sm:py-1 bg-white rounded-full shadow-lg border-2 border-gray-100">
                             <span class="text-xs sm:text-sm font-bold" [ngClass]="{
-                                'text-green-600': viewedExam.status === 'active',
-                                'text-orange-600': viewedExam.status === 'upcoming',
-                                'text-purple-600': viewedExam.status === 'completed'
+                                'text-green-600': viewedExam.status == 'active',
+                                'text-orange-600': viewedExam.status == 'upcoming',
+                                'text-purple-600': viewedExam.status == 'completed'
                             }">
                                 {{viewedExam.statusText}}
                             </span>
@@ -973,7 +1156,7 @@
             <!-- Action Footer -->
             <div
                 class="sticky bottom-0 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-2 sm:gap-3 rounded-b-2xl sm:rounded-b-3xl">
-                <button *ngIf="userRole === 'Student'" (click)="startExam(viewedExam.id)"
+                <button *ngIf="userRole == 'Student'" (click)="startExam(viewedExam.id)"
                     class="w-full sm:flex-1 py-3 sm:py-3.5 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-xl font-bold text-sm sm:text-base hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
                     <i class="fas fa-play"></i>
                     <span>ابدأ الامتحان</span>
@@ -983,7 +1166,7 @@
                     <i class="fas fa-edit"></i>
                     <span>تعديل البيانات</span>
                 </button>
-                <button *ngIf="userRole === 'Admin'" (click)="closeViewDialog(); openDeleteDialog(viewedExam)"
+                <button *ngIf="userRole == 'Admin'" (click)="closeViewDialog(); openDeleteDialog(viewedExam)"
                     class="w-full sm:flex-1 py-3 sm:py-3.5 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-bold text-sm sm:text-base hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
                     <i class="fas fa-trash-alt"></i>
                     <span>حذف الامتحان</span>

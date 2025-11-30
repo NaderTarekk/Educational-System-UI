@@ -7,6 +7,12 @@ import { Router } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { HttpHeaders } from '@angular/common/http';
 
+enum QuestionType {
+  MultipleChoice = 0,
+  TrueFalse = 1,
+  Essay = 2
+}
+
 @Component({
   selector: 'app-exams-list',
   standalone: false,
@@ -33,7 +39,7 @@ export class ExamsListComponent implements OnInit {
   pageSize = 10;
   pageNumber = 1;
   pageSizeOptions = [5, 10, 25, 50, 100];
-
+  String = String;
   groups: any[] = [];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -358,40 +364,29 @@ export class ExamsListComponent implements OnInit {
     });
   }
 
-  addQuestion(): void {
-    const questionForm = this.createQuestionForm();
-    // Add 4 default options for multiple choice (default type is 0)
-    const optionsArray = questionForm.get('options') as FormArray;
-    for (let i = 0; i < 4; i++) {
-      const option = this.createOptionForm();
-      option.patchValue({
-        order: i + 1,
-        optionText: '' // Empty by default
-      });
-      optionsArray.push(option);
-    }
-    this.questions.push(questionForm);
-
-    console.log('Question added. Total questions:', this.questions.length);
-  }
-
   removeQuestion(index: number): void {
     this.questions.removeAt(index);
-    // Update order for remaining questions
+    // تحديث الترتيب للأسئلة المتبقية
     this.questions.controls.forEach((control, i) => {
       control.patchValue({ order: i + 1 });
     });
+    // إعادة حساب إجمالي الدرجات
+    this.calculateTotalMarks();
   }
 
-  getQuestionOptions(questionIndex: number): FormArray {
-    return this.questions.at(questionIndex).get('options') as FormArray;
-  }
 
-  addOption(questionIndex: number): void {
-    const options = this.getQuestionOptions(questionIndex);
-    const option = this.createOptionForm();
-    option.patchValue({ order: options.length + 1 });
-    options.push(option);
+  onQuestionTypeChange(questionIndex: number): void {
+    const question = this.questions.at(questionIndex) as FormGroup;
+    const type = Number(question.get('type')?.value);
+    console.log(`🔄 Changing question ${questionIndex} type to ${type}`);
+    // Clear all existing options completely
+    const optionsArray = question.get('options') as FormArray;
+    while (optionsArray.length !== 0) {
+      optionsArray.removeAt(0);
+    }
+
+    // Rebuild options based on new type
+    this.initializeQuestionOptions(question, type);
   }
 
   removeOption(questionIndex: number, optionIndex: number): void {
@@ -401,65 +396,6 @@ export class ExamsListComponent implements OnInit {
     options.controls.forEach((control, i) => {
       control.patchValue({ order: i + 1 });
     });
-  }
-
-  setCorrectOption(questionIndex: number, optionIndex: number): void {
-    const options = this.getQuestionOptions(questionIndex);
-    // Set all to false first
-    options.controls.forEach((control, idx) => {
-      control.patchValue({ isCorrect: false });
-    });
-    // Set selected to true
-    options.at(optionIndex).patchValue({ isCorrect: true });
-
-    console.log(`✅ Question ${questionIndex}, Option ${optionIndex} set as correct`);
-    console.log('Options state:', options.value);
-  }
-
-  onQuestionTypeChange(questionIndex: number): void {
-    const question = this.questions.at(questionIndex);
-    const type = question.get('type')?.value;
-    const options = this.getQuestionOptions(questionIndex);
-
-    // Clear existing options
-    while (options.length) {
-      options.removeAt(0);
-    }
-
-    // Add options based on type
-    if (type === 0) { // MultipleChoice
-      // Add 4 empty options
-      for (let i = 0; i < 4; i++) {
-        const option = this.createOptionForm();
-        option.patchValue({
-          order: i + 1,
-          optionText: '',
-          isCorrect: false
-        });
-        options.push(option);
-      }
-    } else if (type === 1) { // TrueFalse
-      // Add True option
-      const trueOption = this.createOptionForm();
-      trueOption.patchValue({
-        optionText: 'صح',
-        order: 1,
-        isCorrect: false
-      });
-      options.push(trueOption);
-
-      // Add False option
-      const falseOption = this.createOptionForm();
-      falseOption.patchValue({
-        optionText: 'خطأ',
-        order: 2,
-        isCorrect: false
-      });
-      options.push(falseOption);
-    }
-    // Essay type (2) doesn't need options - array stays empty
-
-    console.log(`Question ${questionIndex} type changed to ${type}. Options count: ${options.length}`);
   }
 
   getQuestionTypeName(type: number): string {
@@ -480,139 +416,24 @@ export class ExamsListComponent implements OnInit {
     this.examForm.patchValue({ totalMarks: total });
   }
 
-  saveExam(): void {
-    if (this.examForm.invalid) {
-      this.examForm.markAllAsTouched();
-      return;
+  setCorrectOption(questionIndex: number, optionIndex: number): void {
+    const options = this.getQuestionOptions(questionIndex);
+
+    console.log(`Setting option ${optionIndex} as correct for question ${questionIndex}`);
+
+    // Set all options to false first
+    for (let i = 0; i < options.length; i++) {
+      options.at(i).patchValue({ isCorrect: false });
     }
 
-    this.isLoading = true;
-    const formValue = this.examForm.value;
+    // Set the selected option to true
+    options.at(optionIndex).patchValue({ isCorrect: true });
 
-    if (this.isEditMode && this.selectedExamId) {
-      // Update Exam
-      const updateData: UpdateExamDto = {
-        id: this.selectedExamId,
-        title: formValue.title,
-        description: formValue.description,
-        groupId: formValue.groupId, // Already a Guid string
-        duration: Number(formValue.duration),
-        totalMarks: Number(formValue.totalMarks),
-        passingMarks: Number(formValue.passingMarks),
-        startDate: new Date(formValue.startDate),
-        endDate: new Date(formValue.endDate),
-        isActive: formValue.isActive
-      };
+    const optionText = options.at(optionIndex).get('optionText')?.value;
+    console.log(`✅ Option "${optionText}" set as correct`);
 
-      this.examService.updateExam(this.selectedExamId, updateData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.showSuccess(response.message || 'تم تحديث الامتحان بنجاح');
-            this.closeDialog();
-            this.loadExams();
-          } else {
-            this.showError(response.message);
-          }
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('Error updating exam:', error);
-          this.showError('حدث خطأ أثناء تحديث الامتحان');
-          this.isLoading = false;
-        }
-      });
-    } else {
-      // Create Exam with Questions
-      // Build questions array matching ExamDto.Questions (NOT Question entity)
-      const questionsData = formValue.questions && formValue.questions.length > 0
-        ? formValue.questions
-          .filter((q: any) => q.questionText && q.questionText.trim()) // Only include questions with text
-          .map((q: any, index: number) => {
-            // Build QuestionDto (NOT Question entity - no examId, no Exam navigation)
-            const questionDto: any = {
-              id: '00000000-0000-0000-0000-000000000000', // Backend will generate
-              questionText: q.questionText.trim(),
-              type: Number(q.type),
-              marks: Number(q.marks),
-              order: index + 1,
-              options: [] // Initialize as empty array
-            };
-
-            // Add options only if question type needs them
-            if (q.type !== 2 && q.options && q.options.length > 0) {
-              // Build QuestionOptionDto (NOT QuestionOption entity - no questionId, no Question navigation)
-              questionDto.options = q.options
-                .filter((opt: any) => opt.optionText && opt.optionText.trim()) // Filter empty options
-                .map((opt: any, optIndex: number) => ({
-                  id: '00000000-0000-0000-0000-000000000000', // Backend will generate
-                  optionText: opt.optionText.trim(),
-                  isCorrect: Boolean(opt.isCorrect),
-                  order: optIndex + 1
-                  // NO questionId - DTOs don't have it
-                  // NO Question navigation property
-                }));
-            }
-
-            return questionDto;
-          })
-        : [];
-
-      // Build ExamDto (NOT Exam entity - has questionsCount, no createdBy)
-      const createData: any = {
-        id: '00000000-0000-0000-0000-000000000000', // Backend will generate
-        title: formValue.title.trim(),
-        description: formValue.description.trim(),
-        groupId: "9eaf721b-64be-4500-4c82-08de2445d047",
-        duration: Number(formValue.duration),
-        totalMarks: Number(formValue.totalMarks),
-        passingMarks: Number(formValue.passingMarks),
-        startDate: new Date(formValue.startDate).toISOString(),
-        endDate: new Date(formValue.endDate).toISOString(),
-        isActive: Boolean(formValue.isActive),
-        createdAt: new Date().toISOString(),
-        questionsCount: questionsData.length,
-        questions: questionsData
-        // NO createdBy - ExamDto doesn't have it
-        // NO Group navigation property
-      };
-
-      console.log('📤 Sending ExamDto:', createData);
-      console.log('📊 Questions count:', questionsData.length);
-      if (questionsData.length > 0) {
-        console.log('📝 First QuestionDto:', questionsData[0]);
-        if (questionsData[0].options && questionsData[0].options.length > 0) {
-          console.log('📋 First question options:', questionsData[0].options);
-        }
-      }
-
-      this.examService.createExam(createData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.showSuccess(response.message || 'تم إنشاء الامتحان بنجاح');
-            this.closeDialog();
-            this.loadExams();
-          } else {
-            this.showError(response.message);
-          }
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('❌ Error creating exam:', error);
-          console.error('❌ Error details:', error.error);
-
-          // Show validation errors if available
-          if (error.error?.errors) {
-            const errorMessages = Object.entries(error.error.errors)
-              .map(([key, value]: [string, any]) => `${key}: ${value.join(', ')}`)
-              .join('\n');
-            this.showError(`أخطاء في البيانات:\n${errorMessages}`);
-          } else {
-            this.showError(error.error?.message || 'حدث خطأ أثناء إنشاء الامتحان');
-          }
-          this.isLoading = false;
-        }
-      });
-    }
+    // Log all options state for debugging
+    console.log('All options state:', options.value);
   }
 
   viewExam(id: string): void {
@@ -728,5 +549,357 @@ export class ExamsListComponent implements OnInit {
 
   private showError(message: string): void {
     this.toastr.error(message);
+  }
+
+  addQuestion(): void {
+    const questionForm = this.fb.group({
+      questionText: ['', Validators.required],
+      type: [0, Validators.required], // Default to MultipleChoice
+      marks: [1, [Validators.required, Validators.min(0.5)]],
+      order: [this.questions.length + 1],
+      options: this.fb.array([])
+    });
+
+    // Initialize options for default type (MultipleChoice)
+    this.initializeQuestionOptions(questionForm, 0);
+
+    this.questions.push(questionForm);
+
+    console.log('✅ Question added. Total questions:', this.questions.length);
+    this.logQuestionState(this.questions.length - 1);
+  }
+  // للتأكد من أن التغييرات تحدث
+  logQuestionState(questionIndex: number): void {
+    const question = this.questions.at(questionIndex);
+    const type = question.get('type')?.value;
+    const options = this.getQuestionOptions(questionIndex);
+
+    console.log('=== Question State ===');
+    console.log('Index:', questionIndex);
+    console.log('Type:', type, '-', this.getQuestionTypeName(type));
+    console.log('Options Count:', options.length);
+    console.log('Options:', options.value);
+    console.log('====================');
+  }
+
+
+  // دالة مساعدة لتهيئة الاختيارات حسب نوع السؤال
+  private initializeQuestionOptions(questionForm: FormGroup, type: number): void {
+    const optionsArray = questionForm.get('options') as FormArray;
+
+    // Clear completely first
+    while (optionsArray.length !== 0) {
+      optionsArray.removeAt(0);
+    }
+
+    switch (type) {
+      case 0: // MultipleChoice
+        // إضافة 4 اختيارات فارغة
+        for (let i = 0; i < 4; i++) {
+          const option = this.fb.group({
+            optionText: [`الاختيار ${String.fromCharCode(65 + i)}`, Validators.required],
+            isCorrect: [false],
+            order: [i + 1]
+          });
+          optionsArray.push(option);
+        }
+        break;
+
+      case 1: // TrueFalse
+        // إضافة اختياري صح وخطأ
+        const trueOption = this.fb.group({
+          optionText: ['صح', Validators.required],
+          isCorrect: [false],
+          order: [1]
+        });
+        optionsArray.push(trueOption);
+
+        const falseOption = this.fb.group({
+          optionText: ['خطأ', Validators.required],
+          isCorrect: [false],
+          order: [2]
+        });
+        optionsArray.push(falseOption);
+        break;
+
+      case 2: // Essay
+        // الأسئلة المقالية لا تحتاج اختيارات
+        break;
+    }
+
+    // console.log(`Initialized ${optionsArray.length} options for type ${type}`);
+  }
+
+  getQuestionOptions(questionIndex: number): FormArray {
+    return this.questions.at(questionIndex).get('options') as FormArray;
+  }
+
+  // دالة إضافة اختيار (للـ Multiple Choice فقط)
+  addOption(questionIndex: number): void {
+    const options = this.getQuestionOptions(questionIndex);
+    const option = this.createOptionForm();
+    option.patchValue({
+      order: options.length + 1,
+      optionText: `الاختيار ${options.length + 1}`
+    });
+    options.push(option);
+  }
+  // دالة للتحقق من صحة الاختيارات
+  validateQuestionOptions(questionIndex: number): { valid: boolean; message: string } {
+    const question = this.questions.at(questionIndex);
+    const type = question.get('type')?.value;
+    const questionText = question.get('questionText')?.value;
+    const options = this.getQuestionOptions(questionIndex);
+
+    // التحقق من وجود نص السؤال
+    if (!questionText || !questionText.trim()) {
+      return { valid: false, message: 'يجب كتابة نص السؤال' };
+    }
+
+    // الأسئلة المقالية لا تحتاج اختيارات
+    if (type === QuestionType.Essay) {
+      return { valid: true, message: '' };
+    }
+
+    // التحقق من وجود اختيارات
+    if (options.length === 0) {
+      return { valid: false, message: 'يجب إضافة اختيارات للسؤال' };
+    }
+
+    // التحقق من عدم وجود اختيارات فارغة
+    const hasEmptyOption = options.controls.some(opt => {
+      const text = opt.get('optionText')?.value;
+      return !text || !text.trim();
+    });
+    if (hasEmptyOption) {
+      return { valid: false, message: 'جميع الاختيارات يجب أن تحتوي على نص' };
+    }
+
+    // التحقق من وجود إجابة صحيحة واحدة على الأقل
+    const hasCorrectAnswer = options.controls.some(opt => opt.get('isCorrect')?.value === true);
+    if (!hasCorrectAnswer) {
+      return { valid: false, message: 'يجب تحديد الإجابة الصحيحة' };
+    }
+
+    return { valid: true, message: '' };
+  }
+
+  // دالة للحصول على لون نوع السؤال
+  getQuestionTypeColor(type: number): string {
+    switch (type) {
+      case QuestionType.MultipleChoice:
+        return 'from-blue-600 to-blue-700';
+      case QuestionType.TrueFalse:
+        return 'from-green-600 to-green-700';
+      case QuestionType.Essay:
+        return 'from-purple-600 to-purple-700';
+      default:
+        return 'from-gray-600 to-gray-700';
+    }
+  }
+
+  getQuestionTypeIcon(type: number): string {
+    switch (type) {
+      case QuestionType.MultipleChoice:
+        return 'fa-list-ul';
+      case QuestionType.TrueFalse:
+        return 'fa-check-circle';
+      case QuestionType.Essay:
+        return 'fa-file-alt';
+      default:
+        return 'fa-question';
+    }
+  }
+
+  // تحسين دالة الحفظ مع التحقق من الاختيارات
+  saveExam(): void {
+    if (this.examForm.invalid) {
+      this.examForm.markAllAsTouched();
+      this.showError('الرجاء ملء جميع الحقول المطلوبة');
+      return;
+    }
+
+    // التحقق من صحة الأسئلة والاختيارات (فقط عند الإنشاء)
+    if (!this.isEditMode && this.questions.length > 0) {
+      for (let i = 0; i < this.questions.length; i++) {
+        const validation = this.validateQuestionOptions(i);
+        if (!validation.valid) {
+          this.showError(`السؤال رقم ${i + 1}: ${validation.message}`);
+          return;
+        }
+      }
+    }
+
+    this.isLoading = true;
+    const formValue = this.examForm.value;
+
+    if (this.isEditMode && this.selectedExamId) {
+      // تحديث الامتحان
+      const updateData: UpdateExamDto = {
+        id: this.selectedExamId,
+        title: formValue.title,
+        description: formValue.description,
+        groupId: formValue.groupId,
+        duration: Number(formValue.duration),
+        totalMarks: Number(formValue.totalMarks),
+        passingMarks: Number(formValue.passingMarks),
+        startDate: new Date(formValue.startDate),
+        endDate: new Date(formValue.endDate),
+        isActive: formValue.isActive
+      };
+
+      this.examService.updateExam(this.selectedExamId, updateData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.showSuccess(response.message || 'تم تحديث الامتحان بنجاح');
+            this.closeDialog();
+            this.loadExams();
+          } else {
+            this.showError(response.message);
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error updating exam:', error);
+          this.showError('حدث خطأ أثناء تحديث الامتحان');
+          this.isLoading = false;
+        }
+      });
+    } else {
+      // إنشاء امتحان جديد
+      const questionsData = formValue.questions && formValue.questions.length > 0
+        ? formValue.questions
+          .filter((q: any) => q.questionText && q.questionText.trim())
+          .map((q: any, index: number) => {
+            const questionDto: any = {
+              id: '00000000-0000-0000-0000-000000000000',
+              questionText: q.questionText.trim(),
+              type: Number(q.type),
+              marks: Number(q.marks),
+              order: index + 1,
+              options: []
+            };
+
+            // إضافة الاختيارات فقط إذا كان النوع ليس مقالي
+            if (q.type !== 2 && q.options && q.options.length > 0) {
+              questionDto.options = q.options
+                .filter((opt: any) => opt.optionText && opt.optionText.trim())
+                .map((opt: any, optIndex: number) => ({
+                  id: '00000000-0000-0000-0000-000000000000',
+                  optionText: opt.optionText.trim(),
+                  isCorrect: Boolean(opt.isCorrect),
+                  order: optIndex + 1
+                }));
+            }
+
+            return questionDto;
+          })
+        : [];
+
+      const createData: any = {
+        id: '00000000-0000-0000-0000-000000000000',
+        title: formValue.title.trim(),
+        description: formValue.description.trim(),
+        groupId: "9eaf721b-64be-4500-4c82-08de2445d047",
+        duration: Number(formValue.duration),
+        totalMarks: Number(formValue.totalMarks),
+        passingMarks: Number(formValue.passingMarks),
+        startDate: new Date(formValue.startDate).toISOString(),
+        endDate: new Date(formValue.endDate).toISOString(),
+        isActive: Boolean(formValue.isActive),
+        createdAt: new Date().toISOString(),
+        questionsCount: questionsData.length,
+        questions: questionsData
+      };
+
+      console.log('📤 Sending ExamDto:', createData);
+      console.log('📊 Questions count:', questionsData.length);
+      if (questionsData.length > 0) {
+        console.log('📝 Questions data:', questionsData);
+      }
+
+      this.examService.createExam(createData).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.showSuccess(response.message || 'تم إنشاء الامتحان بنجاح');
+            this.closeDialog();
+            this.loadExams();
+          } else {
+            this.showError(response.message);
+          }
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('❌ Error creating exam:', error);
+          console.error('❌ Error details:', error.error);
+
+          if (error.error?.errors) {
+            const errorMessages = Object.entries(error.error.errors)
+              .map(([key, value]: [string, any]) => `${key}: ${value.join(', ')}`)
+              .join('\n');
+            this.showError(`أخطاء في البيانات:\n${errorMessages}`);
+          } else {
+            this.showError(error.error?.message || 'حدث خطأ أثناء إنشاء الامتحان');
+          }
+          this.isLoading = false;
+        }
+      });
+    }
+  }
+
+  getCompletedQuestionsCount(): number {
+    let completedCount = 0;
+
+    for (let i = 0; i < this.questions.length; i++) {
+      const question = this.questions.at(i);
+      const type = question.get('type')?.value;
+
+      // الأسئلة المقالية تعتبر مكتملة إذا كان لها نص
+      if (type === 2) {
+        const questionText = question.get('questionText')?.value;
+        if (questionText && questionText.trim()) {
+          completedCount++;
+        }
+      } else {
+        // أسئلة الاختيارات تعتبر مكتملة إذا كان لها نص وإجابة صحيحة
+        const questionText = question.get('questionText')?.value;
+        const options = this.getQuestionOptions(i);
+        const hasCorrectAnswer = options.controls.some(opt => opt.get('isCorrect')?.value === true);
+        const hasAllOptionsText = options.controls.every(opt => {
+          const text = opt.get('optionText')?.value;
+          return text && text.trim();
+        });
+
+        if (questionText && questionText.trim() && hasCorrectAnswer && hasAllOptionsText) {
+          completedCount++;
+        }
+      }
+    }
+
+    return completedCount;
+  }
+
+  // دالة للتحقق من وجود إجابة صحيحة في السؤال
+  hasCorrectAnswer(questionIndex: number): boolean {
+    const options = this.getQuestionOptions(questionIndex);
+    return options.controls.some(opt => opt.get('isCorrect')?.value === true);
+  }
+
+  // دالة للتحقق من أن جميع الاختيارات لها نص
+  hasAllOptionsText(questionIndex: number): boolean {
+    const options = this.getQuestionOptions(questionIndex);
+    return options.controls.every(opt => {
+      const text = opt.get('optionText')?.value;
+      return text && text.trim();
+    });
+  }
+
+  // دالة للتحقق من وجود اختيارات فارغة
+  hasEmptyOptions(questionIndex: number): boolean {
+    const options = this.getQuestionOptions(questionIndex);
+    return options.controls.some(opt => {
+      const text = opt.get('optionText')?.value;
+      return !text || !text.trim();
+    });
   }
 }

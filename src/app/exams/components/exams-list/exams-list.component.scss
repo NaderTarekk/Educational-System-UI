@@ -269,7 +269,17 @@ button {
     animation: spin 1s linear infinite;
 }
 
-.dialog-content {
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.dialog-content, .delete-dialog-scroll{
     // Hide scrollbar
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -280,15 +290,4 @@ button {
 
     // Add smooth scrolling
     scroll-behavior: smooth;
-}
-
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
 }
