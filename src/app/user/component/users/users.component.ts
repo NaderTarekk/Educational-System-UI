@@ -262,7 +262,9 @@ export class UsersComponent implements OnInit {
     } else {
       this.userService.addUser(userData).subscribe({
         next: (response) => {
+          
           if (response.success) {
+            console.log("success inside");
             this.showSuccess(response.message);
             this.closeDialog();
             this.loadUsers();
@@ -272,7 +274,6 @@ export class UsersComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error adding user:', error);
           this.showError('حدث خطأ أثناء إضافة المستخدم');
           this.isLoading = false;
         }

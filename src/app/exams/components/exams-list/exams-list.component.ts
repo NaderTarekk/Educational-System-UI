@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { HttpHeaders } from '@angular/common/http';
+import { GroupsService } from '../../../groups/services/groups.service';
 
 enum QuestionType {
   MultipleChoice = 0,
@@ -32,7 +33,7 @@ export class ExamsListComponent implements OnInit {
   isDeleteDialogOpen = false;
   examToDelete: Exam | null = null;
   isViewDialogOpen = false;
-  viewedExam: Exam | null = null;
+  viewedExam: any | null = null;
   isLoadingExamDetails = false;
   userRole: any;
   totalCount = 0;
@@ -41,14 +42,15 @@ export class ExamsListComponent implements OnInit {
   pageSizeOptions = [5, 10, 25, 50, 100];
   String = String;
   groups: any[] = [];
-
+  Math = Math;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
     private examService: ExamsService,
     private fb: FormBuilder,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private groupService: GroupsService
   ) {
     this.examForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -77,56 +79,25 @@ export class ExamsListComponent implements OnInit {
   }
 
   loadGroups(): void {
-    // إذا كان عندك service للـ Groups استخدمه
-    // مثال: this.groupService.getGroups()
-
-    // أو استخدم service آخر إذا كان موجود
-    // في حالة عدم وجود service، يمكنك استخدام API call مباشر:
-
-    // حل مؤقت: استخدم HTTP Client مباشرة أو اترك المصفوفة فارغة
-    // يمكنك استبدال هذا بالـ service الصحيح
-
-    // مثال باستخدام HTTP مباشر:
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${localStorage.getItem('NHC_PL_Token')}`
     });
 
-    // استبدل الـ URL بالـ endpoint الصحيح
-    // this.http.get<any>('YOUR_GROUPS_API_URL', { headers }).subscribe({
-    //   next: (response: any) => {
-    //     if (response.success) {
-    //       this.groups = response.data;
-    //       console.log('Groups loaded:', this.groups); // للتأكد من البيانات
-    //     }
-    //   },
-    //   error: (error) => {
-    //     console.error('Error loading groups:', error);
-    //   }
-    // });
-
-    // ⚠️ تحذير: هذه بيانات وهمية للتجربة فقط
-    // استبدلها بـ API call حقيقي يرجع Groups بـ Guid صحيح
-    // مثال: { id: "3fa85f64-5717-4562-b3fc-2c963f66afa6", name: "المجموعة الأولى" }
-
-    this.groups = [
-      {
-        id: '3fa85f64-5717-4562-b3fc-2c963f66afa6', // Guid صحيح
-        name: 'المجموعة الأولى'
-      },
-      {
-        id: '4fa85f64-5717-4562-b3fc-2c963f66afa7', // Guid صحيح
-        name: 'المجموعة الثانية'
-      },
-      {
-        id: '5fa85f64-5717-4562-b3fc-2c963f66afa8', // Guid صحيح
-        name: 'المجموعة الثالثة'
-      }
-    ];
-
-    console.log('⚠️ استخدام بيانات وهمية للمجموعات. استبدلها بـ API call حقيقي!');
-    console.log('Groups:', this.groups);
+    this.groupService.getAllGroups().subscribe((res: any) => {
+      this.groups = res.data
+    })
   }
 
+  getQuestionTypeNumber(type: any): number {
+    if (typeof type === 'number') return type;
+
+    switch (type) {
+      case 'MultipleChoice': return 0;
+      case 'TrueFalse': return 1;
+      case 'Essay': return 2;
+      default: return 0;
+    }
+  }
   loadExams(pageNumber: number = 1, pageSize: number = this.pageSize): void {
     this.isLoading = true;
 
@@ -268,8 +239,16 @@ export class ExamsListComponent implements OnInit {
         return 'bg-gray-100 text-gray-600';
     }
   }
+  // دالة لحساب نسبة النجاح من الفورم مباشرة
+  calculatePassPercentage(): number {
+    const passingMarks = this.examForm.get('passingMarks')?.value || 0;
+    const totalMarks = this.examForm.get('totalMarks')?.value || 0;
 
-  openDialog(exam?: Exam): void {
+    if (totalMarks === 0) return 0;
+
+    return Math.round((passingMarks / totalMarks) * 100);
+  }
+  openDialog(exam?: any): void {
     this.isDialogOpen = true;
     document.body.style.overflow = 'hidden';
 
@@ -378,7 +357,6 @@ export class ExamsListComponent implements OnInit {
   onQuestionTypeChange(questionIndex: number): void {
     const question = this.questions.at(questionIndex) as FormGroup;
     const type = Number(question.get('type')?.value);
-    console.log(`🔄 Changing question ${questionIndex} type to ${type}`);
     // Clear all existing options completely
     const optionsArray = question.get('options') as FormArray;
     while (optionsArray.length !== 0) {
@@ -419,8 +397,6 @@ export class ExamsListComponent implements OnInit {
   setCorrectOption(questionIndex: number, optionIndex: number): void {
     const options = this.getQuestionOptions(questionIndex);
 
-    console.log(`Setting option ${optionIndex} as correct for question ${questionIndex}`);
-
     // Set all options to false first
     for (let i = 0; i < options.length; i++) {
       options.at(i).patchValue({ isCorrect: false });
@@ -428,12 +404,7 @@ export class ExamsListComponent implements OnInit {
 
     // Set the selected option to true
     options.at(optionIndex).patchValue({ isCorrect: true });
-
     const optionText = options.at(optionIndex).get('optionText')?.value;
-    console.log(`✅ Option "${optionText}" set as correct`);
-
-    // Log all options state for debugging
-    console.log('All options state:', options.value);
   }
 
   viewExam(id: string): void {
@@ -445,6 +416,7 @@ export class ExamsListComponent implements OnInit {
       next: (response) => {
         if (response.success && response.data) {
           this.viewedExam = response.data;
+
           this.processExamStatus(this.viewedExam);
         } else {
           this.showError(response.message);
@@ -453,7 +425,6 @@ export class ExamsListComponent implements OnInit {
         this.isLoadingExamDetails = false;
       },
       error: (error) => {
-        console.error('Error loading exam:', error);
         this.showError('حدث خطأ أثناء تحميل بيانات الامتحان');
         this.closeViewDialog();
         this.isLoadingExamDetails = false;
@@ -516,7 +487,6 @@ export class ExamsListComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error deleting exam:', error);
           this.showError('حدث خطأ أثناء حذف الامتحان');
           this.isLoading = false;
         }
@@ -538,7 +508,6 @@ export class ExamsListComponent implements OnInit {
       this.toastr.warning('ليس لديك صلاحية للوصول إلى هذا الجزء من النظام.');
       this.router.navigate(['/']);
     } else {
-      console.error(error);
       this.showError(error.error?.message || 'حدث خطأ أثناء تحميل الامتحانات');
     }
   }
@@ -564,22 +533,6 @@ export class ExamsListComponent implements OnInit {
     this.initializeQuestionOptions(questionForm, 0);
 
     this.questions.push(questionForm);
-
-    console.log('✅ Question added. Total questions:', this.questions.length);
-    this.logQuestionState(this.questions.length - 1);
-  }
-  // للتأكد من أن التغييرات تحدث
-  logQuestionState(questionIndex: number): void {
-    const question = this.questions.at(questionIndex);
-    const type = question.get('type')?.value;
-    const options = this.getQuestionOptions(questionIndex);
-
-    console.log('=== Question State ===');
-    console.log('Index:', questionIndex);
-    console.log('Type:', type, '-', this.getQuestionTypeName(type));
-    console.log('Options Count:', options.length);
-    console.log('Options:', options.value);
-    console.log('====================');
   }
 
 
@@ -626,8 +579,6 @@ export class ExamsListComponent implements OnInit {
         // الأسئلة المقالية لا تحتاج اختيارات
         break;
     }
-
-    // console.log(`Initialized ${optionsArray.length} options for type ${type}`);
   }
 
   getQuestionOptions(questionIndex: number): FormArray {
@@ -711,6 +662,25 @@ export class ExamsListComponent implements OnInit {
     }
   }
 
+  getQuestionTypeText(type: any): string {
+    const typeNum = this.getQuestionTypeNumber(type);
+    switch (typeNum) {
+      case 0: return 'اختيار من متعدد';
+      case 1: return 'صح أو خطأ';
+      case 2: return 'سؤال مقالي';
+      default: return 'غير معروف';
+    }
+  }
+  getQuestionTypeIconView(type: any): string {
+    const typeNum = this.getQuestionTypeNumber(type);
+    switch (typeNum) {
+      case 0: return 'fa-list-ul';
+      case 1: return 'fa-check-circle';
+      case 2: return 'fa-file-alt';
+      default: return 'fa-question';
+    }
+  }
+
   // تحسين دالة الحفظ مع التحقق من الاختيارات
   saveExam(): void {
     if (this.examForm.invalid) {
@@ -719,8 +689,8 @@ export class ExamsListComponent implements OnInit {
       return;
     }
 
-    // التحقق من صحة الأسئلة والاختيارات (فقط عند الإنشاء)
-    if (!this.isEditMode && this.questions.length > 0) {
+    // التحقق من صحة الأسئلة والاختيارات
+    if (this.questions.length > 0) {
       for (let i = 0; i < this.questions.length; i++) {
         const validation = this.validateQuestionOptions(i);
         if (!validation.valid) {
@@ -733,20 +703,55 @@ export class ExamsListComponent implements OnInit {
     this.isLoading = true;
     const formValue = this.examForm.value;
 
+    // تجهيز بيانات الأسئلة (للإنشاء والتحديث)
+    const questionsData = formValue.questions && formValue.questions.length > 0
+      ? formValue.questions
+        .filter((q: any) => q.questionText && q.questionText.trim())
+        .map((q: any, index: number) => {
+          const questionDto: any = {
+            id: q.id || '00000000-0000-0000-0000-000000000000',
+            questionText: q.questionText.trim(),
+            type: this.getQuestionTypeString(Number(q.type)), // تحويل لـ string
+            marks: Number(q.marks),
+            order: index + 1,
+            options: []
+          };
+
+          // إضافة الاختيارات فقط إذا كان النوع ليس مقالي
+          if (q.type !== 2 && q.options && q.options.length > 0) {
+            questionDto.options = q.options
+              .filter((opt: any) => opt.optionText && opt.optionText.trim())
+              .map((opt: any, optIndex: number) => ({
+                id: opt.id || '00000000-0000-0000-0000-000000000000',
+                optionText: opt.optionText.trim(),
+                isCorrect: Boolean(opt.isCorrect),
+                order: optIndex + 1
+              }));
+          }
+
+          return questionDto;
+        })
+      : [];
+
     if (this.isEditMode && this.selectedExamId) {
-      // تحديث الامتحان
-      const updateData: UpdateExamDto = {
+      // تحديث الامتحان - نفس الـ structure بتاع Create
+      const updateData: any = {
         id: this.selectedExamId,
-        title: formValue.title,
-        description: formValue.description,
+        title: formValue.title.trim(),
+        description: formValue.description.trim(),
         groupId: formValue.groupId,
         duration: Number(formValue.duration),
         totalMarks: Number(formValue.totalMarks),
         passingMarks: Number(formValue.passingMarks),
-        startDate: new Date(formValue.startDate),
-        endDate: new Date(formValue.endDate),
-        isActive: formValue.isActive
+        startDate: this.formatDateTime(formValue.startDate),
+        endDate: this.formatDateTime(formValue.endDate),
+        isActive: Boolean(formValue.isActive),
+        createdAt: new Date().toISOString(), // أو استخدم createdAt الأصلي
+        questionsCount: questionsData.length,
+        questions: questionsData
       };
+
+      console.log('📤 Update Data:', updateData);
 
       this.examService.updateExam(this.selectedExamId, updateData).subscribe({
         next: (response) => {
@@ -760,63 +765,37 @@ export class ExamsListComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Error updating exam:', error);
-          this.showError('حدث خطأ أثناء تحديث الامتحان');
+          console.error('❌ Update Error:', error);
+          if (error.error?.errors) {
+            const errorMessages = Object.entries(error.error.errors)
+              .map(([key, value]: [string, any]) => `${key}: ${value.join(', ')}`)
+              .join('\n');
+            this.showError(`أخطاء في البيانات:\n${errorMessages}`);
+          } else {
+            this.showError(error.error?.message || 'حدث خطأ أثناء تحديث الامتحان');
+          }
           this.isLoading = false;
         }
       });
     } else {
       // إنشاء امتحان جديد
-      const questionsData = formValue.questions && formValue.questions.length > 0
-        ? formValue.questions
-          .filter((q: any) => q.questionText && q.questionText.trim())
-          .map((q: any, index: number) => {
-            const questionDto: any = {
-              id: '00000000-0000-0000-0000-000000000000',
-              questionText: q.questionText.trim(),
-              type: Number(q.type),
-              marks: Number(q.marks),
-              order: index + 1,
-              options: []
-            };
-
-            // إضافة الاختيارات فقط إذا كان النوع ليس مقالي
-            if (q.type !== 2 && q.options && q.options.length > 0) {
-              questionDto.options = q.options
-                .filter((opt: any) => opt.optionText && opt.optionText.trim())
-                .map((opt: any, optIndex: number) => ({
-                  id: '00000000-0000-0000-0000-000000000000',
-                  optionText: opt.optionText.trim(),
-                  isCorrect: Boolean(opt.isCorrect),
-                  order: optIndex + 1
-                }));
-            }
-
-            return questionDto;
-          })
-        : [];
-
       const createData: any = {
         id: '00000000-0000-0000-0000-000000000000',
         title: formValue.title.trim(),
         description: formValue.description.trim(),
-        groupId: "9eaf721b-64be-4500-4c82-08de2445d047",
+        groupId: formValue.groupId,
         duration: Number(formValue.duration),
         totalMarks: Number(formValue.totalMarks),
         passingMarks: Number(formValue.passingMarks),
-        startDate: new Date(formValue.startDate).toISOString(),
-        endDate: new Date(formValue.endDate).toISOString(),
+        startDate: this.formatDateTime(formValue.startDate),
+        endDate: this.formatDateTime(formValue.endDate),
         isActive: Boolean(formValue.isActive),
         createdAt: new Date().toISOString(),
         questionsCount: questionsData.length,
         questions: questionsData
       };
 
-      console.log('📤 Sending ExamDto:', createData);
-      console.log('📊 Questions count:', questionsData.length);
-      if (questionsData.length > 0) {
-        console.log('📝 Questions data:', questionsData);
-      }
+      console.log('📤 Create Data:', createData);
 
       this.examService.createExam(createData).subscribe({
         next: (response) => {
@@ -830,9 +809,7 @@ export class ExamsListComponent implements OnInit {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('❌ Error creating exam:', error);
-          console.error('❌ Error details:', error.error);
-
+          console.error('❌ Create Error:', error);
           if (error.error?.errors) {
             const errorMessages = Object.entries(error.error.errors)
               .map(([key, value]: [string, any]) => `${key}: ${value.join(', ')}`)
@@ -845,6 +822,22 @@ export class ExamsListComponent implements OnInit {
         }
       });
     }
+  }
+
+  // دالة لتحويل type من number لـ string
+  getQuestionTypeString(type: number): string {
+    switch (type) {
+      case 0: return 'MultipleChoice';
+      case 1: return 'TrueFalse';
+      case 2: return 'Essay';
+      default: return 'MultipleChoice';
+    }
+  }
+
+  private formatDateTime(dateTimeString: string): string {
+    if (!dateTimeString) return '';
+    const [date, time] = dateTimeString.split('T');
+    return `${date}T${time}:00.000Z`;
   }
 
   getCompletedQuestionsCount(): number {

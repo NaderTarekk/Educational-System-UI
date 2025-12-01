@@ -40,6 +40,8 @@ export class UsersService {
   }
 
   addUser(user: User): Observable<ResponseMessage> {
+    console.log("the url : " + environment.groupUrl);
+
     return this.http.post<ResponseMessage>(`${environment.userUrl}`, user, {
       headers: this.getHeaders()
     });

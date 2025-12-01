@@ -44,7 +44,6 @@ export class GroupsComponent implements OnInit {
     subject: '',
     instructorName: '',
     capacity: 0,
-    assistantId: "13978a26-b67d-4e16-8ad9-c7e6936a0256",
     feesPerLesson: 0,
     isActive: true,
     dayOfWeek: 6, // السبت كقيمة افتراضية
@@ -180,6 +179,7 @@ export class GroupsComponent implements OnInit {
       startTime: this.newGroup.startTime + ':00' // "14:00" -> "14:00:00"
     };
 
+    groupToSend.assistantId = "f569a3b4-38f3-4a2b-9115-0a2212adcce0";
     console.log("Sending group:", groupToSend);
 
     this.loading = true;
@@ -191,6 +191,8 @@ export class GroupsComponent implements OnInit {
           this.closeAddModal();
           this.loadGroups();
         } else {
+          console.log(response.message);
+          
           this.showError(response.message || 'فشل في إنشاء المجموعة');
         }
         this.loading = false;

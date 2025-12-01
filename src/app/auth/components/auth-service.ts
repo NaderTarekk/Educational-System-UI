@@ -19,6 +19,8 @@ export class AuthService {
   }
 
   Login(form: any) {
+    console.log(environment.authUrl);
+    
     return this.http.post(environment.authUrl + "login", form)
   }
 
