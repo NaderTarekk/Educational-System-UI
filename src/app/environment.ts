@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
-  authUrl: 'http://nhc-studentmanagementsystem.runasp.net/api/Auth/',
-  userUrl: 'http://nhc-studentmanagementsystem.runasp.net/api/Users',
-  groupUrl: 'http://nhc-studentmanagementsystem.runasp.net/api/Groups',
-  attendanceUrl: 'http://nhc-studentmanagementsystem.runasp.net/api/Attendances',
-  examUrl: 'http://nhc-studentmanagementsystem.runasp.net/api/Exams',
+  authUrl: 'https://nhc-studentmanagementsystem.runasp.net/api/Auth/',
+  userUrl: 'https://nhc-studentmanagementsystem.runasp.net/api/Users',
+  groupUrl: 'https://nhc-studentmanagementsystem.runasp.net/api/Groups',
+  attendanceUrl: 'https://nhc-studentmanagementsystem.runasp.net/api/Attendances',
+  examUrl: 'https://nhc-studentmanagementsystem.runasp.net/api/Exams',
 };
