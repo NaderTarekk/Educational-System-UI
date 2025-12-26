@@ -1,21 +1,24 @@
-export interface Message {
-    id: string;
-    senderName: string;
-    senderEmail: string;
-    senderAvatar?: string;
-    subject: string;
-    content: string;
-    timestamp: Date;
-    isRead: boolean;
-    isStarred: boolean;
-    priority: 'low' | 'medium' | 'high';
-    attachments?: Attachment[];
+export interface MessageResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+  totalCount?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  totalPages?: number;
 }
 
-export interface Attachment {
-    id: string;
-    name: string;
-    size: number;
-    type: string;
-    url: string;
+export interface CreateMessageDto {
+  subject: string;
+  content: string;
+  priority: 'Low' | 'Medium' | 'High';
+  recipientIds: string[];
+  attachments?: any[];
+}
+
+export interface SendToAllDto {
+  subject: string;
+  content: string;
+  priority: 'Low' | 'Medium' | 'High';
+  attachments?: any[];
 }

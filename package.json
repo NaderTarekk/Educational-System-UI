@@ -24,6 +24,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.4",
     "jspdf-autotable": "^5.0.2",
+    "jwt-decode": "^4.0.0",
     "ngx-toastr": "^19.1.0",
     "pdfmake": "^0.2.20",
     "postcss": "^8.5.6",

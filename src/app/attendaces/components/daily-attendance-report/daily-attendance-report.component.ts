@@ -102,13 +102,6 @@ export class DailyAttendanceReportComponent implements OnInit {
     const startDate = firstDay.toISOString().split('T')[0];
     const endDate = lastDay.toISOString().split('T')[0];
 
-    console.log('📅 Loading month data:', {
-      month: this.getMonthName(),
-      startDate,
-      endDate,
-      groupId: this.selectedGroupId
-    });
-
     this.loading = true;
     this.monthAttendanceData.clear();
 
@@ -120,7 +113,6 @@ export class DailyAttendanceReportComponent implements OnInit {
       next: (studentsResponse: any) => {
         if (studentsResponse.success && studentsResponse.data && studentsResponse.data.length > 0) {
           const students = studentsResponse.data;
-          console.log('👥 Found students:', students.length);
 
           const attendanceRequests = students.map((student: any) =>
             this.attendanceService.getByStudent(
@@ -133,8 +125,6 @@ export class DailyAttendanceReportComponent implements OnInit {
 
           Promise.all(attendanceRequests)
             .then(responses => {
-              console.log('📊 Received all responses:', responses);
-
               responses.forEach((response: any, index: number) => {
                 const student = students[index];
 
@@ -142,13 +132,6 @@ export class DailyAttendanceReportComponent implements OnInit {
                   response.data.forEach((record: any) => {
                     const recordDate = new Date(record.date);
                     const dateKey = `${recordDate.getFullYear()}-${String(recordDate.getMonth() + 1).padStart(2, '0')}-${String(recordDate.getDate()).padStart(2, '0')}`;
-
-                    console.log('📝 Processing record:', {
-                      originalDate: record.date,
-                      processedDate: dateKey,
-                      student: `${student.firstName} ${student.lastName}`,
-                      status: record.status
-                    });
 
                     if (!this.monthAttendanceData.has(dateKey)) {
                       this.monthAttendanceData.set(dateKey, []);
@@ -165,7 +148,6 @@ export class DailyAttendanceReportComponent implements OnInit {
                 }
               });
 
-              console.log('✅ Final attendance data:', this.monthAttendanceData);
               this.processCalendarData();
               this.loading = false;
             })
@@ -176,7 +158,6 @@ export class DailyAttendanceReportComponent implements OnInit {
               this.loading = false;
             });
         } else {
-          console.log('⚠️ No students found in group');
           this.generateCalendar();
           this.loading = false;
         }
@@ -191,7 +172,6 @@ export class DailyAttendanceReportComponent implements OnInit {
   }
 
   processCalendarData(): void {
-    console.log('🗓️ Processing calendar with data:', this.monthAttendanceData.size, 'dates');
 
     this.calendarDays = [];
 
@@ -220,13 +200,6 @@ export class DailyAttendanceReportComponent implements OnInit {
       const absent = records.filter(r => r.status === 1).length;
       const late = records.filter(r => r.status === 2).length;
 
-      console.log(`Day ${day} (${dateKey}):`, {
-        records: records.length,
-        present,
-        absent,
-        late
-      });
-
       this.calendarDays.push({
         date: dateKey,
         totalRecords: records.length,
@@ -237,11 +210,9 @@ export class DailyAttendanceReportComponent implements OnInit {
       });
     }
 
-    console.log('✅ Calendar generated with', this.calendarDays.length, 'days');
   }
 
   generateCalendar(): void {
-    console.log('🗓️ Generating empty calendar');
     this.calendarDays = [];
 
     const firstDay = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth(), 1);
@@ -294,11 +265,8 @@ export class DailyAttendanceReportComponent implements OnInit {
 
   selectDay(day: DayAttendance): void {
     if (!day.date || !day.hasRecords) {
-      console.log('⚠️ Cannot select day:', day);
       return;
     }
-
-    console.log('📅 Selected day:', day.date);
 
     const records = this.monthAttendanceData.get(day.date) || [];
 
@@ -328,7 +296,6 @@ export class DailyAttendanceReportComponent implements OnInit {
     };
 
     this.showDayDetails = true;
-    console.log('✅ Day details loaded:', this.selectedDay);
   }
 
   closeDayDetails(): void {
