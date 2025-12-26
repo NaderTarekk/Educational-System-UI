@@ -49,7 +49,7 @@ export class MessagesService {
   // جلب جميع الرسائل
   getMyMessages(params: any = {}): Observable<MessageResponse> {
     let queryParams = new URLSearchParams();
-    
+
     if (params.isRead !== undefined) queryParams.set('isRead', params.isRead.toString());
     if (params.isStarred !== undefined) queryParams.set('isStarred', params.isStarred.toString());
     if (params.priority) queryParams.set('priority', params.priority);
@@ -58,7 +58,7 @@ export class MessagesService {
     if (params.pageSize) queryParams.set('pageSize', params.pageSize.toString());
 
     const url = `${this.apiUrl}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-    
+
     return this.http.get<MessageResponse>(url, { headers: this.getHeaders() });
   }
 
@@ -99,5 +99,9 @@ export class MessagesService {
   // جلب الإحصائيات
   getStats(): Observable<MessageResponse> {
     return this.http.get<MessageResponse>(`${this.apiUrl}/stats`, { headers: this.getHeaders() });
+  }
+
+  getUnreadCount(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/unread-count`, { headers: this.getHeaders() });
   }
 }

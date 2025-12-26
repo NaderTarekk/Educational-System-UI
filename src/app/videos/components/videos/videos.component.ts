@@ -1,5 +1,9 @@
+// src/app/pages/videos/videos.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Video, VideoStats } from '../../../models/video.model';
+import { Video, VideoStats, CreateVideoDto, VideoFilter } from '../../../models/video.model';
+import { VideosService } from '../../services/videos.service';
+import { AuthService } from '../../../auth/components/auth-service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-videos',
@@ -10,10 +14,10 @@ import { Video, VideoStats } from '../../../models/video.model';
 export class VideosComponent implements OnInit {
   videos: Video[] = [];
   stats: VideoStats = {
-    totalVideos: 48,
-    published: 35,
-    draft: 13,
-    totalViews: 12500
+    totalVideos: 0,
+    published: 0,
+    draft: 0,
+    totalViews: 0
   };
   
   searchText = '';
@@ -21,120 +25,138 @@ export class VideosComponent implements OnInit {
   selectedSubject = 'all';
   selectedGrade = 'all';
   
+  // Pagination
+  currentPage = 1;
+  pageSize = 12;
+  totalPages = 0;
+  totalCount = 0;
+  
   showUploadModal = false;
+  showEditModal = false;
+  showViewModal = false;
   uploadProgress = 0;
+  isLoading = false;
+  isSaving = false;
   
   subjects = ['الرياضيات', 'العلوم', 'اللغة العربية', 'اللغة الإنجليزية', 'الفيزياء', 'الكيمياء'];
   grades = ['الصف الأول', 'الصف الثاني', 'الصف الثالث', 'الصف الرابع', 'الصف الخامس', 'الصف السادس'];
 
-  newVideo = {
+  newVideo: CreateVideoDto = {
     title: '',
     description: '',
+    url: '',
+    thumbnailUrl: '',
+    duration: '',
     subject: '',
     grade: '',
     category: 'درس',
-    file: null as File | null
+    fileSize: '',
+    isPublished: false
   };
 
+  selectedVideo: Video | null = null;
+  selectedFile: File | null = null;
+
+  // User role
+  userRole: string = '';
+
+  constructor(
+    private videosService: VideosService,
+    private authService: AuthService,
+    private toastr: ToastrService
+  ) { }
+
   ngOnInit() {
+    this.userRole = this.authService.getCurrentUserRole();
     this.loadVideos();
+    this.loadStats();
   }
 
   loadVideos() {
-    this.videos = [
-      {
-        id: '1',
-        title: 'مقدمة في الجبر الخطي',
-        description: 'شرح تفصيلي لأساسيات الجبر الخطي والمصفوفات',
-        url: 'https://example.com/video1.mp4',
-        thumbnail: 'https://via.placeholder.com/320x180/4F46E5/FFFFFF?text=الجبر+الخطي',
-        duration: '45:30',
-        category: 'درس',
-        subject: 'الرياضيات',
-        grade: 'الصف الثالث',
-        uploadedBy: 'TCH001',
-        uploadedByUser: {
-          id: '1',
-          userName: 'ahmed.teacher',
-          fullName: 'أحمد المعلم'
-        },
-        views: 1250,
-        likes: 320,
-        isPublished: true,
-        uploadDate: '2024-11-10',
-        fileSize: '450 MB'
+    this.isLoading = true;
+    
+    const filter: VideoFilter = {
+      status: this.selectedFilter,
+      subject: this.selectedSubject !== 'all' ? this.selectedSubject : undefined,
+      grade: this.selectedGrade !== 'all' ? this.selectedGrade : undefined,
+      searchText: this.searchText || undefined,
+      pageNumber: this.currentPage,
+      pageSize: this.pageSize
+    };
+
+    this.videosService.getVideos(filter).subscribe({
+      next: (response: any) => {
+        console.log('📹 Videos response:', response);
+        if (response.success && response.data) {
+          this.videos = Array.isArray(response.data) ? response.data : [response.data];
+          this.totalCount = response.totalCount || 0;
+          this.totalPages = response.totalPages || 0;
+        } else {
+          this.videos = [];
+        }
+        this.isLoading = false;
       },
-      {
-        id: '2',
-        title: 'تجارب الكيمياء العضوية',
-        description: 'تجارب عملية في الكيمياء العضوية',
-        url: 'https://example.com/video2.mp4',
-        thumbnail: 'https://via.placeholder.com/320x180/7C3AED/FFFFFF?text=الكيمياء',
-        duration: '32:15',
-        category: 'تجربة عملية',
-        subject: 'الكيمياء',
-        grade: 'الصف الثاني',
-        uploadedBy: 'TCH002',
-        uploadedByUser: {
-          id: '2',
-          userName: 'fatima.teacher',
-          fullName: 'فاطمة الأستاذة'
-        },
-        views: 890,
-        likes: 210,
-        isPublished: true,
-        uploadDate: '2024-11-09',
-        fileSize: '320 MB'
-      },
-      {
-        id: '3',
-        title: 'قواعد اللغة الإنجليزية',
-        description: 'شرح قواعد الأزمنة في اللغة الإنجليزية',
-        url: 'https://example.com/video3.mp4',
-        thumbnail: 'https://via.placeholder.com/320x180/059669/FFFFFF?text=English',
-        duration: '28:45',
-        category: 'درس',
-        subject: 'اللغة الإنجليزية',
-        grade: 'الصف الأول',
-        uploadedBy: 'TCH003',
-        uploadedByUser: {
-          id: '3',
-          userName: 'omar.teacher',
-          fullName: 'عمر المدرس'
-        },
-        views: 2100,
-        likes: 540,
-        isPublished: true,
-        uploadDate: '2024-11-08',
-        fileSize: '280 MB'
-      },
-      {
-        id: '4',
-        title: 'الفيزياء الكلاسيكية',
-        description: 'مقدمة في قوانين نيوتن للحركة',
-        url: 'https://example.com/video4.mp4',
-        thumbnail: 'https://via.placeholder.com/320x180/DC2626/FFFFFF?text=الفيزياء',
-        duration: '38:20',
-        category: 'درس',
-        subject: 'الفيزياء',
-        grade: 'الصف الثالث',
-        uploadedBy: 'TCH001',
-        uploadedByUser: {
-          id: '1',
-          userName: 'ahmed.teacher',
-          fullName: 'أحمد المعلم'
-        },
-        views: 650,
-        likes: 180,
-        isPublished: false,
-        uploadDate: '2024-11-07',
-        fileSize: '380 MB'
+      error: (error: any) => {
+        console.error('Error loading videos:', error);
+        this.toastr.error('فشل تحميل الفيديوهات', 'خطأ');
+        this.videos = [];
+        this.isLoading = false;
       }
-    ];
+    });
+  }
+
+  loadStats() {
+    this.videosService.getStats().subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.stats = response.data;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading stats:', error);
+      }
+    });
   }
 
   filterVideos(filter: string) {
     this.selectedFilter = filter;
+    this.currentPage = 1;
+    this.loadVideos();
+  }
+
+  onSubjectChange() {
+    this.currentPage = 1;
+    this.loadVideos();
+  }
+
+  onGradeChange() {
+    this.currentPage = 1;
+    this.loadVideos();
+  }
+
+  onSearchChange() {
+    this.currentPage = 1;
+    this.loadVideos();
+  }
+
+  // Pagination
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadVideos();
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadVideos();
+    }
+  }
+
+  goToPage(page: number) {
+    this.currentPage = page;
+    this.loadVideos();
   }
 
   getInitials(name: string): string {
@@ -152,60 +174,235 @@ export class VideosComponent implements OnInit {
     return colors[category] || 'bg-gray-100 text-gray-700';
   }
 
-  viewVideo(id: string) {
-    console.log('View video:', id);
+  // View Video
+  viewVideo(video: Video) {
+    this.selectedVideo = video;
+    this.showViewModal = true;
+    document.body.style.overflow = 'hidden';
+
+    // Increment view count
+    this.videosService.incrementView(video.id).subscribe({
+      next: () => {
+        video.views++;
+      },
+      error: (error) => {
+        console.error('Error incrementing view:', error);
+      }
+    });
   }
 
-  editVideo(id: string) {
-    console.log('Edit video:', id);
+  closeViewModal() {
+    this.showViewModal = false;
+    this.selectedVideo = null;
+    document.body.style.overflow = 'auto';
   }
 
-  deleteVideo(id: string) {
-    if (confirm('هل أنت متأكد من حذف هذا الفيديو؟')) {
-      this.videos = this.videos.filter(v => v.id !== id);
-      console.log('Delete video:', id);
+  // Like Video
+  toggleLike(video: Video) {
+    this.videosService.toggleLike(video.id).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          video.isLikedByCurrentUser = !video.isLikedByCurrentUser;
+          video.likes += video.isLikedByCurrentUser ? 1 : -1;
+          this.toastr.success(response.message, 'نجاح');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error toggling like:', error);
+        this.toastr.error('حدث خطأ', 'خطأ');
+      }
+    });
+  }
+
+  // Edit Video
+  editVideo(video: Video) {
+    this.selectedVideo = video;
+    this.newVideo = {
+      id: video.id,
+      title: video.title,
+      description: video.description,
+      url: video.url,
+      thumbnailUrl: video.thumbnailUrl,
+      duration: video.duration,
+      category: video.category,
+      subject: video.subject,
+      grade: video.grade,
+      fileSize: video.fileSize,
+      isPublished: video.isPublished
+    };
+    this.showEditModal = true;
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeEditModal() {
+    this.showEditModal = false;
+    this.selectedVideo = null;
+    this.resetForm();
+    document.body.style.overflow = 'auto';
+  }
+
+  updateVideo() {
+    if (!this.isFormValid()) {
+      this.toastr.warning('يرجى ملء جميع الحقول المطلوبة', 'تنبيه');
+      return;
     }
+
+    this.isSaving = true;
+
+    this.videosService.updateVideo(this.newVideo).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.toastr.success('تم تحديث الفيديو بنجاح', 'نجاح');
+          this.closeEditModal();
+          this.loadVideos();
+          this.loadStats();
+        } else {
+          this.toastr.error(response.message || 'فشل تحديث الفيديو', 'خطأ');
+        }
+        this.isSaving = false;
+      },
+      error: (error: any) => {
+        console.error('Error updating video:', error);
+        this.toastr.error('حدث خطأ أثناء تحديث الفيديو', 'خطأ');
+        this.isSaving = false;
+      }
+    });
   }
 
+  // Delete Video
+  deleteVideo(video: Video) {
+    if (!confirm('هل أنت متأكد من حذف هذا الفيديو؟')) {
+      return;
+    }
+
+    this.videosService.deleteVideo(video.id).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.toastr.success('تم حذف الفيديو بنجاح', 'نجاح');
+          this.loadVideos();
+          this.loadStats();
+        } else {
+          this.toastr.error(response.message || 'فشل حذف الفيديو', 'خطأ');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error deleting video:', error);
+        this.toastr.error('حدث خطأ أثناء حذف الفيديو', 'خطأ');
+      }
+    });
+  }
+
+  // Toggle Publish
   togglePublish(video: Video) {
-    video.isPublished = !video.isPublished;
-    console.log('Toggle publish:', video.id, video.isPublished);
+    this.videosService.togglePublish(video.id).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          video.isPublished = !video.isPublished;
+          this.toastr.success(response.message, 'نجاح');
+          this.loadStats();
+        } else {
+          this.toastr.error(response.message || 'فشل تحديث حالة النشر', 'خطأ');
+        }
+      },
+      error: (error: any) => {
+        console.error('Error toggling publish:', error);
+        this.toastr.error('حدث خطأ', 'خطأ');
+      }
+    });
   }
 
+  // Upload Modal
   openUploadModal() {
+    this.resetForm();
     this.showUploadModal = true;
+    document.body.style.overflow = 'hidden';
   }
 
   closeUploadModal() {
     this.showUploadModal = false;
     this.resetForm();
+    document.body.style.overflow = 'auto';
   }
 
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
-      this.newVideo.file = file;
-      console.log('File selected:', file.name);
+      this.selectedFile = file;
+      
+      // Get file size
+      const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      this.newVideo.fileSize = `${fileSizeMB} MB`;
+
+      // Get video duration (requires HTML5 video element)
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        const duration = video.duration;
+        const minutes = Math.floor(duration / 60);
+        const seconds = Math.floor(duration % 60);
+        this.newVideo.duration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      };
+      video.src = URL.createObjectURL(file);
+
+      console.log('📁 File selected:', file.name);
     }
   }
 
+  isFormValid(): boolean {
+    return this.newVideo.title.trim().length >= 3 &&
+           this.newVideo.subject.length > 0 &&
+           this.newVideo.grade.length > 0 &&
+           this.newVideo.category.length > 0;
+  }
+
   uploadVideo() {
-    if (!this.newVideo.file || !this.newVideo.title || !this.newVideo.subject || !this.newVideo.grade) {
-      alert('الرجاء ملء جميع الحقول المطلوبة');
+    if (!this.isFormValid()) {
+      this.toastr.warning('يرجى ملء جميع الحقول المطلوبة', 'تنبيه');
       return;
     }
 
+    if (!this.selectedFile) {
+      this.toastr.warning('يرجى اختيار ملف فيديو', 'تنبيه');
+      return;
+    }
+
+    this.isSaving = true;
+
+    // هنا يجب رفع الملف للسيرفر أولاً وأخذ الـ URL
+    // في هذا المثال، سنستخدم URL مؤقت
+    // في الواقع، يجب استخدام خدمة رفع ملفات (AWS S3, Azure Blob, etc.)
+    
     // محاكاة رفع الفيديو
     this.uploadProgress = 0;
     const interval = setInterval(() => {
       this.uploadProgress += 10;
+      
       if (this.uploadProgress >= 100) {
         clearInterval(interval);
-        setTimeout(() => {
-          alert('تم رفع الفيديو بنجاح!');
-          this.closeUploadModal();
-          this.loadVideos();
-        }, 500);
+        
+        // بعد اكتمال الرفع، احفظ البيانات
+        this.newVideo.url = `https://example.com/videos/${Date.now()}.mp4`; // URL مؤقت
+        this.newVideo.thumbnailUrl = `https://via.placeholder.com/320x180/4F46E5/FFFFFF?text=${encodeURIComponent(this.newVideo.title)}`;
+
+        this.videosService.createVideo(this.newVideo).subscribe({
+          next: (response: any) => {
+            if (response.success) {
+              this.toastr.success('تم رفع الفيديو بنجاح!', 'نجاح');
+              this.closeUploadModal();
+              this.loadVideos();
+              this.loadStats();
+            } else {
+              this.toastr.error(response.message || 'فشل رفع الفيديو', 'خطأ');
+            }
+            this.isSaving = false;
+          },
+          error: (error: any) => {
+            console.error('Error uploading video:', error);
+            this.toastr.error('حدث خطأ أثناء رفع الفيديو', 'خطأ');
+            this.isSaving = false;
+          }
+        });
       }
     }, 300);
   }
@@ -214,39 +411,25 @@ export class VideosComponent implements OnInit {
     this.newVideo = {
       title: '',
       description: '',
+      url: '',
+      thumbnailUrl: '',
+      duration: '',
       subject: '',
       grade: '',
       category: 'درس',
-      file: null
+      fileSize: '',
+      isPublished: false
     };
+    this.selectedFile = null;
     this.uploadProgress = 0;
   }
 
   getFilteredVideos(): Video[] {
-    let filtered = this.videos;
-
-    if (this.selectedFilter !== 'all') {
-      filtered = filtered.filter(v => 
-        this.selectedFilter === 'published' ? v.isPublished : !v.isPublished
-      );
-    }
-
-    if (this.selectedSubject !== 'all') {
-      filtered = filtered.filter(v => v.subject === this.selectedSubject);
-    }
-
-    if (this.selectedGrade !== 'all') {
-      filtered = filtered.filter(v => v.grade === this.selectedGrade);
-    }
-
-    if (this.searchText) {
-      filtered = filtered.filter(v => 
-        v.title.includes(this.searchText) || 
-        v.description.includes(this.searchText)
-      );
-    }
-
-    return filtered;
+    return this.videos;
   }
 
+  // Check if user can edit/delete
+  canEdit(): boolean {
+    return this.userRole === 'Admin' || this.userRole === 'Assistant';
+  }
 }
