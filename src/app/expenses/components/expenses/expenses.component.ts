@@ -39,7 +39,7 @@ export class ExpensesComponent implements OnInit {
   isViewDialogOpen = false;
   isDeleteDialogOpen = false;
 
-  selectedExpense: Expense | null = null;
+  selectedExpense: any | null = null;
   expenseToDelete: Expense | null = null;
 
   isSaving = false;

@@ -35,6 +35,7 @@ export interface CreateVideoDto {
   category: string;
   subject: string;
   grade: string;
+  videoSource?: string;
   fileSize?: string;
   isPublished: boolean;
   userIds?: string[];

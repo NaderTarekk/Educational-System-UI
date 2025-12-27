@@ -4,6 +4,10 @@ import { Video, VideoStats, CreateVideoDto, VideoFilter } from '../../../models/
 import { VideosService } from '../../services/videos.service';
 import { AuthService } from '../../../auth/components/auth-service';
 import { ToastrService } from 'ngx-toastr';
+import { Subject } from '../../../models/subject.model'; // ⬅️ أضف
+import { Group } from '../../../models/group.model'; // ⬅️ أضف
+import { SubjectsService } from '../../../subjects/services/subject.service';
+import { GroupsService } from '../../../groups/services/groups.service';
 
 @Component({
   selector: 'app-videos',
@@ -19,27 +23,33 @@ export class VideosComponent implements OnInit {
     draft: 0,
     totalViews: 0
   };
-  
+
   searchText = '';
   selectedFilter = 'all';
   selectedSubject = 'all';
-  selectedGrade = 'all';
-  
+  selectedGroup = 'all'; // ⬅️ غيرنا من selectedGrade
+
+  // ✅ Dialog State
+  isDeleteDialogOpen = false;
+  videoToDelete: Video | null = null;
+  isDeleting = false;
+
   // Pagination
   currentPage = 1;
   pageSize = 12;
   totalPages = 0;
   totalCount = 0;
-  
+
   showUploadModal = false;
   showEditModal = false;
   showViewModal = false;
   uploadProgress = 0;
   isLoading = false;
   isSaving = false;
-  
-  subjects = ['الرياضيات', 'العلوم', 'اللغة العربية', 'اللغة الإنجليزية', 'الفيزياء', 'الكيمياء'];
-  grades = ['الصف الأول', 'الصف الثاني', 'الصف الثالث', 'الصف الرابع', 'الصف الخامس', 'الصف السادس'];
+
+  // ✅ Lists من Database
+  subjects: Subject[] = [];
+  groups: Group[] = [];
 
   newVideo: CreateVideoDto = {
     title: '',
@@ -48,11 +58,14 @@ export class VideosComponent implements OnInit {
     thumbnailUrl: '',
     duration: '',
     subject: '',
-    grade: '',
+    grade: '', // ⬅️ هيبقى groupId
     category: 'درس',
     fileSize: '',
-    isPublished: false
+    isPublished: false,
+    videoSource: 'youtube'
   };
+  videoSource: 'youtube' | 'local' = 'youtube';
+  youtubeUrl = '';
 
   selectedVideo: Video | null = null;
   selectedFile: File | null = null;
@@ -63,22 +76,54 @@ export class VideosComponent implements OnInit {
   constructor(
     private videosService: VideosService,
     private authService: AuthService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private subjectsService: SubjectsService, // ⬅️ أضف
+    private groupsService: GroupsService // ⬅️ أضف
   ) { }
 
   ngOnInit() {
     this.userRole = this.authService.getCurrentUserRole();
+    this.loadSubjects(); // ⬅️ أضف
+    this.loadGroups(); // ⬅️ أضف
     this.loadVideos();
     this.loadStats();
   }
 
+  // ✅ تحميل المواد من Database
+  loadSubjects() {
+    this.subjectsService.getAllSubjects().subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.subjects = response.data;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading subjects:', error);
+      }
+    });
+  }
+
+  // ✅ تحميل المجموعات من Database
+  loadGroups() {
+    this.groupsService.getAllGroups().subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.groups = response.data;
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading groups:', error);
+      }
+    });
+  }
+
   loadVideos() {
     this.isLoading = true;
-    
+
     const filter: VideoFilter = {
       status: this.selectedFilter,
       subject: this.selectedSubject !== 'all' ? this.selectedSubject : undefined,
-      grade: this.selectedGrade !== 'all' ? this.selectedGrade : undefined,
+      grade: this.selectedGroup !== 'all' ? this.selectedGroup : undefined, // ⬅️ groupId
       searchText: this.searchText || undefined,
       pageNumber: this.currentPage,
       pageSize: this.pageSize
@@ -86,7 +131,6 @@ export class VideosComponent implements OnInit {
 
     this.videosService.getVideos(filter).subscribe({
       next: (response: any) => {
-        console.log('📹 Videos response:', response);
         if (response.success && response.data) {
           this.videos = Array.isArray(response.data) ? response.data : [response.data];
           this.totalCount = response.totalCount || 0;
@@ -129,7 +173,7 @@ export class VideosComponent implements OnInit {
     this.loadVideos();
   }
 
-  onGradeChange() {
+  onGroupChange() { // ⬅️ غيرنا من onGradeChange
     this.currentPage = 1;
     this.loadVideos();
   }
@@ -174,8 +218,22 @@ export class VideosComponent implements OnInit {
     return colors[category] || 'bg-gray-100 text-gray-700';
   }
 
+  // ✅ Helper: Get Group Name by ID
+  getGroupName(groupId: string): string {
+    const group = this.groups.find(g => g.id === groupId);
+    return group?.name || groupId;
+  }
+
+  // ✅ Helper: Get Subject Name by Name
+  getSubjectName(subjectName: string): string {
+    const subject = this.subjects.find(s => s.name === subjectName);
+    return subject?.name || subjectName;
+  }
+
   // View Video
   viewVideo(video: Video) {
+    console.log(video);
+
     this.selectedVideo = video;
     this.showViewModal = true;
     document.body.style.overflow = 'hidden';
@@ -185,7 +243,7 @@ export class VideosComponent implements OnInit {
       next: () => {
         video.views++;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error incrementing view:', error);
       }
     });
@@ -226,7 +284,7 @@ export class VideosComponent implements OnInit {
       duration: video.duration,
       category: video.category,
       subject: video.subject,
-      grade: video.grade,
+      grade: video.grade, // groupId
       fileSize: video.fileSize,
       isPublished: video.isPublished
     };
@@ -270,12 +328,23 @@ export class VideosComponent implements OnInit {
   }
 
   // Delete Video
-  deleteVideo(video: Video) {
-    if (!confirm('هل أنت متأكد من حذف هذا الفيديو؟')) {
-      return;
-    }
+  // ✅ Delete Video Dialog
+  openDeleteDialog(video: Video) {
+    this.videoToDelete = video;
+    this.isDeleteDialogOpen = true;
+  }
 
-    this.videosService.deleteVideo(video.id).subscribe({
+  closeDeleteDialog() {
+    if (this.isDeleting) return;
+    this.isDeleteDialogOpen = false;
+    this.videoToDelete = null;
+  }
+
+  confirmDeleteVideo() {
+    if (!this.videoToDelete) return;
+
+    this.isDeleting = true;
+    this.videosService.deleteVideo(this.videoToDelete.id).subscribe({
       next: (response: any) => {
         if (response.success) {
           this.toastr.success('تم حذف الفيديو بنجاح', 'نجاح');
@@ -284,10 +353,14 @@ export class VideosComponent implements OnInit {
         } else {
           this.toastr.error(response.message || 'فشل حذف الفيديو', 'خطأ');
         }
+        this.isDeleting = false;
+        this.closeDeleteDialog();
       },
       error: (error: any) => {
         console.error('Error deleting video:', error);
         this.toastr.error('حدث خطأ أثناء حذف الفيديو', 'خطأ');
+        this.isDeleting = false;
+        this.closeDeleteDialog();
       }
     });
   }
@@ -328,7 +401,7 @@ export class VideosComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      
+
       // Get file size
       const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
       this.newVideo.fileSize = `${fileSizeMB} MB`;
@@ -344,69 +417,163 @@ export class VideosComponent implements OnInit {
         this.newVideo.duration = `${minutes}:${seconds.toString().padStart(2, '0')}`;
       };
       video.src = URL.createObjectURL(file);
-
-      console.log('📁 File selected:', file.name);
     }
   }
 
   isFormValid(): boolean {
-    return this.newVideo.title.trim().length >= 3 &&
-           this.newVideo.subject.length > 0 &&
-           this.newVideo.grade.length > 0 &&
-           this.newVideo.category.length > 0;
+    const { title, subject, grade, category } = this.newVideo;
+    return !!(
+      title?.trim() && title.trim().length >= 3 &&
+      subject?.trim() &&
+      grade?.trim() &&
+      category?.trim()
+    );
   }
 
+  // uploadVideo() {
+  //   if (!this.isFormValid()) {
+  //     this.toastr.warning('يرجى ملء جميع الحقول المطلوبة', 'تنبيه');
+  //     return;
+  //   }
+
+  //   if (!this.selectedFile) {
+  //     this.toastr.warning('يرجى اختيار ملف فيديو', 'تنبيه');
+  //     return;
+  //   }
+
+  //   this.isSaving = true;
+
+  //   // محاكاة رفع الفيديو
+  //   this.uploadProgress = 0;
+  //   const interval = setInterval(() => {
+  //     this.uploadProgress += 10;
+
+  //     if (this.uploadProgress >= 100) {
+  //       clearInterval(interval);
+
+  //       // بعد اكتمال الرفع، احفظ البيانات
+  //       this.newVideo.url = `https://example.com/videos/${Date.now()}.mp4`;
+  //       this.newVideo.thumbnailUrl = `https://via.placeholder.com/320x180/4F46E5/FFFFFF?text=${encodeURIComponent(this.newVideo.title)}`;
+
+  //       this.videosService.createVideo(this.newVideo).subscribe({
+  //         next: (response: any) => {
+  //           if (response.success) {
+  //             this.toastr.success('تم رفع الفيديو بنجاح!', 'نجاح');
+  //             this.closeUploadModal();
+  //             this.loadVideos();
+  //             this.loadStats();
+  //           } else {
+  //             this.toastr.error(response.message || 'فشل رفع الفيديو', 'خطأ');
+  //           }
+  //           this.isSaving = false;
+  //         },
+  //         error: (error: any) => {
+  //           console.error('Error uploading video:', error);
+  //           this.toastr.error('حدث خطأ أثناء رفع الفيديو', 'خطأ');
+  //           this.isSaving = false;
+  //         }
+  //       });
+  //     }
+  //   }, 300);
+  // }
+
+  // resetForm() {
+  //   this.newVideo = {
+  //     title: '',
+  //     description: '',
+  //     url: '',
+  //     thumbnailUrl: '',
+  //     duration: '',
+  //     subject: '',
+  //     grade: '', // groupId
+  //     category: 'درس',
+  //     fileSize: '',
+  //     isPublished: false
+  //   };
+  //   this.selectedFile = null;
+  //   this.uploadProgress = 0;
+  // }
+
+  getFilteredVideos(): Video[] {
+    return this.videos;
+  }
+
+  // Check if user can edit/delete
+  canEdit(): boolean {
+    return this.userRole === 'Admin' || this.userRole === 'Assistant';
+  }
+
+  // video 
   uploadVideo() {
     if (!this.isFormValid()) {
       this.toastr.warning('يرجى ملء جميع الحقول المطلوبة', 'تنبيه');
       return;
     }
 
-    if (!this.selectedFile) {
-      this.toastr.warning('يرجى اختيار ملف فيديو', 'تنبيه');
-      return;
-    }
-
-    this.isSaving = true;
-
-    // هنا يجب رفع الملف للسيرفر أولاً وأخذ الـ URL
-    // في هذا المثال، سنستخدم URL مؤقت
-    // في الواقع، يجب استخدام خدمة رفع ملفات (AWS S3, Azure Blob, etc.)
-    
-    // محاكاة رفع الفيديو
-    this.uploadProgress = 0;
-    const interval = setInterval(() => {
-      this.uploadProgress += 10;
-      
-      if (this.uploadProgress >= 100) {
-        clearInterval(interval);
-        
-        // بعد اكتمال الرفع، احفظ البيانات
-        this.newVideo.url = `https://example.com/videos/${Date.now()}.mp4`; // URL مؤقت
-        this.newVideo.thumbnailUrl = `https://via.placeholder.com/320x180/4F46E5/FFFFFF?text=${encodeURIComponent(this.newVideo.title)}`;
-
-        this.videosService.createVideo(this.newVideo).subscribe({
-          next: (response: any) => {
-            if (response.success) {
-              this.toastr.success('تم رفع الفيديو بنجاح!', 'نجاح');
-              this.closeUploadModal();
-              this.loadVideos();
-              this.loadStats();
-            } else {
-              this.toastr.error(response.message || 'فشل رفع الفيديو', 'خطأ');
-            }
-            this.isSaving = false;
-          },
-          error: (error: any) => {
-            console.error('Error uploading video:', error);
-            this.toastr.error('حدث خطأ أثناء رفع الفيديو', 'خطأ');
-            this.isSaving = false;
-          }
-        });
+    // ✅ YouTube Video
+    if (this.videoSource === 'youtube') {
+      if (!this.youtubeUrl) {
+        this.toastr.warning('يرجى إدخال رابط YouTube', 'تنبيه');
+        return;
       }
-    }, 300);
+
+      this.isSaving = true;
+
+      // استخرج YouTube ID
+      const videoId = this.extractYouTubeId(this.youtubeUrl);
+      if (!videoId) {
+        this.toastr.error('رابط YouTube غير صحيح', 'خطأ');
+        this.isSaving = false;
+        return;
+      }
+
+      this.newVideo.url = `https://www.youtube.com/embed/${videoId}`;
+      this.newVideo.thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+      this.newVideo.fileSize = 'YouTube';
+      this.newVideo.duration = this.newVideo.duration || '00:00';
+
+      this.saveVideo();
+
+    } else {
+      // ✅ Local Video (مش شغال دلوقتي)
+      this.toastr.warning('رفع الفيديوهات المحلية قيد التطوير', 'تنبيه');
+    }
   }
 
+  // ✅ أضف الدالة دي (جديدة)
+  extractYouTubeId(url: string): string | null {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+  }
+
+  // ✅ أضف الدالة دي (جديدة)
+  saveVideo() {
+    this.videosService.createVideo(this.newVideo).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.toastr.success('تم رفع الفيديو بنجاح!', 'نجاح');
+          this.closeUploadModal();
+          this.loadVideos();
+          this.loadStats();
+        } else {
+          this.toastr.error(response.message || 'فشل رفع الفيديو', 'خطأ');
+        }
+        this.isSaving = false;
+      },
+      error: (error: any) => {
+        console.error('Error uploading video:', error);
+        this.toastr.error('حدث خطأ أثناء رفع الفيديو', 'خطأ');
+        this.isSaving = false;
+      }
+    });
+  }
+
+  isYouTubeVideo(url: string): boolean {
+    return url.includes('youtube.com') || url.includes('youtu.be');
+  }
+
+  // ✅ عدل resetForm()
   resetForm() {
     this.newVideo = {
       title: '',
@@ -422,14 +589,7 @@ export class VideosComponent implements OnInit {
     };
     this.selectedFile = null;
     this.uploadProgress = 0;
-  }
-
-  getFilteredVideos(): Video[] {
-    return this.videos;
-  }
-
-  // Check if user can edit/delete
-  canEdit(): boolean {
-    return this.userRole === 'Admin' || this.userRole === 'Assistant';
+    this.videoSource = 'youtube'; // ⬅️ أضف
+    this.youtubeUrl = ''; // ⬅️ أضف
   }
 }

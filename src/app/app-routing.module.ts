@@ -45,6 +45,10 @@ const routes: Routes = [
     path: "exams", loadChildren: () =>
       import('./exams/exams.module').then(m => m.ExamsModule)
   },
+  {
+    path: "subjects", loadChildren: () =>
+      import('./subjects/subjects.module').then(m => m.SubjectsModule)
+  },
   { path: "**", redirectTo: "", pathMatch: "full" },
 ];
 

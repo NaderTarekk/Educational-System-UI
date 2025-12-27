@@ -1,13 +1,11 @@
-<aside 
-    *ngIf="!(isMobile && !(sidenavService.isOpen$ | async))"
-    [ngClass]="{
+<aside *ngIf="!(isMobile && !(sidenavService.isOpen$ | async))" [ngClass]="{
         'translate-x-0': (sidenavService.isOpen$ | async),
         '-translate-x-full': !(sidenavService.isOpen$ | async) && !isMobile,
         'w-72': (sidenavService.isOpen$ | async) || isMobile,
         'lg:w-20': !(sidenavService.isOpen$ | async) && !isMobile
     }"
     class="fixed lg:relative top-0 right-0 h-screen bg-gradient-to-b from-white via-white to-gray-50 shadow-2xl transition-all duration-300 ease-in-out z-50 border-l border-gray-300">
-    
+
     <div class="flex flex-col h-full">
         <!-- Header -->
         <div class="relative px-4 py-4 border-b border-gray-300 bg-gradient-to-r from-blue-600 to-indigo-700">
@@ -15,9 +13,11 @@
                 <!-- Logo كامل -->
                 <div *ngIf="sidenavService.isOpen$ | async"
                     class="flex items-center gap-3 transition-all duration-300 flex-1 min-w-0">
-                    <div class="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform flex-shrink-0">
+                    <div
+                        class="w-10 h-10 bg-white rounded-xl shadow-lg flex items-center justify-center transform hover:scale-110 transition-transform flex-shrink-0">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
                     <div class="flex-1 min-w-0">
@@ -30,7 +30,8 @@
                 <div *ngIf="!(sidenavService.isOpen$ | async)"
                     class="hidden lg:flex w-10 h-10 bg-white rounded-xl shadow-lg items-center justify-center mx-auto">
                     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
 
@@ -38,12 +39,15 @@
                 <button (click)="sidenavService.close()"
                     class="lg:hidden p-2 hover:bg-white/20 rounded-xl transition-all duration-300 transform hover:scale-110 active:scale-95 flex-shrink-0">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
-            <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400"></div>
+            <div
+                class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">
+            </div>
         </div>
 
         <!-- Navigation Items -->
@@ -54,13 +58,16 @@
                 routerLinkActive="bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-blue-100 rounded-xl group-hover:bg-blue-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
-                    <svg class="w-6 h-6 text-blue-600 group-[.router-link-active]:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                <div
+                    class="relative p-2 bg-blue-100 rounded-xl group-hover:bg-blue-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <svg class="w-6 h-6 text-blue-600 group-[.router-link-active]:text-white" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     الرئيسية
                 </span>
             </a>
@@ -70,11 +77,12 @@
                 routerLinkActive="bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-emerald-100 rounded-xl group-hover:bg-emerald-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                <div
+                    class="relative p-2 bg-emerald-100 rounded-xl group-hover:bg-emerald-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
                     <i class="fa-solid fa-users text-emerald-600 group-[.router-link-active]:text-white text-xl"></i>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     المستخدمين والطلاب
                 </span>
             </a>
@@ -84,12 +92,33 @@
                 routerLinkActive="bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-amber-100 rounded-xl group-hover:bg-amber-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
-                    <i class="fa-solid fa-users-between-lines text-amber-600 group-[.router-link-active]:text-white text-xl"></i>
+                <div
+                    class="relative p-2 bg-amber-100 rounded-xl group-hover:bg-amber-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <i
+                        class="fa-solid fa-users-between-lines text-amber-600 group-[.router-link-active]:text-white text-xl"></i>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     المجاميع
+                </span>
+            </a>
+
+            <!-- المواد -->
+            <a routerLink="/subjects" 
+                routerLinkActive="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-lg shadow-cyan-500/50"
+                [class.justify-center]="!(sidenavService.isOpen$ | async)"
+                class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-cyan-50 hover:to-orange-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
+                <div
+                    class="relative p-2 bg-cyan-100 rounded-xl group-hover:bg-cyan-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <i
+                        class="fa-solid fa-users-between-lines text-cyan-600 group-[.router-link-active]:text-white text-xl"></i>
+                </div>
+                <span *ngIf="sidenavService.isOpen$ | async" class="font-semibold text-base
+         text-gray-700 
+         group-focus:text-white
+         group-[.router-link-active]:text-white
+         transition-colors duration-300 truncate">
+                    المواد
                 </span>
             </a>
 
@@ -98,11 +127,13 @@
                 routerLinkActive="bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg shadow-blue-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-blue-100 rounded-xl group-hover:bg-blue-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
-                    <i class="fa-solid fa-person-circle-check text-blue-600 group-[.router-link-active]:text-white text-xl"></i>
+                <div
+                    class="relative p-2 bg-blue-100 rounded-xl group-hover:bg-blue-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <i
+                        class="fa-solid fa-person-circle-check text-blue-600 group-[.router-link-active]:text-white text-xl"></i>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     الغياب والحضور
                 </span>
             </a>
@@ -112,11 +143,12 @@
                 routerLinkActive="bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-green-100 rounded-xl group-hover:bg-green-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                <div
+                    class="relative p-2 bg-green-100 rounded-xl group-hover:bg-green-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
                     <i class="fa-solid fa-list-check text-green-600 group-[.router-link-active]:text-white text-xl"></i>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     إدارة الإختبارات
                 </span>
             </a>
@@ -126,11 +158,12 @@
                 routerLinkActive="bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-lg shadow-red-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-red-100 rounded-xl group-hover:bg-red-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                <div
+                    class="relative p-2 bg-red-100 rounded-xl group-hover:bg-red-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
                     <i class="fa-solid fa-circle-play text-red-600 group-[.router-link-active]:text-white text-xl"></i>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     الفيديوهات
                 </span>
             </a>
@@ -140,11 +173,13 @@
                 routerLinkActive="bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-indigo-100 rounded-xl group-hover:bg-indigo-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
-                    <i class="fa-solid fa-sack-dollar text-indigo-600 group-[.router-link-active]:text-white text-xl"></i>
+                <div
+                    class="relative p-2 bg-indigo-100 rounded-xl group-hover:bg-indigo-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <i
+                        class="fa-solid fa-sack-dollar text-indigo-600 group-[.router-link-active]:text-white text-xl"></i>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     المدفوعات
                 </span>
             </a>
@@ -154,11 +189,13 @@
                 routerLinkActive="bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-lg shadow-rose-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-rose-50 hover:to-red-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-rose-100 rounded-xl group-hover:bg-rose-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
-                    <span class="material-symbols-outlined text-rose-600 group-[.router-link-active]:text-white text-xl">attach_money</span>
+                <div
+                    class="relative p-2 bg-rose-100 rounded-xl group-hover:bg-rose-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <span
+                        class="material-symbols-outlined text-rose-600 group-[.router-link-active]:text-white text-xl">attach_money</span>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     النفقات
                 </span>
             </a>
@@ -168,16 +205,21 @@
                 routerLinkActive="bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-amber-100 rounded-xl group-hover:bg-amber-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
-                    <svg class="w-6 h-6 text-amber-600 group-[.router-link-active]:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                <div
+                    class="relative p-2 bg-amber-100 rounded-xl group-hover:bg-amber-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <svg class="w-6 h-6 text-amber-600 group-[.router-link-active]:text-white" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                     </svg>
                 </div>
                 <div *ngIf="sidenavService.isOpen$ | async" class="flex items-center gap-2 flex-1 min-w-0">
-                    <span class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    <span
+                        class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                         الرسائل
                     </span>
-                    <span class="px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse flex-shrink-0">
+                    <span
+                        class="px-2 py-0.5 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse flex-shrink-0">
                         {{ unreadCount }}
                     </span>
                 </div>
@@ -191,14 +233,18 @@
                 routerLinkActive="bg-gradient-to-r from-slate-500 to-gray-600 text-white shadow-lg shadow-slate-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-slate-50 hover:to-gray-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div class="relative p-2 bg-slate-100 rounded-xl group-hover:bg-slate-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
-                    <svg class="w-6 h-6 text-slate-600 group-[.router-link-active]:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <div
+                    class="relative p-2 bg-slate-100 rounded-xl group-hover:bg-slate-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <svg class="w-6 h-6 text-slate-600 group-[.router-link-active]:text-white" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
                 <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     الإعدادات
                 </span>
             </a>
@@ -214,14 +260,15 @@
                     <img src="https://ui-avatars.com/api/?name=محمد+احمد&background=4F46E5&color=fff&size=128"
                         alt="User"
                         class="w-12 h-12 rounded-xl ring-2 ring-blue-500 ring-offset-2 group-hover:scale-110 transition-transform duration-300">
-                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white">
+                    </div>
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="font-bold text-base text-gray-800 truncate">محمد أحمد</p>
                     <p class="text-xs text-gray-500 truncate">admindashboard.com</p>
                 </div>
-                <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                 </svg>
@@ -233,7 +280,8 @@
                     <img src="https://ui-avatars.com/api/?name=محمد+احمد&background=4F46E5&color=fff&size=128"
                         alt="User"
                         class="w-12 h-12 rounded-xl ring-2 ring-blue-500 ring-offset-2 hover:scale-110 transition-transform duration-300">
-                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                    <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white">
+                    </div>
                 </div>
             </div>
         </div>

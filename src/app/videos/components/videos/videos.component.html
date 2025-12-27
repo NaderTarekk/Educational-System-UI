@@ -1,6 +1,6 @@
 <!-- src/app/pages/videos/videos.component.html -->
 <div class="min-h-screen bg-gray-50 p-4 md:p-6" dir="rtl">
-    
+
     <!-- Page Title -->
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -17,15 +17,15 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" *ngIf="userRole === 'Admin' || userRole === 'Assistant' ">
         <!-- Total Videos -->
         <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-4 md:p-6 shadow-lg text-white">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-indigo-100 text-xs md:text-sm mb-1">إجمالي الفيديوهات</p>
+                    <p class="text-indigo-100 text-xs md:text-sm mb-1">إجمالي الفيديوهات </p>
                     <p class="text-2xl md:text-3xl font-bold">{{stats.totalVideos}}</p>
                 </div>
-                <div class="w-12 h-12 md:w-14 md:h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <div class="w-12 h-12 md:w-14 md:h-14  bg-opacity-20 rounded-full flex items-center justify-center">
                     <i class="fas fa-video text-2xl md:text-3xl"></i>
                 </div>
             </div>
@@ -38,7 +38,7 @@
                     <p class="text-green-100 text-xs md:text-sm mb-1">منشورة</p>
                     <p class="text-2xl md:text-3xl font-bold">{{stats.published}}</p>
                 </div>
-                <div class="w-12 h-12 md:w-14 md:h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <div class="w-12 h-12 md:w-14 md:h-14  bg-opacity-20 rounded-full flex items-center justify-center">
                     <i class="fas fa-check-circle text-2xl md:text-3xl"></i>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                     <p class="text-orange-100 text-xs md:text-sm mb-1">مسودة</p>
                     <p class="text-2xl md:text-3xl font-bold">{{stats.draft}}</p>
                 </div>
-                <div class="w-12 h-12 md:w-14 md:h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <div class="w-12 h-12 md:w-14 md:h-14  bg-opacity-20 rounded-full flex items-center justify-center">
                     <i class="fas fa-edit text-2xl md:text-3xl"></i>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                     <p class="text-purple-100 text-xs md:text-sm mb-1">إجمالي المشاهدات</p>
                     <p class="text-2xl md:text-3xl font-bold">{{stats.totalViews | number}}</p>
                 </div>
-                <div class="w-12 h-12 md:w-14 md:h-14 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <div class="w-12 h-12 md:w-14 md:h-14  bg-opacity-20 rounded-full flex items-center justify-center">
                     <i class="fas fa-eye text-2xl md:text-3xl"></i>
                 </div>
             </div>
@@ -77,27 +77,22 @@
             <!-- Status Filter -->
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
                 <label class="text-sm font-medium text-gray-700">الحالة:</label>
-                <button (click)="filterVideos('all')" 
-                    [class.bg-indigo-600]="selectedFilter === 'all'"
-                    [class.text-white]="selectedFilter === 'all'" 
-                    [class.bg-gray-100]="selectedFilter !== 'all'"
+                <button (click)="filterVideos('all')" [class.bg-indigo-600]="selectedFilter === 'all'"
+                    [class.text-white]="selectedFilter === 'all'" [class.bg-gray-100]="selectedFilter !== 'all'"
                     [class.text-gray-700]="selectedFilter !== 'all'"
                     class="px-3 md:px-4 py-2 rounded-lg font-medium transition-all hover:scale-105 text-sm">
                     الكل
                 </button>
-                <button (click)="filterVideos('published')" 
-                    [class.bg-indigo-600]="selectedFilter === 'published'"
+                <button (click)="filterVideos('published')" [class.bg-indigo-600]="selectedFilter === 'published'"
                     [class.text-white]="selectedFilter === 'published'"
                     [class.bg-gray-100]="selectedFilter !== 'published'"
                     [class.text-gray-700]="selectedFilter !== 'published'"
                     class="px-3 md:px-4 py-2 rounded-lg font-medium transition-all hover:scale-105 text-sm">
                     منشورة
                 </button>
-                <button *ngIf="canEdit()" (click)="filterVideos('draft')" 
-                    [class.bg-indigo-600]="selectedFilter === 'draft'"
-                    [class.text-white]="selectedFilter === 'draft'" 
-                    [class.bg-gray-100]="selectedFilter !== 'draft'"
-                    [class.text-gray-700]="selectedFilter !== 'draft'"
+                <button *ngIf="canEdit()" (click)="filterVideos('draft')"
+                    [class.bg-indigo-600]="selectedFilter === 'draft'" [class.text-white]="selectedFilter === 'draft'"
+                    [class.bg-gray-100]="selectedFilter !== 'draft'" [class.text-gray-700]="selectedFilter !== 'draft'"
                     class="px-3 md:px-4 py-2 rounded-lg font-medium transition-all hover:scale-105 text-sm">
                     مسودة
                 </button>
@@ -109,17 +104,18 @@
                 <select [(ngModel)]="selectedSubject" (ngModelChange)="onSubjectChange()"
                     class="px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition-all text-sm">
                     <option value="all">جميع المواد</option>
-                    <option *ngFor="let subject of subjects" [value]="subject">{{subject}}</option>
+                    <!-- ⬅️ غيرها من subject لـ subject.name -->
+                    <option *ngFor="let subject of subjects" [value]="subject.name">{{subject.name}}</option>
                 </select>
             </div>
 
             <!-- Grade Filter -->
             <div class="flex items-center gap-2 w-full md:w-auto">
-                <label class="text-sm font-medium text-gray-700">الصف:</label>
-                <select [(ngModel)]="selectedGrade" (ngModelChange)="onGradeChange()"
+                <label class="text-sm font-medium text-gray-700">المجموعة:</label>
+                <select [(ngModel)]="selectedGroup" (ngModelChange)="onGroupChange()"
                     class="px-3 md:px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition-all text-sm">
-                    <option value="all">جميع الصفوف</option>
-                    <option *ngFor="let grade of grades" [value]="grade">{{grade}}</option>
+                    <option value="all">جميع المجموعات</option>
+                    <option *ngFor="let group of groups" [value]="group.id">{{group.name}}</option>
                 </select>
             </div>
 
@@ -127,7 +123,7 @@
 
             <!-- Search -->
             <div class="relative w-full md:w-64">
-                <input type="text" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" 
+                <input type="text" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()"
                     placeholder="ابحث عن فيديو..."
                     class="w-full px-4 py-2 pr-10 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-indigo-500 transition-all text-sm">
                 <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
@@ -137,7 +133,8 @@
 
     <!-- Loading State -->
     <div *ngIf="isLoading" class="text-center py-16">
-        <div class="inline-block w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        <div class="inline-block w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin">
+        </div>
         <p class="mt-4 text-gray-600 font-semibold">جاري تحميل الفيديوهات...</p>
     </div>
 
@@ -145,24 +142,26 @@
     <div *ngIf="!isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
         <div *ngFor="let video of getFilteredVideos()"
             class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all group">
-            
+
             <!-- Thumbnail -->
             <div class="relative overflow-hidden bg-gray-200 aspect-video">
-                <img [src]="video.thumbnailUrl || 'https://via.placeholder.com/320x180/4F46E5/FFFFFF?text=فيديو'" 
+                <img [src]="video.thumbnailUrl || 'https://via.placeholder.com/320x180/4F46E5/FFFFFF?text=فيديو'"
                     [alt]="video.title"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                
-                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
+
+                <div
+                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
                     <button (click)="viewVideo(video)"
                         class="opacity-0 group-hover:opacity-100 transition-all bg-white rounded-full p-3 md:p-4 shadow-2xl hover:scale-110 transform">
                         <i class="fas fa-play text-indigo-600 text-2xl md:text-3xl"></i>
                     </button>
                 </div>
-                
-                <span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs font-medium">
+
+                <span
+                    class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs font-medium">
                     {{video.duration || '00:00'}}
                 </span>
-                
+
                 <span *ngIf="!video.isPublished"
                     class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
                     مسودة
@@ -174,11 +173,11 @@
                 <div class="flex items-start justify-between mb-2">
                     <h3 class="text-base md:text-lg font-bold text-gray-800 line-clamp-2 flex-1">{{video.title}}</h3>
                     <div *ngIf="canEdit()" class="flex gap-1 mr-2">
-                        <button (click)="editVideo(video)" 
-                            class="p-1.5 hover:bg-gray-100 rounded-lg transition-all" title="تعديل">
+                        <button (click)="editVideo(video)" class="p-1.5 hover:bg-gray-100 rounded-lg transition-all"
+                            title="تعديل">
                             <i class="fas fa-edit text-gray-600"></i>
                         </button>
-                        <button (click)="deleteVideo(video)" 
+                        <button (click)="openDeleteDialog(video)"
                             class="p-1.5 hover:bg-red-50 rounded-lg transition-all" title="حذف">
                             <i class="fas fa-trash text-red-600"></i>
                         </button>
@@ -196,16 +195,15 @@
                         {{video.subject}}
                     </span>
                     <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-medium">
-                        {{video.grade}}
+                        {{getGroupName(video.grade)}}
                     </span>
                 </div>
 
                 <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
                     <div class="flex items-center gap-3">
-                        <button (click)="toggleLike(video)" 
+                        <button (click)="toggleLike(video)"
                             class="flex items-center gap-1 hover:text-red-500 transition-colors">
-                            <i class="fas fa-heart" 
-                                [class.text-red-500]="video.isLikedByCurrentUser"
+                            <i class="fas fa-heart" [class.text-red-500]="video.isLikedByCurrentUser"
                                 [class.text-gray-400]="!video.isLikedByCurrentUser"></i>
                             <span>{{video.likes | number}}</span>
                         </button>
@@ -219,7 +217,8 @@
 
                 <div class="flex items-center justify-between pt-3 border-t border-gray-100">
                     <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        <div
+                            class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
                             {{getInitials(video.uploadedByUser.fullName)}}
                         </div>
                         <div>
@@ -228,13 +227,12 @@
                         </div>
                     </div>
 
-                    <button *ngIf="canEdit()" (click)="togglePublish(video)" 
-                        [class.bg-green-100]="video.isPublished"
-                        [class.text-green-700]="video.isPublished" 
-                        [class.bg-gray-100]="!video.isPublished"
+                    <button *ngIf="canEdit()" (click)="togglePublish(video)" [class.bg-green-100]="video.isPublished"
+                        [class.text-green-700]="video.isPublished" [class.bg-gray-100]="!video.isPublished"
                         [class.text-gray-700]="!video.isPublished"
                         class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105 flex items-center gap-1">
-                        <i class="fas" [class.fa-check-circle]="video.isPublished" [class.fa-times-circle]="!video.isPublished"></i>
+                        <i class="fas" [class.fa-check-circle]="video.isPublished"
+                            [class.fa-times-circle]="!video.isPublished"></i>
                         {{video.isPublished ? 'منشور' : 'غير منشور'}}
                     </button>
                 </div>
@@ -257,17 +255,14 @@
             class="px-4 py-2 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
             <i class="fas fa-chevron-right"></i>
         </button>
-        
-        <button *ngFor="let page of [].constructor(totalPages); let i = index"
-            (click)="goToPage(i + 1)"
-            [class.bg-indigo-600]="currentPage === i + 1"
-            [class.text-white]="currentPage === i + 1"
-            [class.bg-white]="currentPage !== i + 1"
-            [class.text-gray-700]="currentPage !== i + 1"
+
+        <button *ngFor="let page of [].constructor(totalPages); let i = index" (click)="goToPage(i + 1)"
+            [class.bg-indigo-600]="currentPage === i + 1" [class.text-white]="currentPage === i + 1"
+            [class.bg-white]="currentPage !== i + 1" [class.text-gray-700]="currentPage !== i + 1"
             class="px-4 py-2 border-2 border-gray-200 rounded-lg hover:bg-gray-50 transition-all font-bold">
             {{i + 1}}
         </button>
-        
+
         <button (click)="nextPage()" [disabled]="currentPage === totalPages"
             class="px-4 py-2 bg-white border-2 border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
             <i class="fas fa-chevron-left"></i>
@@ -277,13 +272,13 @@
 </div>
 
 <!-- Upload Modal -->
-<div *ngIf="showUploadModal" 
+<div *ngIf="showUploadModal"
     class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
     (click)="closeUploadModal()">
-    
+
     <div (click)="$event.stopPropagation()"
         class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-slideUp">
-        
+
         <!-- Header -->
         <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6">
             <div class="flex items-center justify-between">
@@ -307,24 +302,72 @@
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
             <div class="space-y-4">
                 <!-- File Upload -->
+                <!-- Video Source Selection -->
                 <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-3">
+                        <i class="fas fa-video text-indigo-600 ml-2"></i>
+                        مصدر الفيديو
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button type="button" (click)="videoSource = 'youtube'"
+                            [class.bg-red-600]="videoSource === 'youtube'"
+                            [class.text-white]="videoSource === 'youtube'"
+                            [class.bg-gray-100]="videoSource !== 'youtube'"
+                            [class.text-gray-700]="videoSource !== 'youtube'"
+                            class="px-4 py-3 rounded-xl font-bold transition-all border-2 hover:scale-105"
+                            [class.border-red-600]="videoSource === 'youtube'"
+                            [class.border-gray-200]="videoSource !== 'youtube'">
+                            <i class="fab fa-youtube ml-2"></i>
+                            YouTube
+                        </button>
+                        <button type="button" (click)="videoSource = 'local'"
+                            [class.bg-purple-600]="videoSource === 'local'" [class.text-white]="videoSource === 'local'"
+                            [class.bg-gray-100]="videoSource !== 'local'"
+                            [class.text-gray-700]="videoSource !== 'local'"
+                            class="px-4 py-3 rounded-xl font-bold transition-all border-2 hover:scale-105"
+                            [class.border-purple-600]="videoSource === 'local'"
+                            [class.border-gray-200]="videoSource !== 'local'">
+                            <i class="fas fa-upload ml-2"></i>
+                            رفع ملف
+                        </button>
+                    </div>
+                </div>
+
+                <!-- YouTube URL Input -->
+                <div *ngIf="videoSource === 'youtube'">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fab fa-youtube text-red-600 ml-2"></i>
+                        رابط YouTube
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="url" [(ngModel)]="youtubeUrl"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 transition-all"
+                        placeholder="https://www.youtube.com/watch?v=...">
+                    <small class="text-gray-500 mt-1 block">الصق رابط الفيديو من YouTube</small>
+                </div>
+
+                <!-- File Upload (Local) -->
+                <div *ngIf="videoSource === 'local'">
                     <label class="block text-sm font-bold text-gray-700 mb-2">
                         <i class="fas fa-video text-indigo-600 ml-2"></i>
                         ملف الفيديو
                         <span class="text-red-500">*</span>
                     </label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 transition-all">
+                    <div
+                        class="border-2 border-dashed border-gray-300 rounded-xl p-6 md:p-8 text-center hover:border-indigo-500 transition-all">
                         <input type="file" (change)="onFileSelected($event)" accept="video/*" class="hidden" #fileInput>
                         <button (click)="fileInput.click()" type="button"
                             class="flex flex-col items-center justify-center w-full">
                             <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-3"></i>
-                            <span class="text-sm text-gray-600" *ngIf="!selectedFile">اضغط لرفع الفيديو أو اسحبه هنا</span>
+                            <span class="text-sm text-gray-600" *ngIf="!selectedFile">اضغط لرفع الفيديو أو اسحبه
+                                هنا</span>
                             <span class="text-sm text-indigo-600 font-bold" *ngIf="selectedFile">
                                 <i class="fas fa-check-circle ml-1"></i>
                                 {{selectedFile.name}}
                             </span>
                         </button>
                     </div>
+                    <small class="text-orange-500 mt-1 block">⚠️ رفع الفيديوهات المحلية قيد التطوير</small>
                 </div>
 
                 <!-- Title -->
@@ -361,20 +404,24 @@
                         <select [(ngModel)]="newVideo.subject"
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 transition-all">
                             <option value="">اختر المادة</option>
-                            <option *ngFor="let subject of subjects" [value]="subject">{{subject}}</option>
+                            <option *ngFor="let subject of subjects" [value]="subject.name">{{subject.name}}</option>
                         </select>
                     </div>
+                    <!-- في Upload Modal و Edit Modal -->
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">
-                            <i class="fas fa-graduation-cap text-orange-600 ml-2"></i>
-                            الصف
+                            <i class="fas fa-users text-orange-600 ml-2"></i>
+                            المجموعة
                             <span class="text-red-500">*</span>
                         </label>
                         <select [(ngModel)]="newVideo.grade"
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-all">
-                            <option value="">اختر الصف</option>
-                            <option *ngFor="let grade of grades" [value]="grade">{{grade}}</option>
+                            <option value="">اختر المجموعة</option>
+                            <!-- ⬅️ تأكد إن group.id موجود -->
+                            <option *ngFor="let group of groups" [value]="group.id">{{group.name}}</option>
                         </select>
+                        <!-- ⬅️ أضف عرض القيمة للتأكد -->
+                        <small class="text-gray-500">القيمة المختارة: {{newVideo.grade || 'لا يوجد'}}</small>
                     </div>
                 </div>
 
@@ -431,8 +478,7 @@
 
                 <!-- Publish Option -->
                 <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <input type="checkbox" [(ngModel)]="newVideo.isPublished" 
-                        id="publishNow"
+                    <input type="checkbox" [(ngModel)]="newVideo.isPublished" id="publishNow"
                         class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500">
                     <label for="publishNow" class="text-sm font-bold text-gray-700 cursor-pointer">
                         نشر الفيديو فوراً
@@ -462,7 +508,8 @@
                 [class.opacity-50]="uploadProgress > 0 || isSaving"
                 [class.cursor-not-allowed]="uploadProgress > 0 || isSaving"
                 class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all font-bold flex items-center justify-center gap-2">
-                <i class="fas" [class.fa-upload]="!isSaving" [class.fa-spinner]="isSaving" [class.fa-spin]="isSaving"></i>
+                <i class="fas" [class.fa-upload]="!isSaving" [class.fa-spinner]="isSaving"
+                    [class.fa-spin]="isSaving"></i>
                 <span>{{ isSaving ? 'جاري الرفع...' : 'رفع الفيديو' }}</span>
             </button>
             <button (click)="closeUploadModal()" [disabled]="uploadProgress > 0 || isSaving"
@@ -477,10 +524,10 @@
 <div *ngIf="showViewModal && selectedVideo"
     class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
     (click)="closeViewModal()">
-    
+
     <div (click)="$event.stopPropagation()"
         class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden animate-slideUp">
-        
+
         <!-- Header -->
         <div class="bg-gradient-to-r from-purple-600 to-blue-600 p-6">
             <div class="flex items-center justify-between">
@@ -495,11 +542,22 @@
         <!-- Video Player -->
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
             <div class="aspect-video bg-black rounded-xl overflow-hidden mb-6">
-                <video controls class="w-full h-full">
+
+                <!-- ✅ YouTube Video (iframe) -->
+                <iframe *ngIf="isYouTubeVideo(selectedVideo.url)" [src]="selectedVideo.url | safePipe: 'resourceUrl'"
+                    class="w-full h-full" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+                </iframe>
+
+                <!-- ✅ Local Video (video tag) -->
+                <video *ngIf="!isYouTubeVideo(selectedVideo.url)" controls class="w-full h-full">
                     <source [src]="selectedVideo.url" type="video/mp4">
                     المتصفح لا يدعم عرض الفيديو.
                 </video>
+
             </div>
+
 
             <!-- Video Info -->
             <div class="space-y-4">
@@ -514,8 +572,8 @@
                         <p class="text-sm font-bold text-gray-800">{{selectedVideo.subject}}</p>
                     </div>
                     <div class="bg-purple-50 p-4 rounded-xl">
-                        <p class="text-xs text-purple-600 font-bold mb-1">الصف</p>
-                        <p class="text-sm font-bold text-gray-800">{{selectedVideo.grade}}</p>
+                        <p class="text-xs text-purple-600 font-bold mb-1">المجموعة</p>
+                        <p class="text-sm font-bold text-gray-800">{{getGroupName(selectedVideo.grade)}}</p>
                     </div>
                     <div class="bg-green-50 p-4 rounded-xl">
                         <p class="text-xs text-green-600 font-bold mb-1">النوع</p>
@@ -529,7 +587,7 @@
 
                 <div class="flex items-center justify-between pt-4 border-t">
                     <div class="flex items-center gap-4">
-                        <button (click)="toggleLike(selectedVideo)" 
+                        <button (click)="toggleLike(selectedVideo)"
                             class="flex items-center gap-2 px-4 py-2 rounded-xl transition-all hover:scale-105"
                             [class.bg-red-50]="selectedVideo.isLikedByCurrentUser"
                             [class.text-red-600]="selectedVideo.isLikedByCurrentUser"
@@ -545,7 +603,8 @@
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <div class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                        <div
+                            class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
                             {{getInitials(selectedVideo.uploadedByUser.fullName)}}
                         </div>
                         <div>
@@ -563,10 +622,10 @@
 <div *ngIf="showEditModal"
     class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn"
     (click)="closeEditModal()">
-    
+
     <div (click)="$event.stopPropagation()"
         class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-slideUp">
-        
+
         <!-- Header -->
         <div class="bg-gradient-to-r from-orange-600 to-red-600 p-6">
             <div class="flex items-center justify-between">
@@ -611,6 +670,7 @@
 
                 <!-- Subject and Grade -->
                 <div class="grid grid-cols-2 gap-4">
+                    <!-- المادة -->
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">
                             <i class="fas fa-book text-green-600 ml-2"></i>
@@ -618,17 +678,23 @@
                         </label>
                         <select [(ngModel)]="newVideo.subject"
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-green-500 transition-all">
-                            <option *ngFor="let subject of subjects" [value]="subject">{{subject}}</option>
+                            <option value="">اختر المادة</option>
+                            <!-- ⬅️ غيرها من subject لـ subject.name -->
+                            <option *ngFor="let subject of subjects" [value]="subject.name">{{subject.name}}</option>
                         </select>
                     </div>
+
+                    <!-- المجموعة -->
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">
-                            <i class="fas fa-graduation-cap text-orange-600 ml-2"></i>
-                            الصف <span class="text-red-500">*</span>
+                            <i class="fas fa-users text-orange-600 ml-2"></i>
+                            المجموعة <span class="text-red-500">*</span>
                         </label>
                         <select [(ngModel)]="newVideo.grade"
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-orange-500 transition-all">
-                            <option *ngFor="let grade of grades" [value]="grade">{{grade}}</option>
+                            <option value="">اختر المجموعة</option>
+                            <!-- ⬅️ ده صح -->
+                            <option *ngFor="let group of groups" [value]="group.id">{{group.name}}</option>
                         </select>
                     </div>
                 </div>
@@ -673,8 +739,7 @@
 
                 <!-- Publish Option -->
                 <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                    <input type="checkbox" [(ngModel)]="newVideo.isPublished" 
-                        id="publishEdit"
+                    <input type="checkbox" [(ngModel)]="newVideo.isPublished" id="publishEdit"
                         class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500">
                     <label for="publishEdit" class="text-sm font-bold text-gray-700 cursor-pointer">
                         نشر الفيديو
@@ -685,8 +750,7 @@
 
         <!-- Actions -->
         <div class="border-t border-gray-200 p-4 bg-gray-50 flex items-center gap-3">
-            <button (click)="updateVideo()" [disabled]="isSaving"
-                [class.opacity-50]="isSaving"
+            <button (click)="updateVideo()" [disabled]="isSaving" [class.opacity-50]="isSaving"
                 [class.cursor-not-allowed]="isSaving"
                 class="flex-1 bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl hover:shadow-lg transition-all font-bold flex items-center justify-center gap-2">
                 <i class="fas" [class.fa-save]="!isSaving" [class.fa-spinner]="isSaving" [class.fa-spin]="isSaving"></i>
@@ -700,28 +764,88 @@
     </div>
 </div>
 
+<!-- Delete Video Dialog -->
+<div *ngIf="isDeleteDialogOpen"
+    class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-fadeIn"
+    style="backdrop-filter: blur(8px);" (click)="closeDeleteDialog()">
+
+    <div (click)="$event.stopPropagation()"
+        class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-slideUp">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-red-600 to-rose-600 p-6">
+            <div class="flex items-center justify-center">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center">
+                    <i class="fas fa-trash-alt text-white text-3xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8 text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">تأكيد الحذف</h2>
+            <p class="text-gray-600 mb-2">هل أنت متأكد من حذف هذا الفيديو؟</p>
+            <p class="text-sm text-gray-500">لن تتمكن من استرجاعه بعد الحذف</p>
+
+            <div *ngIf="videoToDelete" class="mt-4 p-4 bg-gray-50 rounded-xl text-right">
+                <p class="font-semibold text-gray-800 mb-1">{{ videoToDelete.title }}</p>
+                <div class="flex gap-2 mt-2 justify-center">
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                        {{ videoToDelete.subject }}
+                    </span>
+                    <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                        {{ videoToDelete.category }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="border-t border-gray-200 p-4 flex items-center gap-3">
+            <button (click)="confirmDeleteVideo()" [disabled]="isDeleting" [class.opacity-50]="isDeleting"
+                [class.cursor-not-allowed]="isDeleting"
+                class="flex-1 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <i class="fas" [class.fa-trash]="!isDeleting" [class.fa-spinner]="isDeleting"
+                    [class.fa-spin]="isDeleting"></i>
+                <span>{{ isDeleting ? 'جاري الحذف...' : 'تأكيد الحذف' }}</span>
+            </button>
+            <button (click)="closeDeleteDialog()" [disabled]="isDeleting"
+                class="flex-1 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-times"></i>
+                <span>إلغاء</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <style>
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
+        to {
+            opacity: 1;
+        }
     }
-    to {
-        transform: translateY(0);
-        opacity: 1;
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
     }
-}
 
-.animate-fadeIn {
-    animation: fadeIn 0.2s ease-out;
-}
+    .animate-fadeIn {
+        animation: fadeIn 0.2s ease-out;
+    }
 
-.animate-slideUp {
-    animation: slideUp 0.3s ease-out;
-}
+    .animate-slideUp {
+        animation: slideUp 0.3s ease-out;
+    }
 </style>

@@ -1,0 +1,460 @@
+<!-- src/app/pages/subjects/subjects.component.html -->
+<div class="subjects-container">
+
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <div class="icon-wrapper">
+          <i class="fas fa-book"></i>
+        </div>
+        <div>
+          <h1 class="page-title">إدارة المواد الدراسية</h1>
+          <p class="page-subtitle">عرض وإدارة جميع المواد الدراسية</p>
+        </div>
+      </div>
+
+      <button class="btn-primary" (click)="openAddModal()" *ngIf="userRole === 'Admin'">
+        <i class="fas fa-plus ml-2"></i>
+        إضافة مادة جديدة
+      </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon bg-blue">
+          <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalSubjects }}</h3>
+          <p>إجمالي المواد</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-green">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.activeSubjects }}</h3>
+          <p>المواد النشطة</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-orange">
+          <i class="fas fa-pause-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.inactiveSubjects }}</h3>
+          <p>المواد المتوقفة</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-purple">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-info">
+          <h3>{{ stats.totalEnrollments }}</h3>
+          <p>إجمالي الاشتراكات</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="البحث عن مادة..." [(ngModel)]="searchText" (input)="onSearch()">
+    </div>
+
+    <div class="filter-buttons">
+      <button class="filter-btn" [class.active]="selectedFilter === 'all'" (click)="filterSubjects('all')">
+        <i class="fas fa-list ml-2"></i>
+        الكل
+      </button>
+      <button class="filter-btn" [class.active]="selectedFilter === 'active'" (click)="filterSubjects('active')">
+        <i class="fas fa-check-circle ml-2"></i>
+        النشطة
+      </button>
+      <button class="filter-btn" [class.active]="selectedFilter === 'inactive'" (click)="filterSubjects('inactive')">
+        <i class="fas fa-pause-circle ml-2"></i>
+        المتوقفة
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>جاري التحميل...</p>
+  </div>
+
+  <!-- Subjects Grid -->
+  <div class="subjects-grid" *ngIf="!isLoading && filteredSubjects.length > 0">
+    <div class="subject-card" *ngFor="let subject of filteredSubjects">
+
+      <!-- Card Header -->
+      <div class="card-header" [style.background]="subject.color || '#6366f1'">
+        <div class="subject-icon">
+          <i [class]="subject.icon || 'fas fa-book'"></i>
+        </div>
+        <div class="card-status">
+          <span class="status-badge" [class.active]="subject.isActive">
+            {{ subject.isActive ? 'نشط' : 'متوقف' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="card-body">
+        <h3 class="subject-name">{{ subject.name }}</h3>
+        <p class="subject-code" *ngIf="subject.code">{{ subject.code }}</p>
+        <p class="subject-description">{{ subject.description || 'لا يوجد وصف' }}</p>
+
+        <!-- Stats -->
+        <div class="subject-stats" *ngIf="userRole === 'Admin' || userRole === 'Assistant' ">
+          <div class="stat-item">
+            <i class="fas fa-user-graduate"></i>
+            <span>{{ subject.totalStudents }} طالب</span>
+          </div>
+          <div class="stat-item">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>{{ subject.totalTeachers }} مدرس</span>
+          </div>
+        </div>
+
+        <!-- Created Date -->
+        <div class="subject-date">
+          <i class="fas fa-calendar ml-2"></i>
+          تم الإنشاء: {{ subject.createdAt | date: 'dd/MM/yyyy' }}
+        </div>
+      </div>
+
+      <!-- Card Actions -->
+      <div class="card-actions" *ngIf="userRole === 'Admin' || userRole === 'Assistant' ">
+        <button class="btn-action view" (click)="viewSubjectUsers(subject)" title="عرض الطلاب">
+          <i class="fas fa-users"></i>
+        </button>
+        <button class="btn-action edit" (click)="openEditModal(subject)" *ngIf="userRole === 'Admin'" title="تعديل">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="btn-action delete" (click)="openDeleteDialog(subject)"  *ngIf="userRole === 'Admin'" title="حذف">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && filteredSubjects.length === 0">
+    <i class="fas fa-inbox"></i>
+    <h3>لا توجد مواد</h3>
+    <p>لم يتم العثور على أي مواد دراسية</p>
+    <button class="btn-primary" (click)="openAddModal()" *ngIf="userRole === 'Admin'">
+      <i class="fas fa-plus ml-2"></i>
+      إضافة مادة جديدة
+    </button>
+  </div>
+
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="modal-title-section">
+        <div class="modal-icon">
+          <i class="fas fa-book"></i>
+        </div>
+        <div>
+          <h2>{{ isEditMode ? 'تعديل المادة' : 'إضافة مادة جديدة' }}</h2>
+          <p>{{ isEditMode ? 'تعديل بيانات المادة الدراسية' : 'إضافة مادة دراسية جديدة' }}</p>
+        </div>
+      </div>
+      <button class="btn-close" (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <form [formGroup]="subjectForm">
+
+        <!-- Subject Name -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-book ml-2"></i>
+            اسم المادة
+            <span class="required">*</span>
+          </label>
+          <input type="text" formControlName="name" placeholder="مثال: الرياضيات" class="form-control"
+            [class.error]="subjectForm.get('name')?.invalid && subjectForm.get('name')?.touched">
+          <span class="error-message" *ngIf="subjectForm.get('name')?.invalid && subjectForm.get('name')?.touched">
+            اسم المادة مطلوب
+          </span>
+        </div>
+
+        <!-- Subject Code -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-code ml-2"></i>
+            كود المادة
+          </label>
+          <input type="text" formControlName="code" placeholder="مثال: MATH101" class="form-control">
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-align-right ml-2"></i>
+            الوصف
+          </label>
+          <textarea formControlName="description" placeholder="وصف المادة..." class="form-control" rows="4"></textarea>
+        </div>
+
+        <!-- Color & Icon Row -->
+        <div class="form-row">
+
+          <!-- Color Picker -->
+          <div class="form-group">
+            <label>
+              <i class="fas fa-palette ml-2"></i>
+              اللون
+            </label>
+            <div class="color-picker">
+              <input type="color" formControlName="color" class="color-input">
+              <span class="color-value">{{ subjectForm.get('color')?.value }}</span>
+            </div>
+          </div>
+
+          <!-- Icon Selector -->
+          <div class="form-group">
+            <label>
+              <i class="fas fa-icons ml-2"></i>
+              الأيقونة
+            </label>
+            <select formControlName="icon" class="form-control">
+              <option value="fas fa-book">📚 كتاب</option>
+              <option value="fas fa-calculator">🧮 آلة حاسبة</option>
+              <option value="fas fa-flask">🧪 قارورة</option>
+              <option value="fas fa-atom">⚛️ ذرة</option>
+              <option value="fas fa-globe">🌍 كرة أرضية</option>
+              <option value="fas fa-language">🔤 لغة</option>
+              <option value="fas fa-paint-brush">🎨 فرشاة</option>
+              <option value="fas fa-music">🎵 موسيقى</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Active Status -->
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" formControlName="isActive">
+            <span class="checkmark"></span>
+            <span class="label-text">المادة نشطة</span>
+          </label>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="closeModal()" [disabled]="isSaving">
+        إلغاء
+      </button>
+      <button class="btn-primary" (click)="saveSubject()" [disabled]="subjectForm.invalid || isSaving">
+        <i class="fas fa-spinner fa-spin ml-2" *ngIf="isSaving"></i>
+        <i class="fas fa-save ml-2" *ngIf="!isSaving"></i>
+        {{ isSaving ? 'جاري الحفظ...' : (isEditMode ? 'حفظ التعديلات' : 'إضافة المادة') }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- View Users Modal -->
+<div class="modal-overlay" *ngIf="showUsersModal" (click)="closeUsersModal()">
+  <div class="modal-content large" (click)="$event.stopPropagation()">
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="modal-title-section">
+        <div class="modal-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div>
+          <h2>المستخدمون المسجلون</h2>
+          <p>{{ selectedSubject?.name }}</p>
+        </div>
+      </div>
+      <button class="btn-close" (click)="closeUsersModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+
+      <!-- Loading -->
+      <div class="loading-container" *ngIf="isLoadingUsers">
+        <div class="spinner"></div>
+        <p>جاري التحميل...</p>
+      </div>
+
+      <!-- Users Table -->
+      <div class="table-container" *ngIf="!isLoadingUsers && subjectUsers.length > 0">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>الاسم الكامل</th>
+              <th>اسم المستخدم</th>
+              <th>البريد الإلكتروني</th>
+              <th>الدور</th>
+              <th>تاريخ التسجيل</th>
+              <th>الحالة</th>
+              <th *ngIf="userRole === 'Admin'">إجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of subjectUsers">
+              <td>{{ user.fullName }}</td>
+              <td>{{ user.userName }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span class="role-badge" [class]="getRoleClass(user.role)">
+                  {{ getRoleText(user.role) }}
+                </span>
+              </td>
+              <td>{{ user.enrolledAt | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="status-badge" [class.active]="user.isActive">
+                  {{ user.isActive ? 'نشط' : 'غير نشط' }}
+                </span>
+              </td>
+              <td *ngIf="userRole === 'Admin'">
+                <button class="btn-action delete" (click)="openRemoveUserDialog(user)" title="إزالة">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!isLoadingUsers && subjectUsers.length === 0">
+        <i class="fas fa-users-slash"></i>
+        <h3>لا يوجد مستخدمون</h3>
+        <p>لم يتم تسجيل أي مستخدمين في هذه المادة بعد</p>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Delete Subject Dialog -->
+<div *ngIf="isDeleteDialogOpen"
+    class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-fadeIn"
+    style="backdrop-filter: blur(8px);" (click)="closeDeleteDialog()">
+
+    <div (click)="$event.stopPropagation()"
+        class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-slideUp">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-red-600 to-rose-600 p-6">
+            <div class="flex items-center justify-center">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center">
+                    <i class="fas fa-trash-alt text-white text-3xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8 text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">تأكيد الحذف</h2>
+            <p class="text-gray-600 mb-2">هل أنت متأكد من حذف هذه المادة؟</p>
+            <p class="text-sm text-gray-500">لن تتمكن من استرجاعها بعد الحذف</p>
+
+            <div *ngIf="subjectToDelete" class="mt-4 p-4 bg-gray-50 rounded-xl text-right">
+                <p class="font-semibold text-gray-800 mb-1">{{ subjectToDelete.name }}</p>
+                <p class="text-sm text-gray-500" *ngIf="subjectToDelete.code">كود: {{ subjectToDelete.code }}</p>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="border-t border-gray-200 p-4 flex items-center gap-3">
+            <button (click)="confirmDeleteSubject()" [disabled]="isDeleting" [class.opacity-50]="isDeleting"
+                [class.cursor-not-allowed]="isDeleting"
+                class="flex-1 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <i class="fas" [class.fa-trash]="!isDeleting" [class.fa-spinner]="isDeleting"
+                    [class.fa-spin]="isDeleting"></i>
+                <span>{{ isDeleting ? 'جاري الحذف...' : 'تأكيد الحذف' }}</span>
+            </button>
+            <button (click)="closeDeleteDialog()" [disabled]="isDeleting"
+                class="flex-1 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-times"></i>
+                <span>إلغاء</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Remove User Dialog -->
+<div *ngIf="isDeleteUserDialogOpen"
+    class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 animate-fadeIn"
+    style="backdrop-filter: blur(8px);" (click)="closeRemoveUserDialog()">
+
+    <div (click)="$event.stopPropagation()"
+        class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-slideUp">
+
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-orange-600 to-red-600 p-6">
+            <div class="flex items-center justify-center">
+                <div class="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-times text-white text-3xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="p-8 text-center">
+            <h2 class="text-2xl font-bold text-gray-900 mb-3">تأكيد الإزالة</h2>
+            <p class="text-gray-600 mb-2">هل أنت متأكد من إزالة هذا المستخدم من المادة؟</p>
+            <p class="text-sm text-gray-500">سيتم إلغاء تسجيله من المادة</p>
+
+            <div *ngIf="userToRemove" class="mt-4 p-4 bg-gray-50 rounded-xl text-right">
+                <p class="font-semibold text-gray-800 mb-1">{{ userToRemove.fullName }}</p>
+                <p class="text-sm text-gray-500">{{ userToRemove.email }}</p>
+                <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold"
+                    [class]="getRoleClass(userToRemove.role)">
+                    {{ getRoleText(userToRemove.role) }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="border-t border-gray-200 p-4 flex items-center gap-3">
+            <button (click)="confirmRemoveUser()" [disabled]="isDeleting" [class.opacity-50]="isDeleting"
+                [class.cursor-not-allowed]="isDeleting"
+                class="flex-1 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <i class="fas" [class.fa-user-times]="!isDeleting" [class.fa-spinner]="isDeleting"
+                    [class.fa-spin]="isDeleting"></i>
+                <span>{{ isDeleting ? 'جاري الإزالة...' : 'تأكيد الإزالة' }}</span>
+            </button>
+            <button (click)="closeRemoveUserDialog()" [disabled]="isDeleting"
+                class="flex-1 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-times"></i>
+                <span>إلغاء</span>
+            </button>
+        </div>
+    </div>
+</div>
