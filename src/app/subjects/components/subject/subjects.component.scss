@@ -1201,3 +1201,89 @@
         }
     }
 }
+
+// Users Selection List
+.users-selection-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 12px;
+
+    .user-item {
+        padding: 12px;
+        border-bottom: 1px solid #f3f4f6;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            width: 100%;
+
+            input[type="checkbox"] {
+                margin-left: 12px;
+                width: 18px;
+                height: 18px;
+                cursor: pointer;
+            }
+
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex: 1;
+
+                .user-name {
+                    font-weight: 600;
+                    color: #374151;
+                }
+
+                .user-role {
+                    padding: 4px 12px;
+                    border-radius: 12px;
+                    font-size: 12px;
+                    font-weight: 600;
+
+                    &.student {
+                        background: #dbeafe;
+                        color: #1e40af;
+                    }
+
+                    &.assistant {
+                        background: #fef3c7;
+                        color: #92400e;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.selected-count {
+    margin-top: 12px;
+    padding: 12px;
+    background: #dcfce7;
+    border-radius: 8px;
+    color: #166534;
+    font-weight: 600;
+    text-align: center;
+}
+
+.empty-state-small {
+    padding: 32px;
+    text-align: center;
+    color: #9ca3af;
+
+    i {
+        font-size: 48px;
+        margin-bottom: 12px;
+    }
+
+    p {
+        font-size: 14px;
+    }
+}

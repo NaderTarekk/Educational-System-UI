@@ -5,6 +5,10 @@ export const environment = {
   // groupUrl: 'https://nhc-educational-system.runasp.net/api/Groups',
   // attendanceUrl: 'https://nhc-educational-system.runasp.net/api/Attendances',
   // examUrl: 'https://nhc-educational-system.runasp.net/api/Exams',
+  // messageUrl: 'https://nhc-educational-system.runasp.net/api/messages',
+  // expenseUrl: 'https://nhc-educational-system.runasp.net/api/expenses',
+  // videoUrl: 'https://nhc-educational-system.runasp.net/api/videos',
+  // subjectUrl: 'https://nhc-educational-system.runasp.net/api/subjects',
 
   authUrl: 'https://localhost:7273/api/Auth/',
   userUrl: 'https://localhost:7273/api/Users',
@@ -15,4 +19,5 @@ export const environment = {
   expenseUrl: 'https://localhost:7273/api/expenses',
   videoUrl: 'https://localhost:7273/api/videos',
   subjectUrl: 'https://localhost:7273/api/subjects',
+  baseUrl: 'https://localhost:7273',
 };

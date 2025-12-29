@@ -2,9 +2,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../auth/components/auth-service';
-import { Subject, CreateSubjectDto, UserSubject } from '../../../models/subject.model';
+import { Subject, CreateSubjectDto, UserSubject, AssignUsersDto } from '../../../models/subject.model';
 import { ToastrService } from 'ngx-toastr';
 import { SubjectsService } from '../../services/subject.service';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../../environment';
+import { UsersService } from '../../../user/services/users.service';
 
 @Component({
   selector: 'app-subjects',
@@ -13,6 +16,11 @@ import { SubjectsService } from '../../services/subject.service';
   styleUrl: './subjects.component.scss'
 })
 export class SubjectsComponent implements OnInit {
+  availableUsers: any[] = []; // كل المستخدمين المتاحين
+  selectedUserIds: string[] = [];
+  isLoadingAvailableUsers = false;
+  filteredAvailableUsers: any[] = [];
+  userSearchText = '';
 
   // Data
   subjects: Subject[] = [];
@@ -57,7 +65,8 @@ export class SubjectsComponent implements OnInit {
     private fb: FormBuilder,
     private subjectsService: SubjectsService,
     private authService: AuthService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private http: HttpClient
   ) {
     this.initForm();
   }
@@ -164,13 +173,95 @@ export class SubjectsComponent implements OnInit {
 
   openEditModal(subject: Subject) {
     this.isEditMode = true;
+    this.selectedSubject = subject;
     this.subjectForm.patchValue(subject);
     this.showModal = true;
+
+    // ✅ جلب المستخدمين المتاحين والمستخدمين الحاليين للمادة
+    this.loadAvailableUsers();
+    this.loadCurrentSubjectUsers(subject.id);
+  }
+
+  isUserSelected(userId: string): boolean {
+    return this.selectedUserIds.includes(userId);
+  }
+
+  // ✅ Toggle User Selection
+  toggleUserSelection(userId: string) {
+    const index = this.selectedUserIds.indexOf(userId);
+    if (index > -1) {
+      // إزالة
+      this.selectedUserIds.splice(index, 1);
+    } else {
+      // إضافة
+      this.selectedUserIds.push(userId);
+    }
+  }
+
+  onUserSearch() {
+    if (!this.userSearchText.trim()) {
+      this.filteredAvailableUsers = [...this.availableUsers];
+      return;
+    }
+
+    const search = this.userSearchText.toLowerCase();
+    this.filteredAvailableUsers = this.availableUsers.filter(user =>
+      user.firstName.toLowerCase().includes(search) ||
+      user.lastName.toLowerCase().includes(search) ||
+      user.email.toLowerCase().includes(search) ||
+      user.userName?.toLowerCase().includes(search)
+    );
+  }
+
+  loadCurrentSubjectUsers(subjectId: string) {
+    this.subjectsService.getSubjectUsers(subjectId).subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          // احفظ IDs المستخدمين الحاليين
+          this.selectedUserIds = response.data.map((u: any) => u.userId);
+        }
+      },
+      error: (error: any) => {
+        console.error('❌ Error loading current users:', error);
+      }
+    });
+  }
+
+  // ✅ جلب كل المستخدمين المتاحين
+  loadAvailableUsers() {
+    this.isLoadingAvailableUsers = true;
+
+    // استخدم الـ Users Service (لازم تعمله)
+    this.http.get<any>(`${environment.userUrl}`, {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${localStorage.getItem('NHC_PL_Token')}`
+      })
+    }).subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          // فلتر الطلاب والمدرسين بس
+          this.availableUsers = response.data.filter((u: any) =>
+            u.role === 'Student' || u.role === 'Assistant'
+          );
+          this.filteredAvailableUsers = [...this.availableUsers];
+        }
+        this.isLoadingAvailableUsers = false;
+      },
+      error: (error: any) => {
+        console.error('❌ Error loading users:', error);
+        this.toastr.error('فشل تحميل المستخدمين');
+        this.isLoadingAvailableUsers = false;
+      }
+    });
   }
 
   closeModal() {
     this.showModal = false;
     this.subjectForm.reset();
+    this.userSearchText = ''; // ⬅️ إعادة تعيين البحث
+    this.filteredAvailableUsers = [];
+    this.availableUsers = [];
+    this.selectedUserIds = [];
   }
 
   saveSubject() {
@@ -189,14 +280,20 @@ export class SubjectsComponent implements OnInit {
     operation.subscribe({
       next: (response: any) => {
         if (response.success) {
-          this.toastr.success(response.message || (this.isEditMode ? 'تم التعديل بنجاح' : 'تم الإضافة بنجاح'));
-          this.closeModal();
-          this.loadSubjects();
-          this.loadStats();
+          // ✅ لو Edit Mode، حدّث المستخدمين
+          if (this.isEditMode && this.selectedSubject) {
+            this.updateSubjectUsers(this.selectedSubject.id);
+          } else {
+            this.toastr.success(response.message || 'تم الإضافة بنجاح');
+            this.closeModal();
+            this.loadSubjects();
+            this.loadStats();
+            this.isSaving = false;
+          }
         } else {
           this.toastr.error(response.message || 'حدث خطأ');
+          this.isSaving = false;
         }
-        this.isSaving = false;
       },
       error: (error: any) => {
         console.error('❌ Error saving subject:', error);
@@ -205,6 +302,33 @@ export class SubjectsComponent implements OnInit {
       }
     });
   }
+
+  updateSubjectUsers(subjectId: string) {
+    const assignDto: AssignUsersDto = {
+      subjectId: subjectId,
+      userIds: this.selectedUserIds
+    };
+
+    this.subjectsService.assignUsers(assignDto).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.toastr.success('تم التعديل بنجاح');
+          this.closeModal();
+          this.loadSubjects();
+          this.loadStats();
+        } else {
+          this.toastr.error(response.message || 'فشل تحديث المستخدمين');
+        }
+        this.isSaving = false;
+      },
+      error: (error: any) => {
+        console.error('❌ Error updating users:', error);
+        this.toastr.error('فشل تحديث المستخدمين');
+        this.isSaving = false;
+      }
+    });
+  }
+
 
   // ========== Users Management ==========
 
@@ -347,7 +471,14 @@ export class SubjectsComponent implements OnInit {
       }
     });
   }
+  // ✅ Helper methods للعداد
+  getStudentsCount(): number {
+    return this.subjectUsers.filter(u => u.role === 'Student').length;
+  }
 
+  getAssistantsCount(): number {
+    return this.subjectUsers.filter(u => u.role === 'Assistant').length;
+  }
   // ✅ احسب Stats
   calculateStats() {
     this.stats.totalSubjects = this.subjects.length;

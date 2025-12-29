@@ -2,7 +2,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environment';
-import { tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
@@ -49,8 +49,15 @@ export class AuthService {
     }
   }
 
-  refreshToken(id: string) {
-    return this.http.get<any>(`${environment.authUrl}RefreshToken?id=${id}`, { headers: this.getHeaders() })
+  // refreshToken(id: string): Observable<any> {
+  //   return this.http.get<any>(`${environment.authUrl}RefreshToken?id=${id}`, { headers: this.getHeaders() })
+  // }
+
+  refreshToken(accessToken: string, refreshToken: string): Observable<any> {
+    return this.http.post(`${environment.authUrl}RefreshToken`, {
+      accessToken,
+      refreshToken
+    });
   }
 
   // ✅ دالة محسّنة للحصول على User ID من الـ Token

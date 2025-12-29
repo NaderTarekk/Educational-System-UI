@@ -1,4 +1,5 @@
 import { Group } from "./group.model";
+import { UserSubject } from "./subject.model";
 
 export interface User {
   id?: string;
@@ -11,6 +12,7 @@ export interface User {
   role: string;
   groupIds?: string[]; // Changed from groupId to groupIds
   userGroups?: UserGroup[];
+  userSubjects?: any[];
 }
 
 export interface UserGroup {

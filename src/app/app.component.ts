@@ -24,21 +24,21 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    const token = localStorage.getItem("NHC_PL_Token");
-    if (!token)
-      this.router.navigate(["/auth/login"])
-    else {
-      this.sidenavService.refreshToken().subscribe({
-        next: token => {
-          localStorage.removeItem('NHC_PL_Token')
-          localStorage.setItem('NHC_PL_Token', token);
-        },
-        error: err => {
-          console.error('❌ Error refreshing token', err);
-        }
-      });
+    // const token = localStorage.getItem("NHC_PL_Token");
+    // if (!token)
+    //   this.router.navigate(["/auth/login"])
+    // else {
+    //   this.sidenavService.refreshToken().subscribe({
+    //     next: token => {
+    //       localStorage.removeItem('NHC_PL_Token')
+    //       localStorage.setItem('NHC_PL_Token', token);
+    //     },
+    //     error: err => {
+    //       console.error('❌ Error refreshing token', err);
+    //     }
+    //   });
 
-    }
+    // }
     this.checkScreenSize();
   }
 

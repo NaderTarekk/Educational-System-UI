@@ -84,6 +84,7 @@
                     الكل
                 </button>
                 <button (click)="filterVideos('published')" [class.bg-indigo-600]="selectedFilter === 'published'"
+                    *ngIf="userRole == 'Admin' || userRole == 'Assistant'"
                     [class.text-white]="selectedFilter === 'published'"
                     [class.bg-gray-100]="selectedFilter !== 'published'"
                     [class.text-gray-700]="selectedFilter !== 'published'"
@@ -145,7 +146,14 @@
 
             <!-- Thumbnail -->
             <div class="relative overflow-hidden bg-gray-200 aspect-video">
-                <img [src]="video.thumbnailUrl || 'https://via.placeholder.com/320x180/4F46E5/FFFFFF?text=فيديو'"
+                <!-- ✅ PDF Icon -->
+                <div *ngIf="isPdf(video)" class="w-full h-full flex items-center justify-center bg-orange-50">
+                    <i class="fas fa-file-pdf text-orange-500 text-6xl"></i>
+                </div>
+
+                <!-- ✅ Video Thumbnail -->
+                <img *ngIf="!isPdf(video)"
+                    [src]="video.thumbnailUrl || 'https://play.google.com/store/apps/details?id=com.vidmar.pti'"
                     [alt]="video.title"
                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
 
@@ -153,7 +161,13 @@
                     class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
                     <button (click)="viewVideo(video)"
                         class="opacity-0 group-hover:opacity-100 transition-all bg-white rounded-full p-3 md:p-4 shadow-2xl hover:scale-110 transform">
-                        <i class="fas fa-play text-indigo-600 text-2xl md:text-3xl"></i>
+                        <!-- ✅ أيقونة مختلفة للـ PDF -->
+                        <i class="fas text-2xl md:text-3xl"
+                         [class.fa-play]="!isPdf(video)"
+                            [class.fa-eye]="isPdf(video)"
+                             [class.text-indigo-600]="!isPdf(video)"
+                            [class.text-orange-600]="isPdf(video)">
+                        </i>
                     </button>
                 </div>
 
@@ -165,6 +179,13 @@
                 <span *ngIf="!video.isPublished"
                     class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
                     مسودة
+                </span>
+
+                <!-- ✅ PDF Badge -->
+                <span *ngIf="isPdf(video)"
+                    class="absolute top-2 right-2 bg-orange-600 text-white px-2 py-1 rounded text-xs font-bold">
+                    <i class="fas fa-file-pdf ml-1"></i>
+                    PDF
                 </span>
             </div>
 
@@ -194,7 +215,8 @@
                     <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
                         {{video.subject}}
                     </span>
-                    <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-medium">
+                    <span class="bg-purple-100 text-purple-700 px-2 py-1 rounded-full text-xs font-medium"
+                        *ngIf="userRole == 'Admin' || userRole == 'Assistant'">
                         {{getGroupName(video.grade)}}
                     </span>
                 </div>
@@ -303,32 +325,69 @@
             <div class="space-y-4">
                 <!-- File Upload -->
                 <!-- Video Source Selection -->
+                <!-- Content Type Selection -->
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-3">
-                        <i class="fas fa-video text-indigo-600 ml-2"></i>
-                        مصدر الفيديو
+                        <i class="fas fa-file text-indigo-600 ml-2"></i>
+                        نوع المحتوى
                     </label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button type="button" (click)="videoSource = 'youtube'"
-                            [class.bg-red-600]="videoSource === 'youtube'"
-                            [class.text-white]="videoSource === 'youtube'"
-                            [class.bg-gray-100]="videoSource !== 'youtube'"
-                            [class.text-gray-700]="videoSource !== 'youtube'"
-                            class="px-4 py-3 rounded-xl font-bold transition-all border-2 hover:scale-105"
-                            [class.border-red-600]="videoSource === 'youtube'"
-                            [class.border-gray-200]="videoSource !== 'youtube'">
+                    <div class="flex gap-3">
+                        <!-- YouTube -->
+                        <button type="button" (click)="contentType = 'youtube'"
+                            [class.bg-red-600]="contentType === 'youtube'"
+                            [class.text-white]="contentType === 'youtube'"
+                            [class.bg-gray-100]="contentType !== 'youtube'"
+                            [class.text-gray-700]="contentType !== 'youtube'"
+                            class="flex-1 px-4 py-3 rounded-xl font-bold transition-all border-2 hover:scale-105"
+                            [class.border-red-600]="contentType === 'youtube'"
+                            [class.border-gray-200]="contentType !== 'youtube'">
                             <i class="fab fa-youtube ml-2"></i>
                             YouTube
                         </button>
-                        <button type="button" (click)="videoSource = 'local'"
-                            [class.bg-purple-600]="videoSource === 'local'" [class.text-white]="videoSource === 'local'"
-                            [class.bg-gray-100]="videoSource !== 'local'"
-                            [class.text-gray-700]="videoSource !== 'local'"
-                            class="px-4 py-3 rounded-xl font-bold transition-all border-2 hover:scale-105"
-                            [class.border-purple-600]="videoSource === 'local'"
-                            [class.border-gray-200]="videoSource !== 'local'">
-                            <i class="fas fa-upload ml-2"></i>
-                            رفع ملف
+
+                        <!-- PDF -->
+                        <button type="button" (click)="contentType = 'pdf'"
+                            [class.bg-orange-600]="contentType === 'pdf'" [class.text-white]="contentType === 'pdf'"
+                            [class.bg-gray-100]="contentType !== 'pdf'" [class.text-gray-700]="contentType !== 'pdf'"
+                            class="flex-1 px-4 py-3 rounded-xl font-bold transition-all border-2 hover:scale-105"
+                            [class.border-orange-600]="contentType === 'pdf'"
+                            [class.border-gray-200]="contentType !== 'pdf'">
+                            <i class="fas fa-file-pdf ml-2"></i>
+                            PDF
+                        </button>
+                    </div>
+                </div>
+
+                <!-- YouTube URL Input -->
+                <div *ngIf="contentType === 'youtube'">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fab fa-youtube text-red-600 ml-2"></i>
+                        رابط YouTube
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input type="url" [(ngModel)]="youtubeUrl"
+                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 transition-all"
+                        placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+
+                <!-- PDF File Upload -->
+                <div *ngIf="contentType === 'pdf'">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">
+                        <i class="fas fa-file-pdf text-orange-600 ml-2"></i>
+                        ملف PDF
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div
+                        class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-orange-500 transition-all">
+                        <input type="file" (change)="onPdfSelected($event)" accept=".pdf" class="hidden" #pdfInput>
+                        <button (click)="pdfInput.click()" type="button"
+                            class="flex flex-col items-center justify-center w-full">
+                            <i class="fas fa-file-pdf text-5xl text-orange-400 mb-3"></i>
+                            <span class="text-sm text-gray-600" *ngIf="!selectedPdfFile">اضغط لرفع ملف PDF</span>
+                            <span class="text-sm text-orange-600 font-bold" *ngIf="selectedPdfFile">
+                                <i class="fas fa-check-circle ml-1"></i>
+                                {{selectedPdfFile.name}}
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -347,7 +406,7 @@
                 </div>
 
                 <!-- File Upload (Local) -->
-                <div *ngIf="videoSource === 'local'">
+                <!-- <div *ngIf="videoSource === 'local'">
                     <label class="block text-sm font-bold text-gray-700 mb-2">
                         <i class="fas fa-video text-indigo-600 ml-2"></i>
                         ملف الفيديو
@@ -368,7 +427,7 @@
                         </button>
                     </div>
                     <small class="text-orange-500 mt-1 block">⚠️ رفع الفيديوهات المحلية قيد التطوير</small>
-                </div>
+                </div> -->
 
                 <!-- Title -->
                 <div>
@@ -543,23 +602,20 @@
         <div class="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
             <div class="aspect-video bg-black rounded-xl overflow-hidden mb-6">
 
-                <!-- ✅ YouTube Video (iframe) -->
-                <iframe *ngIf="isYouTubeVideo(selectedVideo.url)" [src]="selectedVideo.url | safePipe: 'resourceUrl'"
-                    class="w-full h-full" frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                <!-- ✅ YouTube Video -->
+                <iframe *ngIf="!isPdf(selectedVideo) && isYouTubeVideo(selectedVideo.url)"
+                    [src]="selectedVideo.url | safePipe: 'resourceUrl'" class="w-full h-full" frameborder="0"
                     allowfullscreen>
                 </iframe>
 
-                <!-- ✅ Local Video (video tag) -->
-                <video *ngIf="!isYouTubeVideo(selectedVideo.url)" controls class="w-full h-full">
-                    <source [src]="selectedVideo.url" type="video/mp4">
-                    المتصفح لا يدعم عرض الفيديو.
-                </video>
+                <!-- ✅ PDF Viewer -->
+                <iframe *ngIf="isPdf(selectedVideo)" [src]="selectedVideo.url | safePipe: 'resourceUrl'"
+                    class="w-full h-full" type="application/pdf">
+                </iframe>
 
             </div>
 
-
-            <!-- Video Info -->
+            <!-- Video/PDF Info -->
             <div class="space-y-4">
                 <div>
                     <h3 class="text-sm font-bold text-gray-500 mb-2">الوصف</h3>
@@ -580,38 +636,26 @@
                         <p class="text-sm font-bold text-gray-800">{{selectedVideo.category}}</p>
                     </div>
                     <div class="bg-orange-50 p-4 rounded-xl">
-                        <p class="text-xs text-orange-600 font-bold mb-1">المدة</p>
+                        <!-- ✅ عرض عدد الصفحات للـ PDF -->
+                        <p class="text-xs text-orange-600 font-bold mb-1">
+                            {{isPdf(selectedVideo) ? 'عدد الصفحات' : 'المدة'}}
+                        </p>
                         <p class="text-sm font-bold text-gray-800">{{selectedVideo.duration}}</p>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between pt-4 border-t">
-                    <div class="flex items-center gap-4">
-                        <button (click)="toggleLike(selectedVideo)"
-                            class="flex items-center gap-2 px-4 py-2 rounded-xl transition-all hover:scale-105"
-                            [class.bg-red-50]="selectedVideo.isLikedByCurrentUser"
-                            [class.text-red-600]="selectedVideo.isLikedByCurrentUser"
-                            [class.bg-gray-100]="!selectedVideo.isLikedByCurrentUser"
-                            [class.text-gray-600]="!selectedVideo.isLikedByCurrentUser">
-                            <i class="fas fa-heart"></i>
-                            <span class="font-bold">{{selectedVideo.likes}}</span>
-                        </button>
-                        <div class="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-xl">
-                            <i class="fas fa-eye text-gray-600"></i>
-                            <span class="font-bold text-gray-800">{{selectedVideo.views}}</span>
-                        </div>
-                    </div>
+                <!-- ✅ زر تحميل PDF -->
+                <div *ngIf="isPdf(selectedVideo)" class="pt-4 border-t">
+                    <a [href]="selectedVideo.url" download
+                        class="flex items-center justify-center gap-2 px-6 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-all font-bold">
+                        <i class="fas fa-download"></i>
+                        <span>تحميل PDF</span>
+                    </a>
+                </div>
 
-                    <div class="flex items-center gap-2">
-                        <div
-                            class="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                            {{getInitials(selectedVideo.uploadedByUser.fullName)}}
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-gray-800">{{selectedVideo.uploadedByUser.fullName}}</p>
-                            <p class="text-xs text-gray-500">{{selectedVideo.uploadDate | date:'medium'}}</p>
-                        </div>
-                    </div>
+                <!-- Existing likes/views section -->
+                <div class="flex items-center justify-between pt-4 border-t">
+                    <!-- ... existing code ... -->
                 </div>
             </div>
         </div>

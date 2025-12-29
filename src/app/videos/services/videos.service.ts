@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 })
 export class VideosService {
 
-private apiUrl = `${environment.videoUrl}`;
+  private apiUrl = `${environment.videoUrl}`;
 
   constructor(private http: HttpClient) { }
 
@@ -24,7 +24,7 @@ private apiUrl = `${environment.videoUrl}`;
   // Get all videos with filters
   getVideos(filter: VideoFilter): Observable<VideoResponse> {
     let params = new HttpParams();
-    
+
     if (filter.status) params = params.set('status', filter.status);
     if (filter.subject) params = params.set('subject', filter.subject);
     if (filter.grade) params = params.set('grade', filter.grade);
@@ -73,5 +73,19 @@ private apiUrl = `${environment.videoUrl}`;
   // Toggle like
   toggleLike(id: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/like`, {}, { headers: this.getHeaders() });
+  }
+
+  uploadPdfFile(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = localStorage.getItem('NHC_PL_Token');
+    return this.http.post(`${this.apiUrl}/upload-pdf`, formData, {
+      headers: new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+      }),
+      reportProgress: true,
+      observe: 'events'
+    });
   }
 }

@@ -17,6 +17,8 @@ export interface Video {
   fileSize?: string;
   uploadDate: string;
   isLikedByCurrentUser: boolean;
+    contentType: 'video' | 'pdf'; // ⬅️ أضف
+  pageCount?: number; // ⬅️ أضف
 }
 
 export interface UserBasicInfo {
@@ -40,6 +42,8 @@ export interface CreateVideoDto {
   isPublished: boolean;
   userIds?: string[];
   groupIds?: string[];
+    contentType: 'video' | 'pdf'; // ⬅️ أضف
+  pageCount?: number; // ⬅️ أضف
 }
 
 export interface VideoStats {

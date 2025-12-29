@@ -89,17 +89,11 @@ export class UsersComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        if (error.status === 401) {
-          localStorage.removeItem('NHC_PL_Token');
-          localStorage.removeItem('NHC_PL_Role');
-          this.toastr.info("قم بتسجيل الدخول اولا");
-          this.router.navigate(['/auth/login']);
-        } else if (error.status === 403) {
+        if (error.status === 403) {
           this.toastr.warning("ليس لديك صلاحية للوصول إلى هذا الجزء من النظام.");
           this.router.navigate(["/"]);
         } else {
           console.log(error);
-          
           this.showError(error.error?.message || 'حدث خطأ أثناء تحميل المستخدمين');
         }
         this.isLoading = false;
@@ -177,10 +171,10 @@ export class UsersComponent implements OnInit {
     if (user) {
       this.isEditMode = true;
       this.selectedUserId = user.id || null;
-      
+
       // Extract group IDs from userGroups
       const groupIds = user.userGroups?.map(ug => ug.groupId) || [];
-      
+
       this.userForm.patchValue({
         firstName: user.firstName,
         lastName: user.lastName,
@@ -262,7 +256,7 @@ export class UsersComponent implements OnInit {
     } else {
       this.userService.addUser(userData).subscribe({
         next: (response) => {
-          
+
           if (response.success) {
             console.log("success inside");
             this.showSuccess(response.message);
@@ -316,14 +310,14 @@ export class UsersComponent implements OnInit {
     if (!user.userGroups || user.userGroups.length === 0) {
       return 'غير منتمي لأي مجموعة';
     }
-    
+
     const groupNames = user.userGroups
       .map(ug => {
         const group = this.groups.find(g => g.id === ug.groupId);
         return group ? group.name : 'مجموعة غير معروفة';
       })
       .join(', ');
-      
+
     return groupNames;
   }
 

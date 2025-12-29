@@ -56,6 +56,13 @@ export class GroupsService {
     );
   }
 
+  getUserGroups(): Observable<ApiResponse<Group[]>> {
+    return this.http.get<ApiResponse<Group[]>>(
+      `${environment.groupUrl}/my-groups`,
+      { headers: this.getHeaders() }
+    );
+  }
+
   getStudentsByGroupId(groupId: string): Observable<ApiResponse<Student[]>> {
     return this.http.get<ApiResponse<Student[]>>(
       `${environment.groupUrl}/GetStudentsByGroupId/${groupId}`,

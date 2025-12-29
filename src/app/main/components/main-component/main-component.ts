@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { map, of } from 'rxjs';
 import { SharedService } from '../../../shared/services/shared';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-main-component',
@@ -8,7 +10,24 @@ import { SharedService } from '../../../shared/services/shared';
   templateUrl: './main-component.html',
   styleUrl: './main-component.scss',
 })
-export class MainComponent  {
+export class MainComponent implements OnInit {
+
+  constructor(private service: SharedService,) { }
+
+  ngOnInit(): void {
+    // const token = localStorage.getItem("NHC_PL_Token");
+
+    // if (token) {
+    //   localStorage.removeItem('NHC_PL_Token');
+    //   localStorage.removeItem('NHC_PL_Role');
+    //   this.service.refreshToken().subscribe({
+    //     next: (res: any) => {
+    //       localStorage.setItem("NHC_PL_Token", res.token);
+    //       localStorage.setItem("NHC_PL_Role", res.role);
+    //     }
+    //   });
+    // }
+  }
 
   isDialogOpen = false;
 
