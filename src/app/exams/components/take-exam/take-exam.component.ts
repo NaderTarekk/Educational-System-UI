@@ -1,39 +1,39 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import Swal from 'sweetalert2';
-import { Question, QuestionType, StudentExam, SubmitAnswerDto } from '../../../models/Exam.model';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ExamsService } from '../../services/exams.service';
+import { ToastrService } from 'ngx-toastr';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-take-exam',
   standalone: false,
   templateUrl: './take-exam.component.html',
-  styleUrl: './take-exam.component.scss'
+  styleUrls: ['./take-exam.component.scss']
 })
 export class TakeExamComponent implements OnInit, OnDestroy {
   examId: string = '';
-  studentExam?: StudentExam;
-  currentQuestionIndex: number = 0;
-  answers: Map<string, SubmitAnswerDto> = new Map();
+  exam: any = null;
+  studentExam: any = null;
+  questions: any[] = [];
+  currentQuestionIndex = 0;
+  answers: Map<string, any> = new Map();
+  String = String;
+  // Timer
   timeRemaining: number = 0;
-  timer: any;
-  isSubmitting: boolean = false;
-  hasStarted: boolean = false;
-  isLoading: boolean = true;
-  QuestionType = QuestionType;
+  timerSubscription?: Subscription;
 
-  // ADD THESE PROPERTIES
-  Math = Math; // Expose Math to template
-
-  // ADD THIS GETTER
-  get totalQuestions(): number {
-    return this.studentExam?.exam?.questions?.length || 0;
-  }
+  // UI States
+  isLoading = false;
+  isSubmitting = false;
+  isExamStarted = false;
+  isExamFinished = false;
+  showConfirmSubmit = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private examService: ExamsService
+    private examService: ExamsService,
+    private toastr: ToastrService
   ) { }
 
   ngOnInit(): void {
@@ -42,128 +42,108 @@ export class TakeExamComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
+    this.stopTimer();
   }
 
   checkExamAvailability(): void {
+    this.isLoading = true;
+
     this.examService.isExamAvailableForStudent(this.examId).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          this.checkIfStarted();
+          this.loadExam();
         } else {
-          this.showError('الامتحان غير متاح في الوقت الحالي');
+          this.toastr.error('هذا الامتحان غير متاح في الوقت الحالي');
           this.router.navigate(['/exams']);
         }
       },
       error: (error) => {
-        console.error('Error checking availability:', error);
-        this.showError('حدث خطأ أثناء التحقق من الامتحان');
+        this.toastr.error('حدث خطأ أثناء التحقق من الامتحان');
         this.router.navigate(['/exams']);
+        this.isLoading = false;
       }
     });
   }
 
-  checkIfStarted(): void {
-    this.examService.getStudentExam(this.examId).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          this.studentExam = response.data;
-          this.hasStarted = true;
-          this.loadAnswers();
-          this.startTimer();
-          this.isLoading = false;
-        } else {
-          this.showStartDialog();
-        }
-      },
-      error: (error) => {
-        this.showStartDialog();
-      }
-    });
+  // ✅ عدّل getAnswer method
+  getAnswer(questionId: string): any {
+    return this.answers.get(questionId) || { selectedOptionId: null, answerText: '' };
   }
-
-  showStartDialog(): void {
+  
+  loadExam(): void {
     this.examService.getExamByIdWithQuestionsAndOptions(this.examId).subscribe({
       next: (response) => {
         if (response.success && response.data) {
-          const exam = response.data;
+          this.exam = response.data;
 
-          Swal.fire({
-            title: exam.title,
-            html: `
-              <div class="text-right" dir="rtl">
-                <p class="mb-2"><strong>الوصف:</strong> ${exam.description}</p>
-                <p class="mb-2"><strong>المدة:</strong> ${exam.duration} دقيقة</p>
-                <p class="mb-2"><strong>عدد الأسئلة:</strong> ${exam.questionsCount || 0}</p>
-                <p class="mb-2"><strong>الدرجة الكلية:</strong> ${exam.totalMarks}</p>
-                <p class="mb-2"><strong>درجة النجاح:</strong> ${exam.passingMarks}</p>
-              </div>
-            `,
-            icon: 'info',
-            showCancelButton: true,
-            confirmButtonColor: '#2563eb',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'ابدأ الامتحان',
-            cancelButtonText: 'إلغاء',
-            reverseButtons: true
-          }).then((result) => {
-            if (result.isConfirmed) {
-              this.startExam();
-            } else {
-              this.router.navigate(['/exams']);
-            }
+          // ✅ تحويل Type من string لـ number
+          this.questions = (response.data.questions || []).map((q: any) => {
+            console.log("❓ Question Type:", q.type, "→", this.convertQuestionType(q.type));
+            return {
+              ...q,
+              type: this.convertQuestionType(q.type)
+            };
           });
+
+          this.checkIfAlreadyStarted();
+        } else {
+          console.error("❌ Response Failed:", response);
         }
         this.isLoading = false;
       },
       error: (error) => {
-        this.showError('حدث خطأ أثناء تحميل بيانات الامتحان');
+        console.error("❌ API Error:", error);
+        this.toastr.error('فشل تحميل الامتحان');
         this.router.navigate(['/exams']);
+        this.isLoading = false;
       }
     });
   }
 
-  startExam(): void {
-    this.examService.startExam(this.examId).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.hasStarted = true;
-          this.loadExamData();
-        } else {
-          this.showError(response.message || 'فشل بدء الامتحان');
-        }
-      },
-      error: (error) => {
-        console.error('Error starting exam:', error);
-        this.showError('حدث خطأ أثناء بدء الامتحان');
-      }
-    });
+  // ✅ أضف هذه الـ method
+  convertQuestionType(type: any): number {
+    if (typeof type === 'number') return type;
+
+    const typeStr = typeof type === 'string' ? type.toLowerCase() : '';
+
+    switch (typeStr) {
+      case 'multiplechoice':
+      case '0':
+        return 0;
+      case 'truefalse':
+      case '1':
+        return 1;
+      case 'essay':
+      case '2':
+        return 2;
+      default:
+        console.warn('⚠️ Unknown question type:', type);
+        return 0;
+    }
   }
 
-  loadExamData(): void {
+  checkIfAlreadyStarted(): void {
     this.examService.getStudentExam(this.examId).subscribe({
       next: (response) => {
         if (response.success && response.data) {
+          // الطالب بدأ الامتحان من قبل
           this.studentExam = response.data;
-          this.loadAnswers();
+          this.loadPreviousAnswers();
           this.startTimer();
+          this.isExamStarted = true;
         }
       },
-      error: (error) => {
-        console.error('Error loading exam:', error);
-        this.showError('حدث خطأ أثناء تحميل الامتحان');
+      error: () => {
+        // الطالب لم يبدأ الامتحان بعد
+        this.isExamStarted = false;
       }
     });
   }
 
-  loadAnswers(): void {
+  loadPreviousAnswers(): void {
     if (this.studentExam?.answers) {
-      this.studentExam.answers.forEach(answer => {
+      this.studentExam.answers.forEach((answer: any) => {
         this.answers.set(answer.questionId, {
-          studentExamId: answer.studentExamId,
-          questionId: answer.questionId,
           selectedOptionId: answer.selectedOptionId,
           answerText: answer.answerText
         });
@@ -171,94 +151,115 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     }
   }
 
-  startTimer(): void {
-    if (!this.studentExam?.exam) return;
+  startExam(): void {
+    this.isLoading = true;
 
-    const startTime = new Date(this.studentExam.startedAt!).getTime();
-    const duration = this.studentExam.exam.duration * 60 * 1000; // Convert to milliseconds
-
-    this.updateTimer();
-    this.timer = setInterval(() => {
-      this.updateTimer();
-
-      if (this.timeRemaining <= 0) {
-        this.autoSubmit();
-      }
-    }, 1000);
-  }
-
-  updateTimer(): void {
-    if (!this.studentExam?.exam) return;
-
-    const startTime = new Date(this.studentExam.startedAt!).getTime();
-    const duration = this.studentExam.exam.duration * 60 * 1000;
-    const now = new Date().getTime();
-    const elapsed = now - startTime;
-
-    this.timeRemaining = Math.max(0, duration - elapsed);
-  }
-
-  getFormattedTime(): string {
-    const minutes = Math.floor(this.timeRemaining / 60000);
-    const seconds = Math.floor((this.timeRemaining % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  }
-
-  get currentQuestion(): Question | undefined {
-    return this.studentExam?.exam?.questions?.[this.currentQuestionIndex];
-  }
-
-  selectOption(optionId: string): void {
-    if (!this.currentQuestion || !this.studentExam) return;
-
-    const answer: SubmitAnswerDto = {
-      studentExamId: this.studentExam.id,
-      questionId: this.currentQuestion.id,
-      selectedOptionId: optionId
-    };
-
-    this.answers.set(this.currentQuestion.id, answer);
-    this.saveAnswer(answer);
-  }
-
-  updateTextAnswer(text: string): void {
-    if (!this.currentQuestion || !this.studentExam) return;
-
-    const answer: SubmitAnswerDto = {
-      studentExamId: this.studentExam.id,
-      questionId: this.currentQuestion.id,
-      answerText: text
-    };
-
-    this.answers.set(this.currentQuestion.id, answer);
-  }
-
-  saveTextAnswer(): void {
-    if (!this.currentQuestion) return;
-
-    const answer = this.answers.get(this.currentQuestion.id);
-    if (answer) {
-      this.saveAnswer(answer);
-    }
-  }
-
-  saveAnswer(answer: SubmitAnswerDto): void {
-    this.examService.submitAnswer(answer).subscribe({
+    this.examService.startExam(this.examId).subscribe({
       next: (response) => {
-        // Answer saved successfully
+        if (response.success) {
+          this.toastr.success('تم بدء الامتحان بنجاح');
+          this.isExamStarted = true;
+          this.loadExam(); // Reload to get studentExam
+          this.startTimer();
+        }
+        this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error saving answer:', error);
+        this.toastr.error('فشل بدء الامتحان');
+        this.isLoading = false;
       }
     });
   }
 
-  isAnswered(questionId: string): boolean {
-    return this.answers.has(questionId);
+  startTimer(): void {
+    if (!this.studentExam || !this.exam) return;
+
+    const startTime = new Date(this.studentExam.startedAt).getTime();
+    const duration = this.exam.duration * 60 * 1000; // Convert to milliseconds
+    const endTime = startTime + duration;
+
+    this.timerSubscription = interval(1000).subscribe(() => {
+      const now = Date.now();
+      const remaining = Math.max(0, endTime - now);
+      this.timeRemaining = Math.floor(remaining / 1000);
+
+      if (this.timeRemaining <= 0) {
+        this.autoSubmitExam();
+      }
+    });
   }
 
-  getAnswer(questionId: string): SubmitAnswerDto | undefined {
-    return this.answers.get(questionId);
+  stopTimer(): void {
+    if (this.timerSubscription) {
+      this.timerSubscription.unsubscribe();
+    }
+  }
+
+  get timeRemainingFormatted(): string {
+    const hours = Math.floor(this.timeRemaining / 3600);
+    const minutes = Math.floor((this.timeRemaining % 3600) / 60);
+    const seconds = this.timeRemaining % 60;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  get currentQuestion(): any {
+    return this.questions[this.currentQuestionIndex];
+  }
+
+  selectOption(questionId: string, optionId: string): void {
+    this.answers.set(questionId, {
+      selectedOptionId: optionId,
+      answerText: null
+    });
+    this.saveAnswer(questionId);
+  }
+
+  getOptionLetter(index: number): string {
+    return String.fromCharCode(65 + index);
+  }
+
+  updateEssayAnswer(questionId: string, text: string): void {
+    const existingAnswer = this.answers.get(questionId) || {};
+    this.answers.set(questionId, {
+      ...existingAnswer,
+      selectedOptionId: null,
+      answerText: text
+    });
+  }
+
+  saveEssayAnswer(questionId: string): void {
+    this.saveAnswer(questionId);
+  }
+
+  saveAnswer(questionId: string): void {
+    if (!this.studentExam) return;
+
+    const answer = this.answers.get(questionId);
+    if (!answer) return;
+
+    const submitDto = {
+      studentExamId: this.studentExam.id,
+      questionId: questionId,
+      selectedOptionId: answer.selectedOptionId,
+      answerText: answer.answerText
+    };
+
+    this.examService.submitAnswer(submitDto).subscribe({
+      next: (response) => {
+        if (!response.success) {
+          this.toastr.error('فشل حفظ الإجابة');
+        }
+      },
+      error: () => {
+        this.toastr.error('فشل حفظ الإجابة');
+      }
+    });
+  }
+
+  nextQuestion(): void {
+    if (this.currentQuestionIndex < this.questions.length - 1) {
+      this.currentQuestionIndex++;
+    }
   }
 
   previousQuestion(): void {
@@ -267,98 +268,53 @@ export class TakeExamComponent implements OnInit, OnDestroy {
     }
   }
 
-  nextQuestion(): void {
-    if (this.studentExam?.exam?.questions &&
-      this.currentQuestionIndex < this.studentExam.exam.questions.length - 1) {
-      this.currentQuestionIndex++;
-    }
-  }
-
   goToQuestion(index: number): void {
     this.currentQuestionIndex = index;
   }
 
+  isQuestionAnswered(index: number): boolean {
+    const question = this.questions[index];
+    return this.answers.has(question.id);
+  }
+
+  get answeredQuestionsCount(): number {
+    return this.answers.size;
+  }
+
+  confirmSubmit(): void {
+    this.showConfirmSubmit = true;
+  }
+
+  cancelSubmit(): void {
+    this.showConfirmSubmit = false;
+  }
+
   submitExam(): void {
-    const answeredCount = this.answers.size;
-    const totalQuestions = this.totalQuestions; // Use getter
-
-    Swal.fire({
-      title: 'تسليم الامتحان؟',
-      html: `
-        <div class="text-right" dir="rtl">
-          <p class="mb-2">لقد أجبت على <strong>${answeredCount}</strong> من <strong>${totalQuestions}</strong> سؤال</p>
-          <p class="text-red-600">لن تتمكن من العودة بعد التسليم!</p>
-        </div>
-      `,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#2563eb',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'نعم، سلم الامتحان',
-      cancelButtonText: 'إلغاء',
-      reverseButtons: true
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.performSubmit();
-      }
-    });
-  }
-
-  autoSubmit(): void {
-    Swal.fire({
-      title: 'انتهى الوقت!',
-      text: 'سيتم تسليم الامتحان تلقائياً',
-      icon: 'warning',
-      timer: 3000,
-      showConfirmButton: false
-    });
-
-    setTimeout(() => {
-      this.performSubmit();
-    }, 3000);
-  }
-
-  performSubmit(): void {
-    if (!this.studentExam || this.isSubmitting) return;
-
     this.isSubmitting = true;
+    this.showConfirmSubmit = false;
 
     this.examService.submitExam(this.studentExam.id).subscribe({
       next: (response) => {
         if (response.success) {
-          clearInterval(this.timer);
-          this.showSuccess(response.message || 'تم تسليم الامتحان بنجاح');
-          this.router.navigate(['/exams/result', this.studentExam!.id]);
-        } else {
-          this.showError(response.message || 'فشل تسليم الامتحان');
-          this.isSubmitting = false;
+          this.stopTimer();
+          this.toastr.success('تم تسليم الامتحان بنجاح');
+          this.viewResults();
         }
+        this.isSubmitting = false;
       },
       error: (error) => {
-        console.error('Error submitting exam:', error);
-        this.showError('حدث خطأ أثناء تسليم الامتحان');
+        this.toastr.error('فشل تسليم الامتحان');
         this.isSubmitting = false;
       }
     });
   }
 
-  showSuccess(message: string): void {
-    Swal.fire({
-      icon: 'success',
-      title: 'نجح!',
-      text: message,
-      confirmButtonColor: '#2563eb',
-      confirmButtonText: 'حسناً'
-    });
+  autoSubmitExam(): void {
+    this.toastr.warning('انتهى وقت الامتحان - سيتم التسليم تلقائياً');
+    this.submitExam();
   }
 
-  showError(message: string): void {
-    Swal.fire({
-      icon: 'error',
-      title: 'خطأ!',
-      text: message,
-      confirmButtonColor: '#dc2626',
-      confirmButtonText: 'حسناً'
-    });
+  viewResults(): void {
+    this.router.navigate(['/exams/result', this.studentExam.id]);
   }
 }

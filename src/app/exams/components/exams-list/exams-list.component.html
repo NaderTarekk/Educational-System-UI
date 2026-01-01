@@ -175,6 +175,7 @@
                     <tr class="border-b border-gray-200 bg-gray-50">
                         <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">عنوان الامتحان</th>
                         <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">المجموعة</th>
+                        <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">المادة</th> <!-- ✅ -->
                         <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">المدة</th>
                         <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">الدرجة الكلية</th>
                         <th class="text-right py-4 px-6 text-sm font-bold text-gray-700">التاريخ</th>
@@ -202,6 +203,14 @@
                                 {{exam.group?.name}}
                             </span>
                         </td>
+
+                        <!-- ✅ Subject Column -->
+                        <td class="py-4 px-6">
+                            <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm font-medium">
+                                {{exam.subject?.name || exam.subjectName || '-'}}
+                            </span>
+                        </td>
+
                         <td class="py-4 px-6 text-gray-700">{{exam.duration}} دقيقة</td>
                         <td class="py-4 px-6">
                             <span class=" text-gray-900">{{exam.totalMarks}} درجة</span>
@@ -329,7 +338,7 @@
                     </div>
 
                     <!-- Group -->
-                    <div class="space-y-2">
+                    <!-- <div class="space-y-2">
                         <label class="block text-xs sm:text-sm font-semibold text-gray-700">المجموعة</label>
                         <div class="relative">
                             <select formControlName="groupId"
@@ -343,7 +352,7 @@
                         </div>
                         <p *ngIf="examForm.get('groupId')?.invalid && examForm.get('groupId')?.touched"
                             class="text-red-500 text-[10px] sm:text-xs mt-1">المجموعة مطلوبة</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -406,25 +415,40 @@
                     التاريخ والوقت
                 </h3>
 
+                <!-- في الـ Dialog بعد Group -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <!-- Start Date -->
+                    <!-- Group -->
                     <div class="space-y-2">
-                        <label class="block text-xs sm:text-sm font-semibold text-gray-700">تاريخ البدء</label>
-                        <input type="datetime-local" formControlName="startDate"
-                            class="w-full pr-3 pl-3 sm:pr-4 sm:pl-4 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:border-purple-500 bg-gray-50 focus:bg-white transition-all text-sm sm:text-base"
-                            [class.border-red-500]="examForm.get('startDate')?.invalid && examForm.get('startDate')?.touched">
-                        <p *ngIf="examForm.get('startDate')?.invalid && examForm.get('startDate')?.touched"
-                            class="text-red-500 text-[10px] sm:text-xs">تاريخ البدء مطلوب</p>
+                        <label class="block text-xs sm:text-sm font-semibold text-gray-700">المجموعة</label>
+                        <div class="relative">
+                            <select formControlName="groupId"
+                                class="w-full pr-3 pl-8 sm:pr-4 sm:pl-10 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white appearance-none cursor-pointer font-semibold text-gray-800 transition-all text-sm sm:text-base">
+                                <option value="">اختر المجموعة</option>
+                                <option *ngFor="let group of groups" [value]="group.id">{{group.name}}</option>
+                            </select>
+                            <div class="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400 text-xs sm:text-sm"></i>
+                            </div>
+                        </div>
+                        <p *ngIf="examForm.get('groupId')?.invalid && examForm.get('groupId')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs mt-1">المجموعة مطلوبة</p>
                     </div>
 
-                    <!-- End Date -->
+                    <!-- ✅ Subject -->
                     <div class="space-y-2">
-                        <label class="block text-xs sm:text-sm font-semibold text-gray-700">تاريخ الانتهاء</label>
-                        <input type="datetime-local" formControlName="endDate"
-                            class="w-full pr-3 pl-3 sm:pr-4 sm:pl-4 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:border-purple-500 bg-gray-50 focus:bg-white transition-all text-sm sm:text-base"
-                            [class.border-red-500]="examForm.get('endDate')?.invalid && examForm.get('endDate')?.touched">
-                        <p *ngIf="examForm.get('endDate')?.invalid && examForm.get('endDate')?.touched"
-                            class="text-red-500 text-[10px] sm:text-xs">تاريخ الانتهاء مطلوب</p>
+                        <label class="block text-xs sm:text-sm font-semibold text-gray-700">المادة</label>
+                        <div class="relative">
+                            <select formControlName="subjectId"
+                                class="w-full pr-3 pl-8 sm:pr-4 sm:pl-10 py-3 sm:py-3.5 border-2 border-gray-200 rounded-lg sm:rounded-xl focus:outline-none focus:border-blue-500 bg-gray-50 focus:bg-white appearance-none cursor-pointer font-semibold text-gray-800 transition-all text-sm sm:text-base">
+                                <option value="">اختر المادة</option>
+                                <option *ngFor="let subject of subjects" [value]="subject.id">{{subject.name}}</option>
+                            </select>
+                            <div class="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400 text-xs sm:text-sm"></i>
+                            </div>
+                        </div>
+                        <p *ngIf="examForm.get('subjectId')?.invalid && examForm.get('subjectId')?.touched"
+                            class="text-red-500 text-[10px] sm:text-xs mt-1">المادة مطلوبة</p>
                     </div>
                 </div>
             </div>
@@ -907,7 +931,8 @@
 
         <!-- Loading State -->
         <div *ngIf="isLoadingExamDetails" class="p-12 text-center">
-            <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4">
+            </div>
             <p class="text-gray-600 font-semibold">جاري التحميل...</p>
         </div>
 
@@ -927,6 +952,7 @@
                     </div>
                     <h2 class="text-2xl font-bold mb-2">{{viewedExam.title}}</h2>
                     <p class="text-white/90 mb-4">{{viewedExam.description}}</p>
+                    <!-- في Stats Grid -->
                     <div class="flex justify-center gap-2 flex-wrap">
                         <span class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg font-semibold"
                             [class.bg-green-500]="viewedExam.status === 'active'"
@@ -937,6 +963,11 @@
                         <span class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg font-semibold">
                             <i class="fas fa-users ml-1"></i>
                             {{viewedExam.group?.name || 'لا توجد مجموعة'}}
+                        </span>
+                        <!-- ✅ Subject Badge -->
+                        <span class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg font-semibold">
+                            <i class="fas fa-book ml-1"></i>
+                            {{viewedExam.subject?.name || viewedExam.subjectName || 'لا توجد مادة'}}
                         </span>
                     </div>
                 </div>
@@ -1024,7 +1055,8 @@
                                 </div>
                                 <div>
                                     <p class="text-xs font-semibold text-gray-600 mb-1">حالة التفعيل</p>
-                                    <p class="font-bold" [class.text-green-600]="viewedExam.isActive" [class.text-gray-600]="!viewedExam.isActive">
+                                    <p class="font-bold" [class.text-green-600]="viewedExam.isActive"
+                                        [class.text-gray-600]="!viewedExam.isActive">
                                         {{viewedExam.isActive ? 'نشط ✓' : 'غير نشط'}}
                                     </p>
                                 </div>
@@ -1035,9 +1067,11 @@
                             <p class="text-xs font-semibold text-purple-600 mb-2">نسبة النجاح</p>
                             <div class="flex items-center gap-3">
                                 <div class="flex-1 bg-gray-200 rounded-full h-3">
-                                    <div class="bg-purple-500 h-3 rounded-full" [style.width.%]="getPassPercentage(viewedExam)"></div>
+                                    <div class="bg-purple-500 h-3 rounded-full"
+                                        [style.width.%]="getPassPercentage(viewedExam)"></div>
                                 </div>
-                                <span class="text-xl font-bold text-purple-600">{{getPassPercentage(viewedExam)}}%</span>
+                                <span
+                                    class="text-xl font-bold text-purple-600">{{getPassPercentage(viewedExam)}}%</span>
                             </div>
                         </div>
 
@@ -1048,7 +1082,8 @@
                                 </div>
                                 <div>
                                     <p class="text-xs font-semibold text-blue-600 mb-1">تاريخ الإنشاء</p>
-                                    <p class="font-bold text-gray-800 text-sm">{{viewedExam.createdAt | date: 'dd/MM/yyyy'}}</p>
+                                    <p class="font-bold text-gray-800 text-sm">{{viewedExam.createdAt | date:
+                                        'dd/MM/yyyy'}}</p>
                                 </div>
                             </div>
                         </div>
@@ -1057,7 +1092,8 @@
 
                 <!-- Questions Section -->
                 <div class="mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 bg-orange-50 p-3 rounded-xl border-2 border-orange-200">
+                    <h3
+                        class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 bg-orange-50 p-3 rounded-xl border-2 border-orange-200">
                         <i class="fas fa-list-ol text-orange-600 text-2xl"></i>
                         الأسئلة ({{viewedExam.questions?.length || 0}})
                     </h3>
@@ -1086,7 +1122,8 @@
                                             [class.text-purple-700]="getQuestionTypeNumber(question.type) === 2">
                                             {{getQuestionTypeText(question.type)}}
                                         </span>
-                                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs font-bold">
+                                        <span
+                                            class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-lg text-xs font-bold">
                                             {{question.marks}} درجة
                                         </span>
                                     </div>
@@ -1098,25 +1135,24 @@
                             <div *ngIf="question.options && question.options.length > 0" class="mr-13 space-y-2">
                                 <div *ngFor="let option of question.options"
                                     class="flex items-center gap-2 p-3 rounded-lg border-2"
-                                    [class.bg-green-50]="option.isCorrect"
-                                    [class.border-green-400]="option.isCorrect"
-                                    [class.bg-gray-50]="!option.isCorrect"
-                                    [class.border-gray-200]="!option.isCorrect">
-                                    <i class="fas text-lg"
-                                        [class.fa-check-circle]="option.isCorrect"
-                                        [class.text-green-600]="option.isCorrect"
-                                        [class.fa-circle]="!option.isCorrect"
+                                    [class.bg-green-50]="option.isCorrect" [class.border-green-400]="option.isCorrect"
+                                    [class.bg-gray-50]="!option.isCorrect" [class.border-gray-200]="!option.isCorrect">
+                                    <i class="fas text-lg" [class.fa-check-circle]="option.isCorrect"
+                                        [class.text-green-600]="option.isCorrect" [class.fa-circle]="!option.isCorrect"
                                         [class.text-gray-400]="!option.isCorrect"></i>
                                     <p class="flex-1" [class.font-bold]="option.isCorrect">{{option.optionText}}</p>
-                                    <span *ngIf="option.isCorrect" class="px-2 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
+                                    <span *ngIf="option.isCorrect"
+                                        class="px-2 py-1 bg-green-500 text-white rounded-full text-xs font-bold">
                                         صحيح
                                     </span>
                                 </div>
                             </div>
 
                             <!-- Essay -->
-                            <div *ngIf="getQuestionTypeNumber(question.type) === 2" class="mr-13 bg-purple-50 border border-purple-200 rounded-lg p-3">
-                                <p class="text-sm text-purple-700"><i class="fas fa-pen ml-2"></i>سؤال مقالي - يتم التصحيح يدوياً</p>
+                            <div *ngIf="getQuestionTypeNumber(question.type) === 2"
+                                class="mr-13 bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                <p class="text-sm text-purple-700"><i class="fas fa-pen ml-2"></i>سؤال مقالي - يتم
+                                    التصحيح يدوياً</p>
                             </div>
 
                         </div>

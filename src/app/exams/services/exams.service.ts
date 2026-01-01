@@ -23,6 +23,12 @@ export class ExamsService {
 
   // ===== READ OPERATIONS =====
 
+  getStudentExamHistory(): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/student/history`, {
+      headers: this.getHeaders()
+    });
+  }
+
   getExamById(id: string): Observable<ApiResponse<Exam>> {
     return this.http.get<ApiResponse<Exam>>(`${this.apiUrl}/${id}`, {
       headers: this.getHeaders()

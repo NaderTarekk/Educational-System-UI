@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { GroupsService } from '../../services/groups.service';
 import { Group, Student } from '../../../models/group.model';
 import { ToastrService } from 'ngx-toastr';
+import { SubjectsService } from '../../../subjects/services/subject.service';
 
 @Component({
   selector: 'app-groups',
@@ -14,7 +15,7 @@ export class GroupsComponent implements OnInit {
   groups: Group[] = [];
   filteredGroups: Group[] = [];
   groupStudents: Student[] = [];
-
+  subjects: any[] = [];
   searchTerm = '';
   selectedStatus: 'all' | 'active' | 'inactive' = 'all';
   loading = false;
@@ -42,12 +43,13 @@ export class GroupsComponent implements OnInit {
   newGroup: Group = {
     name: '',
     subject: '',
+    subjectId: '',
     instructorName: '',
     capacity: 0,
     feesPerLesson: 0,
     isActive: true,
-    dayOfWeek: 6, // السبت كقيمة افتراضية
-    startTime: '14:00', // 2 PM
+    dayOfWeek: 6,
+    startTime: '14:00',
     durationInHours: 2,
     location: ''
   };
@@ -56,6 +58,7 @@ export class GroupsComponent implements OnInit {
     name: '',
     subject: '',
     instructorName: '',
+    subjectId: '',
     capacity: 0,
     feesPerLesson: 0,
     isActive: true,
@@ -72,11 +75,26 @@ export class GroupsComponent implements OnInit {
     { label: 'إجمالي الطلاب', value: 0, color: 'bg-purple-100 text-purple-600' }
   ];
 
-  constructor(private groupsService: GroupsService, private toastr: ToastrService) { }
+  constructor(private groupsService: GroupsService, private toastr: ToastrService, private subjectsService: SubjectsService) { }
 
   ngOnInit(): void {
     this.loadGroups();
+    this.loadSubjects();
   }
+
+  loadSubjects(): void {
+    this.subjectsService.getAllSubjects().subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.subjects = response.data;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading subjects:', error);
+      }
+    });
+  }
+
 
   loadGroups(): void {
     this.loading = true;
@@ -85,8 +103,14 @@ export class GroupsComponent implements OnInit {
         if (response.success && response.data) {
           this.groups = response.data.map(group => ({
             ...group,
+            // ✅ استخراج اسم المادة من subjectEntity
+            subjectName: group.subjectEntity?.name || 'غير محدد',
+            subject: group.subjectEntity?.name || 'غير محدد', // للـ Backward Compatibility
             endTime: this.calculateEndTime(group.startTime, group.durationInHours)
           }));
+
+          console.log('📊 Groups after mapping:', this.groups); // ✅ للتأكد
+
           this.calculateCurrentStudents();
           this.filterGroups();
           this.updateStats();
@@ -130,12 +154,13 @@ export class GroupsComponent implements OnInit {
       { label: 'إجمالي الطلاب', value: totalStudents, color: 'bg-purple-100 text-purple-600' }
     ];
   }
-
   filterGroups(): void {
     this.filteredGroups = this.groups.filter(group => {
       const matchesSearch = !this.searchTerm ||
         group.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        group.subject.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        // ✅ البحث في اسم المادة
+        (group.subjectName && group.subjectName.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+        (group.subject && group.subject.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
         (group.instructorName && group.instructorName.toLowerCase().includes(this.searchTerm.toLowerCase()));
 
       const matchesStatus =
@@ -158,7 +183,7 @@ export class GroupsComponent implements OnInit {
 
   createGroup(): void {
     if (!this.newGroup.name?.trim() ||
-      !this.newGroup.subject?.trim() ||
+      !this.newGroup.subjectId || // ✅ Validation
       this.newGroup.capacity == null ||
       this.newGroup.feesPerLesson == null ||
       this.newGroup.dayOfWeek == null ||
@@ -169,21 +194,18 @@ export class GroupsComponent implements OnInit {
       return;
     }
 
-    if (this.newGroup.startDate) {
-      this.newGroup.startDate = new Date(this.newGroup.startDate).toISOString().split('T')[0];
-    }
+    // Get subject name from selected subject
+    const selectedSubject = this.subjects.find(s => s.id === this.newGroup.subjectId);
 
-    // تحويل الوقت إلى TimeSpan format
     const groupToSend = {
       ...this.newGroup,
-      startTime: this.newGroup.startTime + ':00' // "14:00" -> "14:00:00"
+      subject: selectedSubject?.name || '', // ✅ Set subject name
+      startTime: this.newGroup.startTime + ':00'
     };
 
     groupToSend.assistantId = "f569a3b4-38f3-4a2b-9115-0a2212adcce0";
-    console.log("Sending group:", groupToSend);
 
     this.loading = true;
-
     this.groupsService.createNewGroup(groupToSend).subscribe({
       next: (response) => {
         if (response.success) {
@@ -191,8 +213,6 @@ export class GroupsComponent implements OnInit {
           this.closeAddModal();
           this.loadGroups();
         } else {
-          console.log(response.message);
-          
           this.showError(response.message || 'فشل في إنشاء المجموعة');
         }
         this.loading = false;
@@ -325,6 +345,7 @@ export class GroupsComponent implements OnInit {
       name: '',
       subject: '',
       instructorName: '',
+      subjectId: '',
       capacity: 0,
       assistantId: "13978a26-b67d-4e16-8ad9-c7e6936a0256",
       feesPerLesson: 0,
@@ -419,12 +440,27 @@ export class GroupsComponent implements OnInit {
 
     return `${hours}:${minutes} ${period}`;
   }
-  getDayName(dayNumber?: number): string {
+  getDayName(dayNumber?: number | string): string {
     if (dayNumber == null) return 'غير محدد';
-    const day = this.weekDays.find(d => d.value === dayNumber.toString());
+
+    // ✅ لو جاي String زي "Monday"
+    if (typeof dayNumber === 'string') {
+      const dayMap: { [key: string]: string } = {
+        'Saturday': 'السبت',
+        'Sunday': 'الأحد',
+        'Monday': 'الاثنين',
+        'Tuesday': 'الثلاثاء',
+        'Wednesday': 'الأربعاء',
+        'Thursday': 'الخميس',
+        'Friday': 'الجمعة'
+      };
+      return dayMap[dayNumber] || dayNumber;
+    }
+
+    // ✅ لو جاي Number
+    const day = this.weekDays.find(d => d.numValue === dayNumber || d.value === dayNumber.toString());
     return day ? day.label : 'غير محدد';
   }
-
 
 
   getScheduleText(group: Group): string {

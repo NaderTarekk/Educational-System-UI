@@ -104,7 +104,7 @@
             </a>
 
             <!-- المواد -->
-            <a routerLink="/subjects" 
+            <a routerLink="/subjects"
                 routerLinkActive="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white shadow-lg shadow-cyan-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-cyan-50 hover:to-orange-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
@@ -138,7 +138,7 @@
             </a>
 
             <!-- الإختبارات -->
-            <a routerLink="/exams" *ngIf="role != 'Student'"
+            <a routerLink="/exams" *ngIf="role === 'Admin' || role === 'Assistant'"
                 routerLinkActive="bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/50"
                 [class.justify-center]="!(sidenavService.isOpen$ | async)"
                 class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
@@ -149,6 +149,22 @@
                 <span *ngIf="sidenavService.isOpen$ | async"
                     class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
                     إدارة الإختبارات
+                </span>
+            </a>
+
+            <!-- اختباراتي (للطالب فقط) -->
+            <a routerLink="/exams/my-exams" *ngIf="role === 'Student'"
+                routerLinkActive="bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg shadow-green-500/50"
+                [class.justify-center]="!(sidenavService.isOpen$ | async)"
+                class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
+                <div
+                    class="relative p-2 bg-green-100 rounded-xl group-hover:bg-green-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
+                    <i
+                        class="fa-solid fa-clipboard-list text-green-600 group-[.router-link-active]:text-white text-xl"></i>
+                </div>
+                <span *ngIf="sidenavService.isOpen$ | async"
+                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+                    اختباراتي
                 </span>
             </a>
 

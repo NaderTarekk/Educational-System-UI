@@ -11,6 +11,8 @@ import { CreateEditExamComponent } from './components/create-edit-exam/create-ed
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { SharedModule } from '../shared/shared-module';
+import { MyExamsComponent } from './components/my-exams/my-exams.component';
+import { FilterPipePipe } from '../pipes/filter-pipe.pipe';
 
 
 @NgModule({
@@ -21,6 +23,8 @@ import { SharedModule } from '../shared/shared-module';
     ExamResultComponent,
     ExamDetailsComponentComponent,
     CreateEditExamComponent,
+    MyExamsComponent,
+    FilterPipePipe
   ],
   imports: [
     CommonModule,

@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { HttpHeaders } from '@angular/common/http';
 import { GroupsService } from '../../../groups/services/groups.service';
+import { SubjectsService } from '../../../subjects/services/subject.service';
 
 enum QuestionType {
   MultipleChoice = 0,
@@ -21,7 +22,7 @@ enum QuestionType {
   styleUrl: './exams-list.component.scss'
 })
 export class ExamsListComponent implements OnInit {
-  exams: Exam[] = [];
+  exams: any[] = [];
   allExams: Exam[] = [];
   isDialogOpen = false;
   isEditMode = false;
@@ -44,18 +45,21 @@ export class ExamsListComponent implements OnInit {
   groups: any[] = [];
   Math = Math;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  subjects: any[] = [];
 
   constructor(
     private examService: ExamsService,
     private fb: FormBuilder,
     private toastr: ToastrService,
     private router: Router,
-    private groupService: GroupsService
+    private groupService: GroupsService,
+    private subjectService: SubjectsService // ✅ إضافة SubjectsService
   ) {
     this.examForm = this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       groupId: ['', Validators.required],
+      subjectId: ['', Validators.required], // ✅ إضافة subjectId
       duration: [60, [Validators.required, Validators.min(1)]],
       totalMarks: [100, [Validators.required, Validators.min(1)]],
       passingMarks: [50, [Validators.required, Validators.min(1)]],
@@ -63,19 +67,28 @@ export class ExamsListComponent implements OnInit {
       endDate: ['', Validators.required],
       isActive: [false],
       createdBy: [''],
-      questions: this.fb.array([]) // Add questions array
+      questions: this.fb.array([])
     });
   }
 
   ngOnInit(): void {
     this.userRole = localStorage.getItem('NHC_PL_Role');
-    const userId = localStorage.getItem('NHC_PL_UserId') || '';
-
-    // Set createdBy in form
-    this.examForm.patchValue({ createdBy: userId });
-
     this.loadGroups();
+    this.loadSubjects();
     this.loadExams();
+  }
+
+  loadSubjects(): void {
+    this.subjectService.getAllSubjects().subscribe({
+      next: (res: any) => {
+        if (res.success && res.data) {
+          this.subjects = res.data.filter((s: any) => s.isActive);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading subjects:', error);
+      }
+    });
   }
 
   loadGroups(): void {
@@ -215,7 +228,7 @@ export class ExamsListComponent implements OnInit {
     return this.allExams.filter((e: any) => e.status === 'completed').length;
   }
 
-  get filteredExams(): Exam[] {
+  get filteredExams(): any[] {
     return this.exams;
   }
 
@@ -256,7 +269,6 @@ export class ExamsListComponent implements OnInit {
       this.isEditMode = true;
       this.selectedExamId = exam.id || null;
 
-      // Format dates for datetime-local input
       const startDate = new Date(exam.startDate);
       const endDate = new Date(exam.endDate);
 
@@ -264,6 +276,7 @@ export class ExamsListComponent implements OnInit {
         title: exam.title,
         description: exam.description,
         groupId: exam.groupId,
+        subjectId: exam.subjectId, // ✅
         duration: exam.duration,
         totalMarks: exam.totalMarks,
         passingMarks: exam.passingMarks,
@@ -683,146 +696,151 @@ export class ExamsListComponent implements OnInit {
 
   // تحسين دالة الحفظ مع التحقق من الاختيارات
   saveExam(): void {
-    if (this.examForm.invalid) {
-      this.examForm.markAllAsTouched();
-      this.showError('الرجاء ملء جميع الحقول المطلوبة');
-      return;
-    }
+  if (this.examForm.invalid) {
+    this.examForm.markAllAsTouched();
+    this.showError('الرجاء ملء جميع الحقول المطلوبة');
+    return;
+  }
 
-    // التحقق من صحة الأسئلة والاختيارات
-    if (this.questions.length > 0) {
-      for (let i = 0; i < this.questions.length; i++) {
-        const validation = this.validateQuestionOptions(i);
-        if (!validation.valid) {
-          this.showError(`السؤال رقم ${i + 1}: ${validation.message}`);
-          return;
-        }
+  // التحقق من صحة الأسئلة والاختيارات
+  if (this.questions.length > 0) {
+    for (let i = 0; i < this.questions.length; i++) {
+      const validation = this.validateQuestionOptions(i);
+      if (!validation.valid) {
+        this.showError(`السؤال رقم ${i + 1}: ${validation.message}`);
+        return;
       }
     }
-
-    this.isLoading = true;
-    const formValue = this.examForm.value;
-
-    // تجهيز بيانات الأسئلة (للإنشاء والتحديث)
-    const questionsData = formValue.questions && formValue.questions.length > 0
-      ? formValue.questions
-        .filter((q: any) => q.questionText && q.questionText.trim())
-        .map((q: any, index: number) => {
-          const questionDto: any = {
-            id: q.id || '00000000-0000-0000-0000-000000000000',
-            questionText: q.questionText.trim(),
-            type: this.getQuestionTypeString(Number(q.type)), // تحويل لـ string
-            marks: Number(q.marks),
-            order: index + 1,
-            options: []
-          };
-
-          // إضافة الاختيارات فقط إذا كان النوع ليس مقالي
-          if (q.type !== 2 && q.options && q.options.length > 0) {
-            questionDto.options = q.options
-              .filter((opt: any) => opt.optionText && opt.optionText.trim())
-              .map((opt: any, optIndex: number) => ({
-                id: opt.id || '00000000-0000-0000-0000-000000000000',
-                optionText: opt.optionText.trim(),
-                isCorrect: Boolean(opt.isCorrect),
-                order: optIndex + 1
-              }));
-          }
-
-          return questionDto;
-        })
-      : [];
-
-    if (this.isEditMode && this.selectedExamId) {
-      // تحديث الامتحان - نفس الـ structure بتاع Create
-      const updateData: any = {
-        id: this.selectedExamId,
-        title: formValue.title.trim(),
-        description: formValue.description.trim(),
-        groupId: formValue.groupId,
-        duration: Number(formValue.duration),
-        totalMarks: Number(formValue.totalMarks),
-        passingMarks: Number(formValue.passingMarks),
-        startDate: this.formatDateTime(formValue.startDate),
-        endDate: this.formatDateTime(formValue.endDate),
-        isActive: Boolean(formValue.isActive),
-        createdAt: new Date().toISOString(), // أو استخدم createdAt الأصلي
-        questionsCount: questionsData.length,
-        questions: questionsData
-      };
-
-      console.log('📤 Update Data:', updateData);
-
-      this.examService.updateExam(this.selectedExamId, updateData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.showSuccess(response.message || 'تم تحديث الامتحان بنجاح');
-            this.closeDialog();
-            this.loadExams();
-          } else {
-            this.showError(response.message);
-          }
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('❌ Update Error:', error);
-          if (error.error?.errors) {
-            const errorMessages = Object.entries(error.error.errors)
-              .map(([key, value]: [string, any]) => `${key}: ${value.join(', ')}`)
-              .join('\n');
-            this.showError(`أخطاء في البيانات:\n${errorMessages}`);
-          } else {
-            this.showError(error.error?.message || 'حدث خطأ أثناء تحديث الامتحان');
-          }
-          this.isLoading = false;
-        }
-      });
-    } else {
-      // إنشاء امتحان جديد
-      const createData: any = {
-        id: '00000000-0000-0000-0000-000000000000',
-        title: formValue.title.trim(),
-        description: formValue.description.trim(),
-        groupId: formValue.groupId,
-        duration: Number(formValue.duration),
-        totalMarks: Number(formValue.totalMarks),
-        passingMarks: Number(formValue.passingMarks),
-        startDate: this.formatDateTime(formValue.startDate),
-        endDate: this.formatDateTime(formValue.endDate),
-        isActive: Boolean(formValue.isActive),
-        createdAt: new Date().toISOString(),
-        questionsCount: questionsData.length,
-        questions: questionsData
-      };
-
-      console.log('📤 Create Data:', createData);
-
-      this.examService.createExam(createData).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.showSuccess(response.message || 'تم إنشاء الامتحان بنجاح');
-            this.closeDialog();
-            this.loadExams();
-          } else {
-            this.showError(response.message);
-          }
-          this.isLoading = false;
-        },
-        error: (error) => {
-          console.error('❌ Create Error:', error);
-          if (error.error?.errors) {
-            const errorMessages = Object.entries(error.error.errors)
-              .map(([key, value]: [string, any]) => `${key}: ${value.join(', ')}`)
-              .join('\n');
-            this.showError(`أخطاء في البيانات:\n${errorMessages}`);
-          } else {
-            this.showError(error.error?.message || 'حدث خطأ أثناء إنشاء الامتحان');
-          }
-          this.isLoading = false;
-        }
-      });
-    }
   }
+
+  this.isLoading = true;
+  const formValue = this.examForm.value;
+
+  // تجهيز بيانات الأسئلة (للإنشاء والتحديث)
+  const questionsData = formValue.questions && formValue.questions.length > 0
+    ? formValue.questions
+      .filter((q: any) => q.questionText && q.questionText.trim())
+      .map((q: any, index: number) => {
+        const questionDto: any = {
+          id: q.id || '00000000-0000-0000-0000-000000000000',
+          questionText: q.questionText.trim(),
+          type: this.getQuestionTypeString(Number(q.type)), // تحويل لـ string
+          marks: Number(q.marks),
+          order: index + 1,
+          options: []
+        };
+
+        // إضافة الاختيارات فقط إذا كان النوع ليس مقالي
+        if (q.type !== 2 && q.options && q.options.length > 0) {
+          questionDto.options = q.options
+            .filter((opt: any) => opt.optionText && opt.optionText.trim())
+            .map((opt: any, optIndex: number) => ({
+              id: opt.id || '00000000-0000-0000-0000-000000000000',
+              optionText: opt.optionText.trim(),
+              isCorrect: Boolean(opt.isCorrect),
+              order: optIndex + 1
+            }));
+        }
+
+        return questionDto;
+      })
+    : [];
+
+  if (this.isEditMode && this.selectedExamId) {
+    const userId = localStorage.getItem('NHC_PL_UserId') || '';
+    
+    // ✅ تحديث الامتحان
+    const updateData: any = {
+      id: this.selectedExamId,
+      title: formValue.title.trim(),
+      description: formValue.description.trim(),
+      groupId: formValue.groupId,
+      subjectId: formValue.subjectId, // ✅ أضف subjectId
+      duration: Number(formValue.duration),
+      totalMarks: Number(formValue.totalMarks),
+      passingMarks: Number(formValue.passingMarks),
+      startDate: this.formatDateTime(formValue.startDate),
+      endDate: this.formatDateTime(formValue.endDate),
+      isActive: Boolean(formValue.isActive),
+      createdBy: userId,
+      createdAt: new Date().toISOString(),
+      questionsCount: questionsData.length,
+      questions: questionsData
+    };
+
+    console.log('📤 Update Data:', updateData);
+
+    this.examService.updateExam(this.selectedExamId, updateData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.showSuccess(response.message || 'تم تحديث الامتحان بنجاح');
+          this.closeDialog();
+          this.loadExams();
+        } else {
+          this.showError(response.message);
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('❌ Update Error:', error);
+        if (error.error?.errors) {
+          const errorMessages = Object.entries(error.error.errors)
+            .map(([key, value]: [string, any]) => `${key}: ${value.join(', ')}`)
+            .join('\n');
+          this.showError(`أخطاء في البيانات:\n${errorMessages}`);
+        } else {
+          this.showError(error.error?.message || 'حدث خطأ أثناء تحديث الامتحان');
+        }
+        this.isLoading = false;
+      }
+    });
+  } else {
+    // ✅ إنشاء امتحان جديد
+    const createData: any = {
+      id: '00000000-0000-0000-0000-000000000000',
+      title: formValue.title.trim(),
+      description: formValue.description.trim(),
+      groupId: formValue.groupId,
+      subjectId: formValue.subjectId, // ✅
+      duration: Number(formValue.duration),
+      totalMarks: Number(formValue.totalMarks),
+      passingMarks: Number(formValue.passingMarks),
+      startDate: this.formatDateTime(formValue.startDate),
+      endDate: this.formatDateTime(formValue.endDate),
+      isActive: Boolean(formValue.isActive),
+      createdAt: new Date().toISOString(),
+      questionsCount: questionsData.length,
+      questions: questionsData
+    };
+
+    console.log('📤 Create Data:', createData);
+
+    this.examService.createExam(createData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.showSuccess(response.message || 'تم إنشاء الامتحان بنجاح');
+          this.closeDialog();
+          this.loadExams();
+        } else {
+          this.showError(response.message);
+        }
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('❌ Create Error:', error);
+        if (error.error?.errors) {
+          const errorMessages = Object.entries(error.error.errors)
+            .map(([key, value]: [string, any]) => `${key}: ${value.join(', ')}`)
+            .join('\n');
+          this.showError(`أخطاء في البيانات:\n${errorMessages}`);
+        } else {
+          this.showError(error.error?.message || 'حدث خطأ أثناء إنشاء الامتحان');
+        }
+        this.isLoading = false;
+      }
+    });
+  }
+}
 
   // دالة لتحويل type من number لـ string
   getQuestionTypeString(type: number): string {
