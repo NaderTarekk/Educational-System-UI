@@ -1,0 +1,56 @@
+@import '../login/login.scss';
+
+// Password Strength
+.password-strength {
+    .strength-bar {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+
+            &.weak {
+                width: 25%;
+                background: linear-gradient(90deg, #ef4444, #dc2626);
+            }
+
+            &.fair {
+                width: 50%;
+                background: linear-gradient(90deg, #f59e0b, #d97706);
+            }
+
+            &.good {
+                width: 75%;
+                background: linear-gradient(90deg, #3b82f6, #2563eb);
+            }
+
+            &.strong {
+                width: 100%;
+                background: linear-gradient(90deg, #10b981, #059669);
+            }
+        }
+    }
+
+    .strength-text {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.6);
+        direction: rtl;
+
+        &.weak { color: #ef4444; }
+        &.fair { color: #f59e0b; }
+        &.good { color: #3b82f6; }
+        &.strong { color: #10b981; }
+    }
+}
+
+// Responsive adjustments for signup
+@media (max-width: 640px) {
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+}

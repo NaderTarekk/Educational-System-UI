@@ -265,7 +265,7 @@
         <div class="form-group" *ngIf="isEditMode">
           <label>
             <i class="fas fa-users ml-2"></i>
-            إدارة المستخدمين
+            إدارة المستخدمين : <span class="text-indigo-500 mx-1 bg-indigo-100 p-1 rounded-2xl px-3">{{ usersLength }} مستخدم متاح</span>
           </label>
 
           <!-- Loading -->
@@ -431,8 +431,8 @@
         <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 12px; padding: 16px; color: white;">
           <div style="display: flex; align-items: center; justify-content: space-between;">
             <div>
-              <p style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">المساعدين</p>
-              <p style="font-size: 32px; font-weight: bold; margin: 0;">{{ getAssistantsCount() }}</p>
+              <p style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">المدرسين</p>
+              <p style="font-size: 32px; font-weight: bold; margin: 0;">{{ getTeachersCount() }}</p>
             </div>
             <i class="fas fa-chalkboard-teacher" style="font-size: 36px; opacity: 0.3;"></i>
           </div>
@@ -465,7 +465,10 @@
               <td>{{ user.userName }}</td>
               <td>{{ user.email }}</td>
               <td>
-                <span class="role-badge" [class]="getRoleClass(user.role)">
+                <span *ngIf="user.role == 'Student'" class="role-badge" [class]="getRoleClass(user.role)">
+                  {{ getRoleText(user.role) }}
+                </span>
+                <span *ngIf="user.role == 'Teacher'" class="role-badge-teacher" [class]="getRoleClass(user.role)">
                   {{ getRoleText(user.role) }}
                 </span>
               </td>

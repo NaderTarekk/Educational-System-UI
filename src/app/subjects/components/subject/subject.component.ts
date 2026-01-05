@@ -21,6 +21,7 @@ export class SubjectsComponent implements OnInit {
   isLoadingAvailableUsers = false;
   filteredAvailableUsers: any[] = [];
   userSearchText = '';
+  usersLength = 0;
 
   // Data
   subjects: Subject[] = [];
@@ -98,6 +99,8 @@ export class SubjectsComponent implements OnInit {
 
     this.subjectsService.getAllSubjects().subscribe({
       next: (response: any) => {
+        console.log(response);
+        
         if (response.success && response.data) {
           this.subjects = response.data;
           this.filteredSubjects = this.subjects;
@@ -115,6 +118,8 @@ export class SubjectsComponent implements OnInit {
   loadStats() {
     this.subjectsService.getStats().subscribe({
       next: (response: any) => {
+        console.log(response);
+        
         if (response.success && response.data) {
           this.stats = response.data;
         }
@@ -240,10 +245,12 @@ export class SubjectsComponent implements OnInit {
       next: (response: any) => {
         if (response.success && response.data) {
           // فلتر الطلاب والمدرسين بس
-          this.availableUsers = response.data.filter((u: any) =>
-            u.role === 'Student' || u.role === 'Assistant'
+          this.availableUsers = response.allUsers.filter((u: any) =>
+            u.role === 'Student' || u.role === 'Assistant'|| u.role === 'Teacher'
           );
-          this.filteredAvailableUsers = [...this.availableUsers];
+          this.usersLength = this.availableUsers.length;
+
+          this.filteredAvailableUsers = this.availableUsers;
         }
         this.isLoadingAvailableUsers = false;
       },
@@ -392,7 +399,7 @@ export class SubjectsComponent implements OnInit {
 
   getRoleText(role: string): string {
     const roleMap: any = {
-      'Admin': 'مدير',
+      'Teacher': 'مدرس',
       'Assistant': 'مساعد',
       'Student': 'طالب'
     };
@@ -476,8 +483,8 @@ export class SubjectsComponent implements OnInit {
     return this.subjectUsers.filter(u => u.role === 'Student').length;
   }
 
-  getAssistantsCount(): number {
-    return this.subjectUsers.filter(u => u.role === 'Assistant').length;
+  getTeachersCount(): number {
+    return this.subjectUsers.filter(u => u.role === 'Teacher').length;
   }
   // ✅ احسب Stats
   calculateStats() {

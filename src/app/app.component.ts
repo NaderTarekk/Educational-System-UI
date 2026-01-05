@@ -1,8 +1,7 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { catchError, filter, Observable, switchMap, throwError } from 'rxjs';
+import { filter } from 'rxjs';
 import { SharedService } from './shared/services/shared';
-import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -14,16 +13,29 @@ export class AppComponent implements OnInit {
   isMobile = false;
   showLayout = true;
 
-  constructor(public sidenavService: SharedService, private router: Router) {
+  // ✅ الصفحات اللي مش عايز فيها Layout
+  private noLayoutRoutes: string[] = [
+    '/auth',
+    '/auth/login',
+    '/auth/signup',
+    '/auth/forgot-password'
+  ];
+
+  constructor(public sidenavService: SharedService, private router: Router) {}
+
+  ngOnInit() {
+    this.checkScreenSize();
+    
+    // ✅ Check route on navigation
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
-        // لو الصفحة هي login → أخفي الـ layout
-        this.showLayout = !event.url.includes('/auth/login');
+        this.checkLayout(event.url);
       });
-  }
+    
+    // ✅ Check initial route
+    this.checkLayout(this.router.url);
 
-  ngOnInit() {
     // const token = localStorage.getItem("NHC_PL_Token");
     // if (!token)
     //   this.router.navigate(["/auth/login"])
@@ -37,9 +49,12 @@ export class AppComponent implements OnInit {
     //       console.error('❌ Error refreshing token', err);
     //     }
     //   });
-
     // }
-    this.checkScreenSize();
+  }
+
+  // ✅ Check if current route needs layout
+  private checkLayout(url: string): void {
+    this.showLayout = !this.noLayoutRoutes.some(route => url.startsWith(route));
   }
 
   @HostListener('window:resize')

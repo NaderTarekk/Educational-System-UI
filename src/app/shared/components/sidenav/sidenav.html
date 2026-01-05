@@ -54,23 +54,27 @@
         <nav class="flex-1 overflow-y-auto p-3 space-y-2 custom-scrollbar">
 
             <!-- Dashboard -->
-            <a routerLink="/dashboard"
-                routerLinkActive="bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/50"
-                [class.justify-center]="!(sidenavService.isOpen$ | async)"
-                class="group flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md cursor-pointer relative overflow-hidden">
-                <div
-                    class="relative p-2 bg-blue-100 rounded-xl group-hover:bg-blue-300 transition-colors duration-300 group-[.router-link-active]:bg-white flex-shrink-0">
-                    <svg class="w-6 h-6 text-blue-600 group-[.router-link-active]:text-white" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
+            <a routerLink="/dashboard" routerLinkActive="active-dashboard" [routerLinkActiveOptions]="{ exact: true }"
+                [class.justify-center]="!(sidenavService.isOpen$ | async)" class="group flex items-center gap-3 px-3 py-3 rounded-xl
+         transition-all duration-300 transform hover:scale-105 hover:shadow-md
+         cursor-pointer relative overflow-hidden
+         hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50">
+
+                <div class="relative p-2 rounded-xl flex-shrink-0
+           bg-blue-100 group-hover:bg-blue-300
+           transition-colors duration-300">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                 </div>
-                <span *ngIf="sidenavService.isOpen$ | async"
-                    class="font-semibold text-base text-gray-700 group-focus:text-white group-[.router-link-active]:text-white transition-colors duration-300 truncate">
+
+                <span *ngIf="sidenavService.isOpen$ | async" class="font-semibold text-base text-gray-700 truncate
+           transition-colors duration-300">
                     الرئيسية
                 </span>
             </a>
+
 
             <!-- المستخدمين -->
             <a routerLink="/users" *ngIf="role != 'Student'"

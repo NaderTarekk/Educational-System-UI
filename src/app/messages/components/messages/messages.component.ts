@@ -2,7 +2,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { MessagesService } from '../../services/messages.service';
+import { MessagesService, AdminUser, SendToAdminDto } from '../../services/messages.service';
 import { AuthService } from '../../../auth/components/auth-service';
 import { UsersService } from '../../../user/services/users.service';
 import { ToastrService } from 'ngx-toastr';
@@ -41,20 +41,18 @@ export class MessagesComponent implements OnInit, OnDestroy {
   searchTerm = '';
   selectedFilter = 'all';
   isLoading = false;
+  imageIndex = 0;
 
-  // File Attachment Handling
   selectedFiles: File[] = [];
   isDragging = false;
   fileSizeError: string = '';
   maxFileSize = 10 * 1024 * 1024;
 
-  // Pagination
   currentPage = 1;
   pageSize = 10;
   totalPages = 0;
   totalCount = 0;
 
-  // Stats
   stats: any = {
     total: 0,
     unread: 0,
@@ -62,7 +60,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     highPriority: 0
   };
 
-  // Compose Dialog
+  // Admin Compose
   isComposeDialogOpen = false;
   isSending = false;
   composeData = {
@@ -74,20 +72,29 @@ export class MessagesComponent implements OnInit, OnDestroy {
     attachments: []
   };
 
-  // Delete Confirmation Dialog
+  // Delete Dialog
   isDeleteDialogOpen = false;
   messageToDelete: Message | null = null;
   isDeleting = false;
 
-  // User Selection
+  // User Selection (Admin)
   userSearchTerm = '';
   allUsers: User[] = [];
   filteredUsers: User[] = [];
 
-  // Admin Check
-  isAdmin = false;
+  // ✅ Student Compose Dialog
+  isStudentComposeOpen = false;
+  studentComposeData = {
+    recipientType: 'all-admins' as 'all-admins' | 'specific-admin',
+    specificAdminId: '',
+    priority: 'Low' as 'Low' | 'Medium' | 'High',
+    subject: '',
+    content: ''
+  };
+  adminsList: AdminUser[] = [];
+  selectedAdmin: AdminUser | null = null;
 
-  // Search subject for debouncing
+  isAdmin = false;
   private searchSubject = new Subject<string>();
 
   constructor(
@@ -101,8 +108,12 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.checkAdminRole();
     this.loadMessages();
     this.loadStats();
+
     if (this.isAdmin) {
       this.loadAllUsers();
+    } else {
+      // ✅ الطالب يحمّل قائمة الأدمن
+      this.loadAdminsList();
     }
 
     this.searchSubject
@@ -124,6 +135,111 @@ export class MessagesComponent implements OnInit, OnDestroy {
     const userRole = this.authService.getCurrentUserRole();
     this.isAdmin = userRole === 'Admin' || userRole === 'Assistant';
   }
+
+  // ✅ جلب قائمة الأدمن
+  loadAdminsList(): void {
+    this.messageService.getAdminsList().subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.adminsList = response.data;
+          console.log('📋 Admins list loaded:', this.adminsList);
+        }
+      },
+      error: (error: any) => {
+        console.error('Error loading admins:', error);
+        this.toastr.error('فشل تحميل قائمة المسؤولين', 'خطأ');
+      }
+    });
+  }
+
+  // ✅ فتح نافذة الإرسال للطالب
+  openStudentCompose(): void {
+    this.isStudentComposeOpen = true;
+    this.resetStudentComposeForm();
+    document.body.style.overflow = 'hidden';
+  }
+
+  closeStudentCompose(): void {
+    this.isStudentComposeOpen = false;
+    this.resetStudentComposeForm();
+    document.body.style.overflow = 'auto';
+  }
+
+  resetStudentComposeForm(): void {
+    this.studentComposeData = {
+      recipientType: 'all-admins',
+      specificAdminId: '',
+      priority: 'Low',
+      subject: '',
+      content: ''
+    };
+    this.selectedAdmin = null;
+    this.selectedFiles = [];
+    this.fileSizeError = '';
+  }
+
+  selectAdmin(admin: AdminUser): void {
+    this.selectedAdmin = admin;
+    this.studentComposeData.specificAdminId = admin.id;
+    console.log('✅ Admin selected:', admin);
+  }
+
+  removeSelectedAdmin(): void {
+    this.selectedAdmin = null;
+    this.studentComposeData.specificAdminId = '';
+  }
+
+  isStudentFormValid(): boolean {
+    if (!this.studentComposeData.subject.trim() || this.studentComposeData.subject.length < 3) {
+      return false;
+    }
+    if (!this.studentComposeData.content.trim() || this.studentComposeData.content.length < 10) {
+      return false;
+    }
+    if (this.studentComposeData.recipientType === 'specific-admin' && !this.studentComposeData.specificAdminId) {
+      return false;
+    }
+    return true;
+  }
+
+  // sendStudentMessage(): void {
+  //   if (!this.isStudentFormValid() || this.isSending) {
+  //     this.toastr.warning('يرجى ملء جميع الحقول المطلوبة', 'تنبيه');
+  //     return;
+  //   }
+
+  //   this.isSending = true;
+
+  //   const dto: SendToAdminDto = {
+  //     subject: this.studentComposeData.subject,
+  //     content: this.studentComposeData.content,
+  //     priority: this.studentComposeData.priority,
+  //     specificAdminId: this.studentComposeData.recipientType === 'specific-admin' 
+  //       ? this.studentComposeData.specificAdminId 
+  //       : undefined
+  //   };
+
+  //   console.log('📤 Sending message to admin:', dto);
+
+  //   this.messageService.sendToAdmin(dto).subscribe({
+  //     next: (response: any) => {
+  //       if (response.success) {
+  //         this.toastr.success(response.message || 'تم إرسال الرسالة بنجاح', 'نجاح');
+  //         this.closeStudentCompose();
+  //       } else {
+  //         this.toastr.error(response.message || 'فشل إرسال الرسالة', 'خطأ');
+  //       }
+  //       this.isSending = false;
+  //     },
+  //     error: (error: any) => {
+  //       console.error('Error sending message:', error);
+  //       this.toastr.error('حدث خطأ أثناء إرسال الرسالة', 'خطأ');
+  //       this.isSending = false;
+  //     }
+  //   });
+  // }
+
+  // ... باقي الـ methods من الكود القديم
 
   loadAllUsers(): void {
     this.userService.getAllUsers(1, 1000).subscribe({
@@ -161,6 +277,8 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
     this.messageService.getMyMessages(params).subscribe({
       next: (response: any) => {
+        console.log(response);
+
         if (response.success && response.data) {
           this.messages = response.data;
           this.totalPages = response.totalPages || 0;
@@ -194,7 +312,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Compose Dialog Methods
   openComposeDialog(): void {
     this.isComposeDialogOpen = true;
     this.resetComposeForm();
@@ -207,6 +324,20 @@ export class MessagesComponent implements OnInit, OnDestroy {
     document.body.style.overflow = 'auto';
   }
 
+  resetComposeForm(): void {
+    this.composeData = {
+      recipientType: 'all',
+      selectedUsers: [],
+      priority: 'Low',
+      subject: '',
+      content: '',
+      attachments: []
+    };
+    this.userSearchTerm = '';
+    this.filteredUsers = [];
+    this.selectedFiles = [];
+    this.fileSizeError = '';
+  }
 
   searchUsers(): void {
     if (!this.userSearchTerm.trim()) {
@@ -248,6 +379,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  // في sendMessage() - للأدمن
   sendMessage(): void {
     if (!this.isFormValid() || this.isSending) {
       this.toastr.warning('يرجى ملء جميع الحقول المطلوبة', 'تنبيه');
@@ -256,15 +388,18 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
     this.isSending = true;
 
-    if (this.composeData.recipientType === 'all') {
-      const dto = {
-        subject: this.composeData.subject,
-        content: this.composeData.content,
-        priority: this.composeData.priority,
-        attachments: this.composeData.attachments
-      };
+    const formData = new FormData();
+    formData.append('subject', this.composeData.subject);
+    formData.append('content', this.composeData.content);
+    formData.append('priority', this.composeData.priority);
 
-      this.messageService.sendToAll(dto).subscribe({
+    // ✅ إضافة الملفات
+    this.selectedFiles.forEach((file) => {
+      formData.append('attachments', file, file.name);
+    });
+
+    if (this.composeData.recipientType === 'all') {
+      this.messageService.sendToAll(formData).subscribe({
         next: (response: any) => {
           if (response.success) {
             this.toastr.success('تم إرسال الرسالة لجميع المستخدمين بنجاح', 'نجاح');
@@ -283,14 +418,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
         }
       });
     } else if (this.composeData.recipientType === 'students') {
-      const dto = {
-        subject: this.composeData.subject,
-        content: this.composeData.content,
-        priority: this.composeData.priority,
-        attachments: this.composeData.attachments
-      };
-
-      this.messageService.sendToStudents(dto).subscribe({
+      this.messageService.sendToStudents(formData).subscribe({
         next: (response: any) => {
           if (response.success) {
             this.toastr.success('تم إرسال الرسالة لجميع الطلاب بنجاح', 'نجاح');
@@ -309,15 +437,12 @@ export class MessagesComponent implements OnInit, OnDestroy {
         }
       });
     } else {
-      const dto = {
-        subject: this.composeData.subject,
-        content: this.composeData.content,
-        priority: this.composeData.priority,
-        recipientIds: this.composeData.selectedUsers.map(u => u.id),
-        attachments: this.composeData.attachments
-      };
+      // إضافة IDs للمستخدمين المحددين
+      this.composeData.selectedUsers.forEach(user => {
+        formData.append('recipientIds', user.id);
+      });
 
-      this.messageService.sendMessage(dto).subscribe({
+      this.messageService.sendMessage(formData).subscribe({
         next: (response: any) => {
           if (response.success) {
             this.toastr.success(
@@ -341,21 +466,68 @@ export class MessagesComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ✅ في sendStudentMessage() - للطلاب
+  sendStudentMessage(): void {
+    if (!this.isStudentFormValid() || this.isSending) {
+      this.toastr.warning('يرجى ملء جميع الحقول المطلوبة', 'تنبيه');
+      return;
+    }
+
+    this.isSending = true;
+
+    // ✅ إنشاء FormData بدلاً من Object عادي
+    const formData = new FormData();
+    formData.append('subject', this.studentComposeData.subject);
+    formData.append('content', this.studentComposeData.content);
+    formData.append('priority', this.studentComposeData.priority);
+
+    // إذا كان مسؤول محدد
+    if (this.studentComposeData.recipientType === 'specific-admin' && this.studentComposeData.specificAdminId) {
+      formData.append('specificAdminId', this.studentComposeData.specificAdminId);
+    }
+
+    // ✅ إضافة الملفات
+    this.selectedFiles.forEach((file, index) => {
+      formData.append(`attachments`, file, file.name);
+    });
+
+    console.log('📤 Sending FormData with files:', this.selectedFiles.length);
+
+    this.messageService.sendToAdmin(formData).subscribe({
+      next: (response: any) => {
+        if (response.success) {
+          this.toastr.success(response.message || 'تم إرسال الرسالة بنجاح', 'نجاح');
+          this.closeStudentCompose();
+        } else {
+          this.toastr.error(response.message || 'فشل إرسال الرسالة', 'خطأ');
+        }
+        this.isSending = false;
+      },
+      error: (error: any) => {
+        console.error('Error sending message:', error);
+        this.toastr.error('حدث خطأ أثناء إرسال الرسالة', 'خطأ');
+        this.isSending = false;
+      }
+    });
+  }
+
   get unreadCount(): number {
-    return this.messages.filter(msg => !msg.isRead).length;
+    return this.stats.unread || 0;
   }
 
   get starredCount(): number {
-    return this.messages.filter(msg => msg.isStarred).length;
+    return this.stats.starred || 0;
   }
 
   get highPriorityCount(): number {
-    return this.messages.filter(msg => msg.priority === 'High').length;
+    return this.stats.highPriority || 0;
   }
 
   viewMessage(message: Message): void {
     this.messageService.getMessageById(message.id).subscribe({
       next: (response: any) => {
+        console.log(response);
+        
         if (response.success && response.data) {
           this.selectedMessage = response.data;
           this.isViewDialogOpen = true;
@@ -426,7 +598,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ✅ Delete Dialog Methods
   openDeleteDialog(message: Message, event: Event): void {
     event.stopPropagation();
     this.messageToDelete = message;
@@ -510,9 +681,54 @@ export class MessagesComponent implements OnInit, OnDestroy {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   }
 
-  downloadAttachment(attachment: any): void {
-    window.open(attachment.url, '_blank');
-  }
+ downloadAttachment(attachment: any): void {
+  // ✅ الـ fileName قد يكون name أو fileName حسب الـ Response
+  const fileName = attachment.name || attachment.fileName || 'download';
+  const fileUrl = attachment.url;
+
+  console.log('📥 Downloading:', fileName, 'from:', fileUrl);
+
+  this.toastr.info('جاري تحميل الملف...', 'تحميل');
+
+  fetch(fileUrl, {
+    method: 'GET',
+    mode: 'cors',
+    credentials: 'include'
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.blob();
+    })
+    .then(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName; // ✅ استخدام الـ fileName
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+
+      this.toastr.success('تم تحميل الملف بنجاح ✅', 'نجاح');
+    })
+    .catch(error => {
+      console.error('❌ Download Error:', error);
+      
+      if (error.message.includes('CORS')) {
+        this.toastr.error('خطأ في إعدادات الأمان (CORS)', 'خطأ');
+      } else if (error.message.includes('404')) {
+        this.toastr.error('الملف غير موجود على السيرفر', 'خطأ');
+      } else {
+        this.toastr.error(`فشل تحميل الملف: ${error.message}`, 'خطأ');
+      }
+    });
+}
 
   onFilterChange(filter: string): void {
     this.selectedFilter = filter;
@@ -539,23 +755,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
-
-  resetComposeForm(): void {
-    this.composeData = {
-      recipientType: 'all',
-      selectedUsers: [],
-      priority: 'Low',
-      subject: '',
-      content: '',
-      attachments: []
-    };
-    this.userSearchTerm = '';
-    this.filteredUsers = [];
-    this.selectedFiles = []; // ⬅️ أضف هذا السطر
-    this.fileSizeError = ''; // ⬅️ وهذا
-  }
-
-  // أضف الدوال دي في آخر الـ Component:
 
   onFileSelected(event: any): void {
     const files: FileList = event.target.files;
@@ -589,13 +788,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
     this.fileSizeError = '';
 
     Array.from(fileList).forEach(file => {
-      // تحقق من حجم الملف
       if (file.size > this.maxFileSize) {
         this.fileSizeError = `الملف "${file.name}" أكبر من 10MB`;
         return;
       }
 
-      // تحقق من نوع الملف
       const allowedTypes = [
         'application/pdf',
         'application/msword',
@@ -612,14 +809,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
         return;
       }
 
-      // تحقق من عدم تكرار الملف
       const exists = this.selectedFiles.find(f => f.name === file.name && f.size === file.size);
       if (!exists) {
         this.selectedFiles.push(file);
       }
     });
-
-    console.log('Selected files:', this.selectedFiles);
   }
 
   removeFile(index: number): void {

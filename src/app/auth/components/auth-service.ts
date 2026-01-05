@@ -20,10 +20,40 @@ export class AuthService {
     });
   }
 
-  Login(form: any) {
-    return this.http.post(environment.authUrl + "login", form)
+  // ✅ Login
+  Login(form: any): Observable<any> {
+    return this.http.post(environment.authUrl + "login", form);
   }
 
+  // ✅ Register - مع PhoneNumber
+  Register(form: any): Observable<any> {
+    return this.http.post(environment.authUrl + "register", form);
+  }
+
+  // ✅ جديد - نسيت كلمة المرور
+  ForgotPassword(email: string): Observable<any> {
+    return this.http.post(environment.authUrl + "forgot-password", { email });
+  }
+
+  // ✅ جديد - التحقق من الكود
+  VerifyResetCode(email: string, code: string): Observable<any> {
+    return this.http.post(environment.authUrl + "verify-reset-code", { email, code });
+  }
+
+  // ✅ جديد - إعادة تعيين كلمة المرور
+  ResetPassword(data: { email: string; token: string; newPassword: string }): Observable<any> {
+    return this.http.post(environment.authUrl + "reset-password", data);
+  }
+
+  // ✅ Refresh Token
+  refreshToken(accessToken: string, refreshToken: string): Observable<any> {
+    return this.http.post(`${environment.authUrl}RefreshToken`, {
+      accessToken,
+      refreshToken
+    });
+  }
+
+  // ✅ Get Current User Role
   getCurrentUserRole(): string {
     try {
       const token = localStorage.getItem('NHC_PL_Token');
@@ -49,18 +79,7 @@ export class AuthService {
     }
   }
 
-  // refreshToken(id: string): Observable<any> {
-  //   return this.http.get<any>(`${environment.authUrl}RefreshToken?id=${id}`, { headers: this.getHeaders() })
-  // }
-
-  refreshToken(accessToken: string, refreshToken: string): Observable<any> {
-    return this.http.post(`${environment.authUrl}RefreshToken`, {
-      accessToken,
-      refreshToken
-    });
-  }
-
-  // ✅ دالة محسّنة للحصول على User ID من الـ Token
+  // ✅ Get Current User ID
   getCurrentUserId(): string {
     try {
       const token = localStorage.getItem('NHC_PL_Token');
@@ -71,11 +90,9 @@ export class AuthService {
 
       const decodedToken: any = jwtDecode(token);
 
-      // طباعة كل الـ Token للـ debugging
       console.log('🔍 Decoded Token:', decodedToken);
 
-      // ⬅️ جرب كل الاحتمالات الممكنة (مع التركيز على "Id" بحرف كبير)
-      const userId = decodedToken.Id ||           // ⬅️ هذا هو المفتاح الصحيح حسب Token بتاعك
+      const userId = decodedToken.Id ||
         decodedToken.id ||
         decodedToken.sub ||
         decodedToken.userId ||
@@ -97,7 +114,7 @@ export class AuthService {
     }
   }
 
-  // دالة للتحقق من صلاحية الـ Token
+  // ✅ Check Token Validity
   isTokenValid(): boolean {
     try {
       const token = localStorage.getItem('NHC_PL_Token');
@@ -113,7 +130,7 @@ export class AuthService {
     }
   }
 
-  // ✅ دالة إضافية للحصول على الـ User Email
+  // ✅ Get Current User Email
   getCurrentUserEmail(): string {
     try {
       const token = localStorage.getItem('NHC_PL_Token');
@@ -131,7 +148,7 @@ export class AuthService {
     }
   }
 
-  // ✅ دالة للحصول على كل بيانات الـ User من الـ Token
+  // ✅ Get Current User (All Data)
   getCurrentUser(): any {
     try {
       const token = localStorage.getItem('NHC_PL_Token');
@@ -149,5 +166,17 @@ export class AuthService {
       console.error('Error getting current user:', error);
       return null;
     }
+  }
+
+  // ✅ Logout
+  logout(): void {
+    localStorage.removeItem('NHC_PL_Token');
+    localStorage.removeItem('NHC_PL_RefreshToken');
+    localStorage.removeItem('NHC_PL_Role');
+  }
+
+  // ✅ Check if Logged In
+  isLoggedIn(): boolean {
+    return this.isTokenValid();
   }
 }

@@ -29,15 +29,31 @@ export interface SendToAllDto {
   attachments?: any[];
 }
 
+// ✅ NEW
+export interface SendToAdminDto {
+  subject: string;
+  content: string;
+  priority: 'Low' | 'Medium' | 'High';
+  specificAdminId?: string;
+  attachments?: any[];
+}
+
+export interface AdminUser {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class MessagesService {
-  private apiUrl = `${environment.messageUrl}`; // تأكد من الـ URL
+  private apiUrl = `${environment.messageUrl}`;
 
   constructor(private http: HttpClient) { }
 
-  // ✅ دالة مساعدة للـ Headers
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('NHC_PL_Token');
     return new HttpHeaders({
@@ -46,10 +62,28 @@ export class MessagesService {
     });
   }
 
-  // جلب جميع الرسائل
+  // ... existing methods
+
+  // ✅ إرسال رسالة من طالب للأدمن
+  sendToAdmin(formData: FormData): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
+      `${this.apiUrl}/send-to-admin`,
+      formData,
+      { headers: this.getHeadersForFile() } // ⬅️ بدون Content-Type
+    );
+  }
+
+  // ✅ جلب قائمة الأدمن والمساعدين
+  getAdminsList(): Observable<MessageResponse> {
+    return this.http.get<MessageResponse>(
+      `${this.apiUrl}/admins-list`,
+      { headers: this.getHeaders() }
+    );
+  }
+
+  // باقي الـ methods...
   getMyMessages(params: any = {}): Observable<MessageResponse> {
     let queryParams = new URLSearchParams();
-
     if (params.isRead !== undefined) queryParams.set('isRead', params.isRead.toString());
     if (params.isStarred !== undefined) queryParams.set('isStarred', params.isStarred.toString());
     if (params.priority) queryParams.set('priority', params.priority);
@@ -58,31 +92,45 @@ export class MessagesService {
     if (params.pageSize) queryParams.set('pageSize', params.pageSize.toString());
 
     const url = `${this.apiUrl}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-
     return this.http.get<MessageResponse>(url, { headers: this.getHeaders() });
   }
 
-  // جلب رسالة واحدة
+  private getHeadersForFile(): HttpHeaders {
+    const token = localStorage.getItem('NHC_PL_Token');
+    return new HttpHeaders({
+      // ❌ لا تضيف Content-Type عند إرسال FormData
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
   getMessageById(id: string): Observable<MessageResponse> {
     return this.http.get<MessageResponse>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // إرسال رسالة لمستخدمين محددين
-  sendMessage(dto: CreateMessageDto): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(this.apiUrl, dto, { headers: this.getHeaders() });
+  sendMessage(formData: FormData): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
+      this.apiUrl,
+      formData,
+      { headers: this.getHeadersForFile() }
+    );
   }
 
-  // إرسال للجميع
-  sendToAll(dto: SendToAllDto): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.apiUrl}/send-to-all`, dto, { headers: this.getHeaders() });
+  sendToAll(formData: FormData): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
+      `${this.apiUrl}/send-to-all`,
+      formData,
+      { headers: this.getHeadersForFile() }
+    );
   }
 
-  // إرسال لجميع الطلاب
-  sendToStudents(dto: SendToAllDto): Observable<MessageResponse> {
-    return this.http.post<MessageResponse>(`${this.apiUrl}/send-to-students`, dto, { headers: this.getHeaders() });
+  sendToStudents(formData: FormData): Observable<MessageResponse> {
+    return this.http.post<MessageResponse>(
+      `${this.apiUrl}/send-to-students`,
+      formData,
+      { headers: this.getHeadersForFile() }
+    );
   }
 
-  // تحديث حالة الرسالة
   updateMessageStatus(messageId: string, isRead?: boolean, isStarred?: boolean): Observable<MessageResponse> {
     return this.http.put<MessageResponse>(`${this.apiUrl}/status`, {
       messageId,
@@ -91,12 +139,10 @@ export class MessagesService {
     }, { headers: this.getHeaders() });
   }
 
-  // حذف رسالة
   deleteMessage(id: string): Observable<MessageResponse> {
     return this.http.delete<MessageResponse>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // جلب الإحصائيات
   getStats(): Observable<MessageResponse> {
     return this.http.get<MessageResponse>(`${this.apiUrl}/stats`, { headers: this.getHeaders() });
   }

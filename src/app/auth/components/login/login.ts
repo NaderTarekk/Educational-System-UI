@@ -13,96 +13,108 @@ import { interval } from 'rxjs';
 })
 export class LoginComponent implements OnInit {
   form: FormGroup;
-  showPassword = false;
+  showPassword: boolean = false;
   loader: boolean = false;
-  private refreshTimer: any;
+  rememberMe: boolean = false;
 
-  constructor(private fb: FormBuilder, private toastr: ToastrService, private service: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder, 
+    private toastr: ToastrService, 
+    private authService: AuthService, 
+    private router: Router
+  ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required]],
     });
   }
-  ngOnInit(): void {
-    this.form.reset();
 
-    const token = localStorage.getItem("NHC_PL_Token")
-    if (token) {
-      this.toastr.info('أنت مسجل دخول بالفعل')
-      this.router.navigate([''])
+  ngOnInit(): void {
+    // التحقق إذا كان المستخدم مسجل دخول بالفعل
+    const token = localStorage.getItem('NHC_PL_Token');
+    if (token && this.authService.isTokenValid()) {
+      this.toastr.info('أنت مسجل دخول بالفعل');
+      this.router.navigate(['']);
     }
   }
 
-  togglePassword() {
+  togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  onSubmit() {
-    this.loader = true;
+  onSubmit(): void {
     if (this.form.invalid) {
-      this.loader = false;
+      // تمييز الحقول غير الصالحة
+      Object.keys(this.form.controls).forEach(key => {
+        this.form.get(key)?.markAsTouched();
+      });
       this.toastr.error('تحقق من البيانات المدخلة', 'تسجيل الدخول');
       return;
     }
 
-    this.service.Login(this.form.value).subscribe({
+    this.loader = true;
+
+    const loginData = {
+      email: this.form.value.email.trim().toLowerCase(),
+      password: this.form.value.password
+    };
+
+    this.authService.Login(loginData).subscribe({
       next: (res: any) => {
-        if (res.success == false) {
+        this.loader = false;
+
+        if (res.success === false) {
           this.toastr.error(res.message, 'تسجيل الدخول');
-          this.loader = false;
+          // Add shake effect to form
+          const card = document.querySelector('.glass-card');
+          card?.classList.add('shake');
+          setTimeout(() => card?.classList.remove('shake'), 500);
           return;
         }
-        this.toastr.success('تم تسجيل الدخول بنجاح! ✨');
-        localStorage.setItem("NHC_PL_Token", res.token);
-        localStorage.setItem("NHC_PL_RefreshToken", res.refreshToken); // ⬅️ أضف
-        localStorage.setItem("NHC_PL_Role", res.role);
-        this.router.navigate([""]);
+
+        // حفظ البيانات
+        localStorage.setItem('NHC_PL_Token', res.token);
+        localStorage.setItem('NHC_PL_RefreshToken', res.refreshToken);
+        localStorage.setItem('NHC_PL_Role', res.role);
+
+        // Remember Me
+        if (this.rememberMe) {
+          localStorage.setItem('NHC_PL_RememberEmail', this.form.value.email);
+        } else {
+          localStorage.removeItem('NHC_PL_RememberEmail');
+        }
+
+        this.toastr.success('تم تسجيل الدخول بنجاح! ✨', 'مرحباً بك');
+        
+        // التوجيه حسب الدور
+        this.navigateByRole(res.role);
       },
       error: (err) => {
         this.loader = false;
-        this.toastr.error('تحقق من البيانات المدخلة', 'تسجيل الدخول');
+        console.error('Login error:', err);
+        
+        if (err.error?.message) {
+          this.toastr.error(err.error.message, 'خطأ');
+        } else {
+          this.toastr.error('تحقق من البيانات المدخلة', 'تسجيل الدخول');
+        }
       }
     });
   }
 
-  // refreshToken() {
-  //   return this.service.refreshToken('https://your-api.com/refresh')
-  //     .subscribe((res: any) => {
-
-  //       // خزّن التوكينات الجديدة
-  //       localStorage.setItem('NHC_PL_Token', res);
-
-  //       const newExpiresAt = Date.now() + 60 * 1000; // دقيقة واحدة
-
-  //       localStorage.setItem('expiresAt', newExpiresAt.toString());
-
-  //       // شغل التايمر من الأول
-  //       this.startTokenTimer();
-  //     });
-  // }
-
-  // startTokenTimer() {
-
-  //   // لو فيه تايمر شغّال نلغيه
-  //   if (this.refreshTimer) {
-  //     clearTimeout(this.refreshTimer);
-  //   }
-
-  //   // هنخلي التايمر ثابت دقيقة واحدة فقط
-  //   const oneMinute = 60 * 1000;
-
-  //   this.refreshTimer = setTimeout(() => {
-  //     this.refreshToken();
-  //   }, oneMinute);
-  // }
-
-  // startTokenTimerOnAppLoad() {
-  //   const accessToken = localStorage.getItem('NHC_PL_Token');
-  //   const expiresAt = localStorage.getItem('expiresAt');
-
-  //   // لو فيه توكن نخليه يكمل
-  //   if (accessToken && expiresAt) {
-  //     this.startTokenTimer();
-  //   }
-  // }
+  // التوجيه حسب دور المستخدم
+  private navigateByRole(role: string): void {
+    switch (role?.toLowerCase()) {
+      case 'admin':
+        this.router.navigate(['/admin/dashboard']);
+        break;
+      case 'teacher':
+        this.router.navigate(['/teacher/dashboard']);
+        break;
+      case 'student':
+      default:
+        this.router.navigate(['']);
+        break;
+    }
+  }
 }
