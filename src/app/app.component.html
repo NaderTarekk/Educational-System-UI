@@ -1,32 +1,42 @@
 <div *ngIf="showLayout" class="flex min-h-screen bg-gray-100" dir="rtl">
-    <!-- Overlay -->
-    <div *ngIf="(sidenavService.isOpen$ | async) && isMobile"
-        class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" (click)="sidenavService.close()">
+    
+    <!-- ✨ Overlay with Blur Effect -->
+    <div class="overlay-backdrop"
+         [class.overlay-visible]="(sidenavService.isOpen$ | async) && isMobile"
+         (click)="sidenavService.close()">
+        <div class="overlay-particles">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
     </div>
 
-    <!-- Sidenav -->
-    <div class="fixed right-0 top-0 h-screen z-50">
+    <!-- Sidenav Container -->
+    <div class="sidenav-wrapper"
+         [class.sidenav-open]="(sidenavService.isOpen$ | async)"
+         [class.sidenav-closed]="!(sidenavService.isOpen$ | async)"
+         [class.sidenav-mobile]="isMobile">
         <app-sidenav></app-sidenav>
     </div>
 
-    <!-- Content -->
-    <div class="flex flex-col flex-1 transition-all duration-300"
-        [ngClass]="{
-            'mr-0': isMobile,
-            'mr-20': !isMobile && !(sidenavService.isOpen$ | async),
-            'mr-64': !isMobile && (sidenavService.isOpen$ | async)
-        }">
+    <!-- Content Area -->
+    <div class="content-wrapper flex flex-col flex-1 transition-all duration-500 ease-out"
+         [class.content-shifted]="!isMobile && (sidenavService.isOpen$ | async)"
+         [class.content-collapsed]="!isMobile && !(sidenavService.isOpen$ | async)"
+         [class.content-mobile]="isMobile">
 
-        <div class="p-3 sm:p-4 md:p-6 sticky top-0 bg-gray-100 z-30">
+        <!-- Navbar -->
+        <div class="navbar-container sticky top-0 z-30 transition-all duration-300"
+             [class.navbar-blur]="isScrolled">
             <app-navbar></app-navbar>
         </div>
 
+        <!-- Main Content -->
         <main class="flex-1 p-3 sm:p-4 md:p-6 overflow-y-auto">
             <router-outlet></router-outlet>
         </main>
     </div>
 </div>
 
-<div *ngIf="!showLayout">
+<!-- Auth Pages (No Layout) -->
+<div *ngIf="!showLayout" class="auth-container">
     <router-outlet></router-outlet>
 </div>

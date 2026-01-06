@@ -12,8 +12,8 @@ import { SharedService } from './shared/services/shared';
 export class AppComponent implements OnInit {
   isMobile = false;
   showLayout = true;
+  isScrolled = false; // ✅ جديد - للـ navbar blur
 
-  // ✅ الصفحات اللي مش عايز فيها Layout
   private noLayoutRoutes: string[] = [
     '/auth',
     '/auth/login',
@@ -26,33 +26,23 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.checkScreenSize();
     
-    // ✅ Check route on navigation
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.checkLayout(event.url);
+        
+        // ✅ جديد - Close sidenav on mobile when navigating
+        if (this.isMobile) {
+          this.sidenavService.close();
+        }
+        
+        // ✅ جديد - Scroll to top on route change
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     
-    // ✅ Check initial route
     this.checkLayout(this.router.url);
-
-    // const token = localStorage.getItem("NHC_PL_Token");
-    // if (!token)
-    //   this.router.navigate(["/auth/login"])
-    // else {
-    //   this.sidenavService.refreshToken().subscribe({
-    //     next: token => {
-    //       localStorage.removeItem('NHC_PL_Token')
-    //       localStorage.setItem('NHC_PL_Token', token);
-    //     },
-    //     error: err => {
-    //       console.error('❌ Error refreshing token', err);
-    //     }
-    //   });
-    // }
   }
 
-  // ✅ Check if current route needs layout
   private checkLayout(url: string): void {
     this.showLayout = !this.noLayoutRoutes.some(route => url.startsWith(route));
   }
@@ -62,11 +52,31 @@ export class AppComponent implements OnInit {
     this.checkScreenSize();
   }
 
+  // ✅ جديد - Listen for scroll
+  @HostListener('window:scroll')
+  onScroll(): void {
+    this.isScrolled = window.scrollY > 20;
+  }
+
+  // ✅ جديد - Keyboard shortcuts
+  @HostListener('document:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    // Ctrl/Cmd + B to toggle sidenav
+    if ((event.ctrlKey || event.metaKey) && event.key === 'b') {
+      event.preventDefault();
+      this.sidenavService.toggle();
+    }
+    
+    // Escape to close sidenav on mobile
+    if (event.key === 'Escape' && this.isMobile) {
+      this.sidenavService.close();
+    }
+  }
+
   private checkScreenSize() {
     const wasMobile = this.isMobile;
     this.isMobile = window.innerWidth < 1024;
 
-    // فتح/إغلاق تلقائي عند تغيير حجم الشاشة
     if (wasMobile !== this.isMobile) {
       if (this.isMobile) {
         this.sidenavService.close();
