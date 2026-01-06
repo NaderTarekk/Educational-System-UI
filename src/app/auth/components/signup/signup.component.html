@@ -37,32 +37,33 @@
         <form class="space-y-4" [formGroup]="form" (ngSubmit)="onSubmit()" autocomplete="off">
 
             <!-- Name Row -->
-            <div class="grid grid-cols-2 gap-3 animate-slide-up delay-1">
-                <!-- First Name -->
-                <div class="relative group">
-                    <div class="relative">
-                        <div class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 group-hover:text-cyan-400 transition-all duration-300 group-focus-within:text-cyan-400 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>
-                            </svg>
-                        </div>
-                        <input type="text" placeholder="الاسم الأول" formControlName="firstName"
-                            class="w-full py-3 pr-10 pl-3 bg-white/10 border-2 text-center border-white/20 rounded-xl text-white placeholder:text-white/50 backdrop-blur-xl focus:outline-none focus:border-cyan-500/80 focus:bg-white/15 transition-all duration-300 hover:border-white/30 text-sm">
-                    </div>
-                </div>
-                <!-- Last Name -->
-                <div class="relative group">
-                    <div class="relative">
-                        <div class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 group-hover:text-cyan-400 transition-all duration-300 group-focus-within:text-cyan-400 pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>
-                            </svg>
-                        </div>
-                        <input type="text" placeholder="الاسم الأخير" formControlName="lastName"
-                            class="w-full py-3 pr-10 pl-3 bg-white/10 border-2 text-center border-white/20 rounded-xl text-white placeholder:text-white/50 backdrop-blur-xl focus:outline-none focus:border-cyan-500/80 focus:bg-white/15 transition-all duration-300 hover:border-white/30 text-sm">
-                    </div>
-                </div>
+          <!-- Name Row -->
+<div class="grid grid-cols-2 gap-3 animate-slide-up delay-1 rtl">
+    <!-- Last Name -->
+    <div class="relative group">
+        <div class="relative">
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 group-hover:text-cyan-400 transition-all duration-300 group-focus-within:text-cyan-400 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>
+                </svg>
             </div>
+            <input type="text" placeholder="الاسم الأخير" formControlName="lastName" tabindex="2"
+                class="w-full py-3 pr-10 pl-3 bg-white/10 border-2 text-center border-white/20 rounded-xl text-white placeholder:text-white/50 backdrop-blur-xl focus:outline-none focus:border-cyan-500/80 focus:bg-white/15 transition-all duration-300 hover:border-white/30 text-sm">
+        </div>
+    </div>
+    <!-- First Name -->
+    <div class="relative group">
+        <div class="relative">
+            <div class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 group-hover:text-cyan-400 transition-all duration-300 group-focus-within:text-cyan-400 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>
+                </svg>
+            </div>
+            <input type="text" placeholder="الاسم الأول" formControlName="firstName" tabindex="1"
+                class="w-full py-3 pr-10 pl-3 bg-white/10 border-2 text-center border-white/20 rounded-xl text-white placeholder:text-white/50 backdrop-blur-xl focus:outline-none focus:border-cyan-500/80 focus:bg-white/15 transition-all duration-300 hover:border-white/30 text-sm">
+        </div>
+    </div>
+</div>
 
             <!-- Email -->
             <div class="relative group animate-slide-up delay-2">

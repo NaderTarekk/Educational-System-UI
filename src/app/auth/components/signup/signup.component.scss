@@ -41,10 +41,21 @@
         color: rgba(255, 255, 255, 0.6);
         direction: rtl;
 
-        &.weak { color: #ef4444; }
-        &.fair { color: #f59e0b; }
-        &.good { color: #3b82f6; }
-        &.strong { color: #10b981; }
+        &.weak {
+            color: #ef4444;
+        }
+
+        &.fair {
+            color: #f59e0b;
+        }
+
+        &.good {
+            color: #3b82f6;
+        }
+
+        &.strong {
+            color: #10b981;
+        }
     }
 }
 
