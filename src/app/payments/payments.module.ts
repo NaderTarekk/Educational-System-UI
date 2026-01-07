@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PaymentsComponent } from './components/payments/payments.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PaymentRoutingModule } from '../routing/payment-routing.module';
 
 
@@ -13,7 +13,8 @@ import { PaymentRoutingModule } from '../routing/payment-routing.module';
   imports: [
     CommonModule,
     FormsModule,
-    PaymentRoutingModule
+    PaymentRoutingModule,
+    ReactiveFormsModule
   ]
 })
 export class PaymentsModule { }

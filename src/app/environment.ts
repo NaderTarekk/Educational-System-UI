@@ -9,6 +9,7 @@ export const environment = {
   expenseUrl: 'https://nhc-pl-system.runasp.net/api/expenses',
   videoUrl: 'https://nhc-pl-system.runasp.net/api/videos',
   subjectUrl: 'https://nhc-pl-system.runasp.net/api/subjects',
+  paymentUrl: 'https://nhc-pl-system.runasp.net/api/payments',
   baseUrl: 'https://nhc-pl-system.runasp.net/',
 
   // authUrl: 'https://localhost:7273/api/Auth/',
@@ -20,5 +21,6 @@ export const environment = {
   // expenseUrl: 'https://localhost:7273/api/expenses',
   // videoUrl: 'https://localhost:7273/api/videos',
   // subjectUrl: 'https://localhost:7273/api/subjects',
+  // paymentUrl: 'https://localhost:7273/api/payments',
   // baseUrl: 'https://localhost:7273',
 };
