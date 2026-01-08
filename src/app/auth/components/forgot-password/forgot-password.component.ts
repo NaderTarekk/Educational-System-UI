@@ -88,7 +88,6 @@ export class ForgotPasswordComponent implements OnInit, OnDestroy {
 
     this.loader = true;
     this.userEmail = this.emailForm.value.email.trim().toLowerCase();
-
     this.authService.ForgotPassword(this.userEmail).subscribe({
       next: (res: any) => {
         this.loader = false;

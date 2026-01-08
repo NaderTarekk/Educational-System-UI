@@ -19,10 +19,6 @@ export class AuthInterceptor implements HttpInterceptor {
         if (token) {
             req = this.addToken(req, token);
         }
-        else {
-            this.router.navigate(['/auth/login']);
-        }
-
         return next.handle(req).pipe(
             catchError((error: HttpErrorResponse) => {
                 // ✅ لو 401 (Unauthorized) → جرب Refresh

@@ -21,25 +21,28 @@ export class AppComponent implements OnInit {
     '/auth/forgot-password'
   ];
 
-  constructor(public sidenavService: SharedService, private router: Router) {}
+  constructor(public sidenavService: SharedService, private router: Router) { }
 
   ngOnInit() {
+    const token = localStorage.getItem('NHC_PL_Token');
+    if (!token) {
+      this.router.navigate(['/auth/login']);
+    }
     this.checkScreenSize();
-    
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         this.checkLayout(event.url);
-        
+
         // ✅ جديد - Close sidenav on mobile when navigating
         if (this.isMobile) {
           this.sidenavService.close();
         }
-        
+
         // ✅ جديد - Scroll to top on route change
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-    
+
     this.checkLayout(this.router.url);
   }
 
@@ -66,7 +69,7 @@ export class AppComponent implements OnInit {
       event.preventDefault();
       this.sidenavService.toggle();
     }
-    
+
     // Escape to close sidenav on mobile
     if (event.key === 'Escape' && this.isMobile) {
       this.sidenavService.close();
