@@ -1,295 +1,151 @@
 /* app.component.scss */
 
 /* ============================================
-   🎨 Variables
+   🎯 Variables
    ============================================ */
-$sidenav-width-open: 288px;
+$sidenav-width-open: 280px;
 $sidenav-width-closed: 80px;
-$transition-duration: 0.4s;
+$transition-speed: 0.3s;
 $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
 /* ============================================
-   ✨ Overlay with Blur Effect
+   📦 App Layout
+   ============================================ */
+.app-layout {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: #f3f4f6;
+}
+
+/* ============================================
+   ✨ Overlay (Mobile)
    ============================================ */
 .overlay-backdrop {
     position: fixed;
     inset: 0;
     z-index: 40;
-    
-    /* Start hidden */
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     visibility: hidden;
-    pointer-events: none;
-    
-    /* Beautiful blur effect */
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    
-    /* ✨ Smooth transition for show/hide */
-    transition: 
-        opacity 0.3s ease,
-        visibility 0.3s ease,
-        backdrop-filter 0.3s ease;
-    
+    transition:
+        opacity $transition-speed ease,
+        visibility $transition-speed ease;
     cursor: pointer;
-    
-    &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-            135deg,
-            rgba(59, 130, 246, 0.1) 0%,
-            rgba(139, 92, 246, 0.1) 50%,
-            rgba(236, 72, 153, 0.1) 100%
-        );
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-    
-    /* ✅ Visible state */
+
     &.overlay-visible {
         opacity: 1;
         visibility: visible;
-        pointer-events: auto;
-        backdrop-filter: blur(8px) saturate(180%);
-        -webkit-backdrop-filter: blur(8px) saturate(180%);
-        
-        &::before {
-            opacity: 0.5;
-        }
-        
-        .overlay-particles span {
-            animation-play-state: running;
-        }
-    }
-}
-
-/* Floating particles in overlay */
-.overlay-particles {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-    
-    span {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 50%;
-        animation: floatParticle 15s infinite ease-in-out;
-        animation-play-state: paused;
-        
-        &:nth-child(1) {
-            left: 10%;
-            top: 20%;
-            animation-delay: 0s;
-            width: 8px;
-            height: 8px;
-        }
-        &:nth-child(2) {
-            left: 30%;
-            top: 60%;
-            animation-delay: -3s;
-            width: 12px;
-            height: 12px;
-        }
-        &:nth-child(3) {
-            left: 50%;
-            top: 30%;
-            animation-delay: -6s;
-            width: 6px;
-            height: 6px;
-        }
-        &:nth-child(4) {
-            left: 70%;
-            top: 70%;
-            animation-delay: -9s;
-            width: 10px;
-            height: 10px;
-        }
-        &:nth-child(5) {
-            left: 85%;
-            top: 40%;
-            animation-delay: -12s;
-            width: 14px;
-            height: 14px;
-        }
-    }
-}
-
-@keyframes floatParticle {
-    0%, 100% {
-        transform: translateY(0) translateX(0) scale(1);
-        opacity: 0.3;
-    }
-    25% {
-        transform: translateY(-60px) translateX(30px) scale(1.2);
-        opacity: 0.6;
-    }
-    50% {
-        transform: translateY(-120px) translateX(-30px) scale(0.8);
-        opacity: 0.4;
-    }
-    75% {
-        transform: translateY(-60px) translateX(60px) scale(1.1);
-        opacity: 0.5;
     }
 }
 
 /* ============================================
-   📱 Sidenav Wrapper - SLIDE ANIMATION
+   📄 Main Content Wrapper
    ============================================ */
-.sidenav-wrapper {
-    position: fixed;
-    right: 0;
-    top: 0;
-    height: 100vh;
-    z-index: 50;
-    
-    /* ✨ Smooth slide transition */
-    transition: 
-        transform $transition-duration $transition-timing,
-        box-shadow $transition-duration $transition-timing,
-        opacity 0.3s ease;
-    
-    /* Desktop - always visible */
-    transform: translateX(0);
-    opacity: 1;
-    
-    /* Shadow when open */
-    &.sidenav-open {
-        box-shadow: 
-            -10px 0 50px rgba(0, 0, 0, 0.2),
-            -5px 0 25px rgba(59, 130, 246, 0.15);
-    }
-}
-
-/* 📱 Mobile Sidenav Animation */
-@media (max-width: 1023px) {
-    .sidenav-wrapper {
-        /* ✅ Hidden state - slide to right */
-        transform: translateX(100%);
-        opacity: 0;
-        box-shadow: none;
-        
-        /* ✅ Open state - slide from right */
-        &.sidenav-open {
-            transform: translateX(0);
-            opacity: 1;
-            box-shadow: 
-                -10px 0 50px rgba(0, 0, 0, 0.25),
-                -5px 0 25px rgba(59, 130, 246, 0.2);
-        }
-    }
-}
-
-/* ============================================
-   📄 Content Wrapper
-   ============================================ */
-.content-wrapper {
+.main-wrapper {
     min-height: 100vh;
-    transition: 
-        margin-right $transition-duration $transition-timing,
-        transform 0.3s ease;
-    
-    &.content-shifted {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    transition: margin-right $transition-speed $transition-timing;
+
+    // Desktop - Sidenav Open
+    &.main-shifted {
         margin-right: $sidenav-width-open;
     }
-    
-    &.content-collapsed {
+
+    // Desktop - Sidenav Collapsed
+    &.main-collapsed {
         margin-right: $sidenav-width-closed;
     }
-    
-    &.content-mobile {
+
+    // Mobile - Full Width
+    &.main-mobile {
         margin-right: 0;
     }
 }
 
 /* ============================================
-   🎯 Navbar Container
+   📃 Page Content
    ============================================ */
-.navbar-container {
-    padding: 0.75rem;
-    background: transparent;
-    transition: all 0.3s ease;
-    
+.page-content {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+
     @media (min-width: 640px) {
-        padding: 1rem;
+        padding: 1.25rem;
     }
-    
+
     @media (min-width: 768px) {
         padding: 1.5rem;
     }
-    
-    &.navbar-blur {
-        background: rgba(243, 244, 246, 0.85);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+
+    @media (min-width: 1024px) {
+        padding: 2rem;
     }
 }
 
 /* ============================================
-   🔐 Auth Container
+   🔐 Auth Layout
    ============================================ */
-.auth-container {
+.auth-layout {
     min-height: 100vh;
-    animation: fadeInPage 0.5s ease-out;
+    min-height: 100dvh;
+    animation: fadeIn 0.5s ease;
 }
 
-@keyframes fadeInPage {
+/* ============================================
+   🎬 Route Animation
+   ============================================ */
+::ng-deep router-outlet+* {
+    animation: pageEnter 0.3s ease-out;
+}
+
+@keyframes pageEnter {
     from {
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* ============================================
-   🎨 Page Transition Animation
-   ============================================ */
-::ng-deep router-outlet + * {
-    animation: routeAnimation 0.35s ease-out;
-}
-
-@keyframes routeAnimation {
+@keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
     }
+
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
 /* ============================================
-   🎨 Custom Scrollbar
+   📜 Custom Scrollbar
    ============================================ */
-main {
+.page-content {
     scrollbar-width: thin;
-    scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
-    
+    scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+
     &::-webkit-scrollbar {
         width: 8px;
     }
-    
+
     &::-webkit-scrollbar-track {
         background: transparent;
     }
-    
+
     &::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #d1d5db, #9ca3af);
+        background: rgba(156, 163, 175, 0.4);
         border-radius: 10px;
-        
+
         &:hover {
-            background: linear-gradient(180deg, #9ca3af, #6b7280);
+            background: rgba(156, 163, 175, 0.6);
         }
     }
 }
@@ -298,15 +154,14 @@ main {
    ♿ Reduced Motion
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
-    .overlay-backdrop,
-    .sidenav-wrapper,
-    .content-wrapper,
-    .navbar-container {
-        transition-duration: 0.01ms !important;
+
+    .main-wrapper,
+    .overlay-backdrop {
+        transition: none;
     }
-    
-    .overlay-particles span,
-    ::ng-deep router-outlet + * {
-        animation: none !important;
+
+    ::ng-deep router-outlet+*,
+    .auth-layout {
+        animation: none;
     }
 }

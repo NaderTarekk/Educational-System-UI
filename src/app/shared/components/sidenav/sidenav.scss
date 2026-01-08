@@ -1,87 +1,283 @@
 /* sidenav.component.scss */
 
 /* ============================================
-   🎯 Sliding Highlight Navigation
+   🎯 Variables
    ============================================ */
+$sidenav-width-open: 280px;
+$sidenav-width-closed: 80px;
+$header-height: 70px;
+$transition-speed: 0.3s;
+$transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
-.nav-container {
-    position: relative;
+/* ============================================
+   📦 Sidenav Container
+   ============================================ */
+.sidenav-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    height: 100dvh; // Dynamic viewport height for mobile
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    border-left: 1px solid #e2e8f0;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.05);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    transition: 
+        width $transition-speed $transition-timing,
+        transform $transition-speed $transition-timing;
+
+    // ✅ Desktop - Open
+    &.sidenav-open {
+        width: $sidenav-width-open;
+        transform: translateX(0);
+    }
+
+    // ✅ Desktop - Closed (Collapsed)
+    &.sidenav-closed {
+        width: $sidenav-width-closed;
+        transform: translateX(0);
+    }
+
+    // ✅ Mobile - Hidden by default
+    &.sidenav-mobile-closed {
+        width: $sidenav-width-open;
+        transform: translateX(100%);
+        box-shadow: none;
+    }
+
+    // ✅ Mobile - Open (Slide in)
+    &.sidenav-mobile-open {
+        width: $sidenav-width-open;
+        max-width: 85vw;
+        transform: translateX(0);
+        box-shadow: -10px 0 40px rgba(0, 0, 0, 0.2);
+    }
 }
 
-/* The sliding highlight element */
+/* ============================================
+   🎨 Header
+   ============================================ */
+.sidenav-header {
+    position: relative;
+    padding: 1rem;
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    min-height: $header-height;
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .header-line {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+    }
+}
+
+.logo-full {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+
+    .logo-icon {
+        width: 42px;
+        height: 42px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo-text {
+        flex: 1;
+        min-width: 0;
+        
+        h2 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: white;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        p {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0;
+        }
+    }
+}
+
+.logo-collapsed {
+    width: 42px;
+    height: 42px;
+    background: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.close-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+/* ============================================
+   🧭 Navigation Container
+   ============================================ */
+.nav-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.75rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+/* ============================================
+   ✨ Sliding Highlight
+   ============================================ */
 .nav-highlight {
     position: absolute;
-    left: 12px;
-    right: 12px;
+    left: 0.75rem;
+    right: 0.75rem;
     border-radius: 12px;
     pointer-events: none;
     z-index: 0;
-    
-    /* ✨ Smooth transition */
     transition: 
-        top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-        height 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-        opacity 0.25s ease,
-        background 0.4s ease,
-        box-shadow 0.3s ease;
-    
-    /* Dynamic glow effect */
-    box-shadow: 
-        0 4px 20px rgba(0, 0, 0, 0.15),
-        0 0 40px var(--highlight-glow, rgba(99, 102, 241, 0.2));
+        top 0.3s $transition-timing,
+        height 0.2s $transition-timing,
+        opacity 0.2s ease,
+        background 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* Navigation Items */
+/* ============================================
+   🔗 Navigation Items
+   ============================================ */
 .nav-item {
     position: relative;
     z-index: 1;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    .nav-text {
-        color: #374151;
-        transition: color 0.3s ease, transform 0.3s ease;
-    }
-    
-    .icon-box {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    /* Hover state */
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
     &:hover {
-        transform: translateX(-5px);
-        
-        .nav-text {
-            color: #1f2937;
-        }
-        
-        .icon-box {
+        .nav-icon {
             transform: scale(1.05);
+        }
+    }
+
+    // Collapsed state
+    &.nav-item-collapsed {
+        justify-content: center;
+        padding: 0.75rem 0.5rem;
+
+        .nav-icon {
+            margin: 0;
         }
     }
 }
 
-/* Active Link Style */
+.nav-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+
+    i, svg {
+        font-size: 1.125rem;
+        transition: color 0.2s ease;
+    }
+}
+
+.nav-text {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s ease;
+}
+
+.notification-badge {
+    margin-right: auto;
+    padding: 0.125rem 0.5rem;
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 9999px;
+    animation: pulse 2s infinite;
+}
+
+/* ============================================
+   ✅ Active Link Style
+   ============================================ */
 .nav-item.active-link {
     .nav-text {
         color: white !important;
         font-weight: 700;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
-    
-    .icon-box {
+
+    .nav-icon {
         background: rgba(255, 255, 255, 0.25) !important;
-        box-shadow: 
-            0 4px 15px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(5px);
         
-        i, svg, span {
+        i, svg {
             color: white !important;
-            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
         }
     }
-    
-    /* Active indicator line */
+
+    // Active indicator bar
     &::before {
         content: '';
         position: absolute;
@@ -89,184 +285,192 @@
         top: 50%;
         transform: translateY(-50%);
         width: 4px;
-        height: 60%;
+        height: 50%;
         background: white;
         border-radius: 4px 0 0 4px;
-        box-shadow: 
-            0 0 10px rgba(255, 255, 255, 0.5),
-            0 0 20px rgba(255, 255, 255, 0.3);
-        animation: glowPulse 2s ease-in-out infinite;
-    }
-}
-
-@keyframes glowPulse {
-    0%, 100% {
-        box-shadow: 
-            0 0 10px rgba(255, 255, 255, 0.5),
-            0 0 20px rgba(255, 255, 255, 0.3);
-    }
-    50% {
-        box-shadow: 
-            0 0 15px rgba(255, 255, 255, 0.7),
-            0 0 30px rgba(255, 255, 255, 0.4);
     }
 }
 
 /* ============================================
-   🎨 Sidenav Container Animations
+   👤 Footer - User Profile
    ============================================ */
+.sidenav-footer {
+    padding: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
 
-/* Header gradient animation */
-.sidenav-header {
+.user-profile-full {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.user-profile-collapsed {
+    display: flex;
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+.user-avatar-wrapper {
     position: relative;
+    flex-shrink: 0;
+}
+
+.user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 2px solid #6366f1;
+    object-fit: cover;
+}
+
+.online-indicator {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 14px;
+    height: 14px;
+    background: #22c55e;
+    border: 3px solid white;
+    border-radius: 50%;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.user-name {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    white-space: nowrap;
     overflow: hidden;
-    
-    &::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 200%;
-        height: 100%;
-        background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.1),
-            transparent
-        );
-        animation: shimmer 3s infinite;
-    }
+    text-overflow: ellipsis;
 }
 
-@keyframes shimmer {
-    0% {
-        transform: translateX(-100%);
-    }
-    100% {
-        transform: translateX(100%);
-    }
-}
-
-/* Logo animation */
-.logo-icon {
-    animation: logoFloat 3s ease-in-out infinite;
-}
-
-@keyframes logoFloat {
-    0%, 100% {
-        transform: translateY(0) scale(1);
-    }
-    50% {
-        transform: translateY(-3px) scale(1.02);
-    }
+.user-email {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ============================================
-   🎨 Custom Scrollbar
+   📜 Custom Scrollbar
    ============================================ */
-
 .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(147, 197, 253, 0.5) transparent;
-    
+    scrollbar-color: rgba(156, 163, 175, 0.4) transparent;
+
     &::-webkit-scrollbar {
-        width: 6px;
+        width: 5px;
     }
 
     &::-webkit-scrollbar-track {
         background: transparent;
-        margin: 10px 0;
     }
 
     &::-webkit-scrollbar-thumb {
-        background: linear-gradient(180deg, #93c5fd, #60a5fa);
+        background: rgba(156, 163, 175, 0.4);
         border-radius: 10px;
-        
+
         &:hover {
-            background: linear-gradient(180deg, #60a5fa, #3b82f6);
+            background: rgba(156, 163, 175, 0.6);
         }
     }
 }
 
 /* ============================================
-   ✨ Notification Badge
+   🎬 Animations
    ============================================ */
-
-.notification-badge {
-    animation: badgePulse 2s ease-in-out infinite;
-}
-
-@keyframes badgePulse {
+@keyframes pulse {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
     }
     50% {
         transform: scale(1.1);
-        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
     }
 }
 
 /* ============================================
-   👤 User Profile Section
+   📱 Responsive Adjustments
    ============================================ */
-
-.user-profile {
-    transition: all 0.3s ease;
-    
-    &:hover {
-        transform: translateY(-2px);
-        
-        .user-avatar {
-            transform: scale(1.05);
-            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+@media (max-width: 1024px) {
+    .sidenav-container {
+        &.sidenav-mobile-open {
+            width: 280px;
+            max-width: 80vw;
         }
     }
 }
 
-.user-avatar {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.online-indicator {
-    animation: onlinePulse 2s ease-in-out infinite;
-}
-
-@keyframes onlinePulse {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+@media (max-width: 640px) {
+    .sidenav-container {
+        &.sidenav-mobile-open {
+            width: 100%;
+            max-width: 300px;
+        }
     }
-    50% {
-        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+
+    .sidenav-header {
+        padding: 0.875rem;
+    }
+
+    .logo-full {
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+        }
+
+        .logo-text h2 {
+            font-size: 1rem;
+        }
+    }
+
+    .nav-container {
+        padding: 0.5rem;
+    }
+
+    .nav-item {
+        padding: 0.625rem;
+    }
+
+    .nav-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+
+        i, svg {
+            font-size: 1rem;
+        }
+    }
+
+    .nav-text {
+        font-size: 0.875rem;
     }
 }
 
 /* ============================================
-   📱 Responsive
+   ♿ Reduced Motion
    ============================================ */
-
-@media (max-width: 1024px) {
-    .nav-highlight {
-        left: 8px;
-        right: 8px;
-    }
-    
-    .nav-item:hover {
-        transform: translateX(-3px);
-    }
-}
-
-
-/* ============================================
-   ♿ Accessibility - Reduced Motion
-   ============================================ */
-
 @media (prefers-reduced-motion: reduce) {
+    .sidenav-container,
     .nav-highlight,
     .nav-item,
-    .icon-box,
-    .logo-icon {
+    .nav-icon {
         transition: none;
+    }
+
+    .notification-badge {
         animation: none;
     }
 }

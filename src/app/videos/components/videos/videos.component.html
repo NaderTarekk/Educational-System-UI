@@ -162,10 +162,8 @@
                     <button (click)="viewVideo(video)"
                         class="opacity-0 group-hover:opacity-100 transition-all bg-white rounded-full p-3 md:p-4 shadow-2xl hover:scale-110 transform">
                         <!-- ✅ أيقونة مختلفة للـ PDF -->
-                        <i class="fas text-2xl md:text-3xl"
-                         [class.fa-play]="!isPdf(video)"
-                            [class.fa-eye]="isPdf(video)"
-                             [class.text-indigo-600]="!isPdf(video)"
+                        <i class="fas text-2xl md:text-3xl" [class.fa-play]="!isPdf(video)"
+                            [class.fa-eye]="isPdf(video)" [class.text-indigo-600]="!isPdf(video)"
                             [class.text-orange-600]="isPdf(video)">
                         </i>
                     </button>
@@ -176,7 +174,15 @@
                     {{video.duration || '00:00'}}
                 </span>
 
-                <span *ngIf="!video.isPublished"
+                <!-- Free Badge -->
+                <span *ngIf="video.isFree"
+                    class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold flex items-center gap-1">
+                    <i class="fas fa-gift"></i>
+                    مجاني
+                </span>
+
+                <!-- Draft Badge - عدّل الموقع -->
+                <span *ngIf="!video.isPublished && !video.isFree"
                     class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
                     مسودة
                 </span>
@@ -544,6 +550,16 @@
                     </label>
                 </div>
 
+                <!-- Free Content Option -->
+                <div class="flex items-center gap-3 p-4 bg-green-50 rounded-xl border-2 border-green-200">
+                    <input type="checkbox" [(ngModel)]="newVideo.isFree" id="isFree"
+                        class="w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                    <label for="isFree" class="text-sm font-bold text-gray-700 cursor-pointer flex items-center gap-2">
+                        <i class="fas fa-gift text-green-600"></i>
+                        محتوى مجاني (متاح للجميع)
+                    </label>
+                </div>
+
                 <!-- Upload Progress -->
                 <div *ngIf="uploadProgress > 0" class="mt-4">
                     <div class="flex items-center justify-between mb-2">
@@ -787,6 +803,17 @@
                         class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500">
                     <label for="publishEdit" class="text-sm font-bold text-gray-700 cursor-pointer">
                         نشر الفيديو
+                    </label>
+                </div>
+
+                <!-- ✅ Free Content Option - أضف ده -->
+                <div class="flex items-center gap-3 p-4 bg-green-50 rounded-xl border-2 border-green-200">
+                    <input type="checkbox" [(ngModel)]="newVideo.isFree" id="isFreeEdit"
+                        class="w-5 h-5 text-green-600 rounded focus:ring-green-500">
+                    <label for="isFreeEdit"
+                        class="text-sm font-bold text-gray-700 cursor-pointer flex items-center gap-2">
+                        <i class="fas fa-gift text-green-600"></i>
+                        محتوى مجاني (متاح للجميع)
                     </label>
                 </div>
             </div>

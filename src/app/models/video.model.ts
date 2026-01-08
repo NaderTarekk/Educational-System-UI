@@ -14,6 +14,7 @@ export interface Video {
   views: number;
   likes: number;
   isPublished: boolean;
+  isFree: boolean;
   fileSize?: string;
   uploadDate: string;
   isLikedByCurrentUser: boolean;
@@ -40,10 +41,11 @@ export interface CreateVideoDto {
   videoSource?: string;
   fileSize?: string;
   isPublished: boolean;
+   isFree: boolean; 
   userIds?: string[];
   groupIds?: string[];
-    contentType: 'video' | 'pdf'; // ⬅️ أضف
-  pageCount?: number; // ⬅️ أضف
+    contentType: 'video' | 'pdf'; 
+  pageCount?: number; 
 }
 
 export interface VideoStats {

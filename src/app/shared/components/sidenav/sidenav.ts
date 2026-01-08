@@ -3,6 +3,7 @@ import { SharedService } from '../../services/shared';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { MessagesService } from '../../../messages/services/messages.service';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-sidenav',
@@ -28,7 +29,8 @@ export class Sidenav implements OnInit {
   constructor(
     public sidenavService: SharedService, 
     private messageService: MessagesService,
-    private router: Router
+    private router: Router,
+    private toastr:ToastrService
   ) { }
 
   ngOnInit(): void {
@@ -113,5 +115,13 @@ export class Sidenav implements OnInit {
   get unreadCount(): number {
     var count = this.messages.filter(msg => !msg.isRead).length;
     return count;
+  }
+
+  
+  logout() {
+    localStorage.removeItem('NHC_PL_Token');
+    localStorage.removeItem('NHC_PL_Role');
+    this.toastr.info("تم تسجيل الخروج من حسابك");
+    this.router.navigate(['/auth/login']);
   }
 }

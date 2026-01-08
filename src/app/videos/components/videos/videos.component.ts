@@ -66,9 +66,10 @@ export class VideosComponent implements OnInit {
     category: 'درس',
     fileSize: '',
     isPublished: false,
+    isFree: false,
     videoSource: 'youtube',
-    contentType: 'video', // ⬅️ صح
-    pageCount: undefined // ⬅️ صح
+    contentType: 'video', 
+    pageCount: undefined 
   };
   videoSource: 'youtube' | 'local' = 'youtube';
   youtubeUrl = '';
@@ -312,8 +313,9 @@ export class VideosComponent implements OnInit {
       grade: video.grade,
       fileSize: video.fileSize,
       isPublished: video.isPublished,
-      contentType: video.contentType || 'video', // ⬅️ أضف
-      pageCount: video.pageCount // ⬅️ أضف
+      isFree: video.isFree,
+      contentType: video.contentType || 'video', 
+      pageCount: video.pageCount 
     };
     this.showEditModal = true;
     document.body.style.overflow = 'hidden';
@@ -585,6 +587,7 @@ export class VideosComponent implements OnInit {
       category: 'درس',
       fileSize: '',
       isPublished: false,
+      isFree: false,
       contentType: 'video'
     };
     this.selectedFile = null;
