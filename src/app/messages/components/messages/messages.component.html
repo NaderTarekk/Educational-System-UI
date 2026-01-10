@@ -39,7 +39,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" >
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <!-- Total Messages -->
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg hover:shadow-xl transition-all cursor-pointer"
             (click)="onFilterChange('all')">
@@ -197,23 +197,25 @@
                         </div>
 
                         <!-- Actions (shown on hover) -->
-                        <div class="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div
+                            class="flex items-center gap-2 mt-3 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                             <button (click)="markAsRead(message, $event)"
                                 class="text-xs px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-semibold">
                                 <i class="fas fa-eye ml-1"></i>
-                                {{ message.isRead ? 'غير مقروء' : 'مقروء' }}
+                                <span class="hidden sm:inline">{{ message.isRead ? 'غير مقروء' : 'مقروء' }}</span>
                             </button>
                             <button (click)="toggleStar(message, $event)"
                                 class="text-xs px-3 py-1.5 rounded-lg hover:bg-amber-100 transition-colors font-semibold"
                                 [class.bg-amber-50]="message.isStarred" [class.text-amber-600]="message.isStarred"
                                 [class.bg-gray-50]="!message.isStarred" [class.text-gray-600]="!message.isStarred">
                                 <i class="fas fa-star ml-1"></i>
-                                {{ message.isStarred ? 'إلغاء التمييز' : 'تمييز' }}
+                                <span class="hidden sm:inline">{{ message.isStarred ? 'إلغاء التمييز' : 'تمييز'
+                                    }}</span>
                             </button>
                             <button (click)="openDeleteDialog(message, $event)"
                                 class="text-xs px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-semibold">
                                 <i class="fas fa-trash ml-1"></i>
-                                حذف
+                                <span class="hidden sm:inline">حذف</span>
                             </button>
                         </div>
                     </div>
@@ -306,27 +308,27 @@
                     <i class="fas fa-paperclip text-blue-600 ml-2"></i>
                     المرفقات ({{ selectedMessage.attachments.length }})
                 </h3>
-               <div class="space-y-2">
-    <div *ngFor="let attachment of selectedMessage.attachments"
-        class="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <!-- ✅ Dynamic Icon based on file type -->
-                <i class="fas text-blue-600" [ngClass]="getFileIcon(attachment.name)"></i>
-            </div>
-            <div>
-                <!-- ✅ استخدم name بدلاً من fileName -->
-                <p class="font-semibold text-gray-900">{{ attachment.name }}</p>
-                <!-- ✅ استخدم size بدلاً من fileSize -->
-                <p class="text-xs text-gray-500">{{ formatFileSize(attachment.size) }}</p>
-            </div>
-        </div>
-        <button (click)="downloadAttachment(attachment)"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <i class="fas fa-download"></i>
-        </button>
-    </div>
-</div>
+                <div class="space-y-2">
+                    <div *ngFor="let attachment of selectedMessage.attachments"
+                        class="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <!-- ✅ Dynamic Icon based on file type -->
+                                <i class="fas text-blue-600" [ngClass]="getFileIcon(attachment.name)"></i>
+                            </div>
+                            <div>
+                                <!-- ✅ استخدم name بدلاً من fileName -->
+                                <p class="font-semibold text-gray-900">{{ attachment.name }}</p>
+                                <!-- ✅ استخدم size بدلاً من fileSize -->
+                                <p class="text-xs text-gray-500">{{ formatFileSize(attachment.size) }}</p>
+                            </div>
+                        </div>
+                        <button (click)="downloadAttachment(attachment)"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -588,61 +590,62 @@
                 </div>
 
                 <!-- Attachments (Optional) -->
-               <div class="mb-6">
-    <label class="block text-sm font-bold text-gray-700 mb-3">
-        <i class="fas fa-paperclip text-cyan-600 ml-2"></i>
-        المرفقات (اختياري)
-    </label>
+                <div class="mb-6">
+                    <label class="block text-sm font-bold text-gray-700 mb-3">
+                        <i class="fas fa-paperclip text-cyan-600 ml-2"></i>
+                        المرفقات (اختياري)
+                    </label>
 
-    <!-- Hidden File Input -->
-    <input #fileInput type="file" multiple accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif"
-        (change)="onFileSelected($event)" class="hidden">
+                    <!-- Hidden File Input -->
+                    <input #fileInput type="file" multiple accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif"
+                        (change)="onFileSelected($event)" class="hidden">
 
-    <!-- Upload Area -->
-    <div (click)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
-        (drop)="onFileDrop($event)" [class.border-cyan-500]="isDragging" [class.bg-cyan-50]="isDragging"
-        class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-cyan-500 transition-all cursor-pointer bg-gray-50">
-        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
-        <p class="text-gray-600 font-semibold">اسحب الملفات هنا أو انقر للتحميل</p>
-        <p class="text-xs text-gray-500 mt-2">PDF, DOC, Images (Max 10MB لكل ملف)</p>
-    </div>
+                    <!-- Upload Area -->
+                    <div (click)="fileInput.click()" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+                        (drop)="onFileDrop($event)" [class.border-cyan-500]="isDragging" [class.bg-cyan-50]="isDragging"
+                        class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-cyan-500 transition-all cursor-pointer bg-gray-50">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 font-semibold">اسحب الملفات هنا أو انقر للتحميل</p>
+                        <p class="text-xs text-gray-500 mt-2">PDF, DOC, Images (Max 10MB لكل ملف)</p>
+                    </div>
 
-    <!-- Selected Files Preview -->
-    <div *ngIf="selectedFiles.length > 0" class="mt-4 space-y-2">
-        <div class="flex items-center justify-between text-sm font-semibold text-gray-700 mb-2">
-            <span>الملفات المحددة ({{ selectedFiles.length }})</span>
-            <button type="button" (click)="clearAllFiles()"
-                class="text-red-600 hover:text-red-700 text-xs">
-                <i class="fas fa-times-circle ml-1"></i>
-                حذف الكل
-            </button>
-        </div>
-        <div *ngFor="let file of selectedFiles; let i = index"
-            class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 transition-all">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-                <div class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <i class="fas text-cyan-600" [ngClass]="getFileIcon(file.name)"></i>
+                    <!-- Selected Files Preview -->
+                    <div *ngIf="selectedFiles.length > 0" class="mt-4 space-y-2">
+                        <div class="flex items-center justify-between text-sm font-semibold text-gray-700 mb-2">
+                            <span>الملفات المحددة ({{ selectedFiles.length }})</span>
+                            <button type="button" (click)="clearAllFiles()"
+                                class="text-red-600 hover:text-red-700 text-xs">
+                                <i class="fas fa-times-circle ml-1"></i>
+                                حذف الكل
+                            </button>
+                        </div>
+                        <div *ngFor="let file of selectedFiles; let i = index"
+                            class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl hover:border-cyan-500 transition-all">
+                            <div class="flex items-center gap-3 flex-1 min-w-0">
+                                <div
+                                    class="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas text-cyan-600" [ngClass]="getFileIcon(file.name)"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <!-- ✅ استخدم file بدلاً من attachment -->
+                                    <p class="font-semibold text-gray-900 truncate">{{ file.name }}</p>
+                                    <p class="text-xs text-gray-500">{{ formatFileSize(file.size) }}</p>
+                                </div>
+                            </div>
+                            <button type="button" (click)="removeFile(i)"
+                                class="w-8 h-8 bg-red-50 hover:bg-red-100 rounded-lg flex items-center justify-center transition-colors flex-shrink-0 mr-2">
+                                <i class="fas fa-times text-red-600"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- File Size Warning -->
+                    <div *ngIf="fileSizeError"
+                        class="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2">
+                        <i class="fas fa-exclamation-triangle text-red-600 mt-0.5"></i>
+                        <p class="text-sm text-red-700">{{ fileSizeError }}</p>
+                    </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <!-- ✅ استخدم file بدلاً من attachment -->
-                    <p class="font-semibold text-gray-900 truncate">{{ file.name }}</p>
-                    <p class="text-xs text-gray-500">{{ formatFileSize(file.size) }}</p>
-                </div>
-            </div>
-            <button type="button" (click)="removeFile(i)"
-                class="w-8 h-8 bg-red-50 hover:bg-red-100 rounded-lg flex items-center justify-center transition-colors flex-shrink-0 mr-2">
-                <i class="fas fa-times text-red-600"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- File Size Warning -->
-    <div *ngIf="fileSizeError"
-        class="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2">
-        <i class="fas fa-exclamation-triangle text-red-600 mt-0.5"></i>
-        <p class="text-sm text-red-700">{{ fileSizeError }}</p>
-    </div>
-</div>
 
             </form>
         </div>

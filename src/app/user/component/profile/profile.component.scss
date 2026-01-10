@@ -1,0 +1,148 @@
+// src/app/pages/profile/profile.component.scss
+
+// ============================================
+// Animations
+// ============================================
+
+@keyframes blob {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(20px, -30px) scale(1.1);
+    }
+
+    50% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    75% {
+        transform: translate(30px, 10px) scale(1.05);
+    }
+}
+
+@keyframes float-particle {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: translateY(-20px);
+        opacity: 0.6;
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes bounce-slow {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+// ============================================
+// Animation Classes
+// ============================================
+
+.animate-blob {
+    animation: blob 10s infinite ease-in-out;
+}
+
+.animate-float-particle {
+    animation: float-particle 6s infinite ease-in-out;
+}
+
+.animate-shimmer {
+    animation: shimmer 3s infinite linear;
+}
+
+.animate-bounce-slow {
+    animation: bounce-slow 2s infinite ease-in-out;
+}
+
+// ============================================
+// Animation Delays
+// ============================================
+
+.animation-delay-1000 {
+    animation-delay: 1s;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}
+
+// ============================================
+// Utilities
+// ============================================
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+// ============================================
+// Scrollbar
+// ============================================
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3b82f6, #6366f1);
+    border-radius: 10px;
+}
+
+// ============================================
+// Responsive
+// ============================================
+
+@media (max-width: 640px) {
+    .animate-blob {
+        animation-duration: 15s;
+    }
+}
+
+// ============================================
+// Reduced Motion
+// ============================================
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -54,20 +54,16 @@
         <div class="navbar-divider"></div>
 
         <!-- User Profile -->
-        <div class="profile-menu-container">
+        <div class="profile-menu-container" routerLink="/users/profile">
           <button (click)="toggleProfileMenu()" class="profile-btn">
-            <svg class="dropdown-arrow" [class.arrow-rotated]="isProfileMenuOpen" fill="none" stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
             <div class="profile-avatar-wrapper">
               <img src="https://ui-avatars.com/api/?name=محمد+احمد&background=6366f1&color=fff&size=128&bold=true"
                 alt="User" class="profile-avatar">
               <div class="online-dot"></div>
             </div>
             <div class="profile-info">
-              <p class="profile-name">محمد أحمد</p>
-              <p class="profile-role">مدير النظام</p>
+              <p class="profile-name">{{user?.firstName}} {{user?.lastName}}</p>
+              <p class="profile-role">{{getRoleLabel( user?.role)}}</p>
             </div>
           </button>
 

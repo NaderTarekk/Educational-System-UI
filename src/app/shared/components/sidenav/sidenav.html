@@ -183,11 +183,10 @@
                 </span>
             </a>
             <hr class="text-gray-200">
-    
+
             <!-- تسجيل الخروج -->
-            <a *ngIf="role" (click)="logout()"
-                [attr.data-gradient]="'linear-gradient(135deg, #f59e0b, #d97706)'" class="nav-item"
-                [class.nav-item-collapsed]="!(sidenavService.isOpen$ | async) && !isMobile"
+            <a *ngIf="role" (click)="logout()" [attr.data-gradient]="'linear-gradient(135deg, #f59e0b, #d97706)'"
+                class="nav-item" [class.nav-item-collapsed]="!(sidenavService.isOpen$ | async) && !isMobile"
                 (mouseenter)="onNavHover($event)" (mouseleave)="onNavLeave()">
                 <div class="nav-icon bg-red-100">
                     <i class="fa-solid fa-right-to-bracket text-red-600"></i>
@@ -197,7 +196,7 @@
         </nav>
 
         <!-- Footer - User Profile -->
-        <div class="sidenav-footer">
+        <div class="sidenav-footer cursor-pointer" routerLink="/users/profile">
             <!-- Full Profile -->
             <div *ngIf="(sidenavService.isOpen$ | async) || isMobile" class="user-profile-full">
                 <div class="user-avatar-wrapper">
@@ -206,17 +205,9 @@
                     <div class="online-indicator"></div>
                 </div>
                 <div class="user-info">
-                    <p class="user-name">محمد أحمد</p>
-                    <p class="user-email">adminATdashboard.com</p>
-                </div>
-            </div>
+                    <p class="user-name">{{user?.firstName}} {{user?.lastName}}</p>
+                    <p class="profile-role">{{getRoleLabel( user?.role)}}</p>
 
-            <!-- Collapsed Profile (Desktop Only) -->
-            <div *ngIf="!(sidenavService.isOpen$ | async) && !isMobile" class="user-profile-collapsed">
-                <div class="user-avatar-wrapper">
-                    <img src="https://ui-avatars.com/api/?name=محمد+احمد&background=4F46E5&color=fff&size=128"
-                        alt="User" class="user-avatar">
-                    <div class="online-indicator"></div>
                 </div>
             </div>
         </div>

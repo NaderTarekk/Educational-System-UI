@@ -4,6 +4,7 @@ import { SharedService } from '../../services/shared';
 import { ToastrService } from 'ngx-toastr';
 import { trigger, state, style, animate, transition } from '@angular/animations'
 import { MessagesService } from '../../../messages/services/messages.service';
+import { UsersService } from '../../../user/services/users.service';
 
 @Component({
   selector: 'app-navbar',
@@ -62,20 +63,23 @@ export class Navbar implements OnInit {
   isProfileMenuOpen = false;
   isMobile = false;
   messages: any[] = [];
+  user: any;
 
   @ViewChild('profileMenu') profileMenu!: ElementRef;
 
   constructor(
     public sidenavService: SharedService,
+    public userService: UsersService,
     private toastr: ToastrService,
     private router: Router,
-      private messageService: MessagesService,
+    private messageService: MessagesService,
   ) { }
 
   ngOnInit(): void {
     this.token = localStorage.getItem("NHC_PL_Token");
     this.checkScreenSize();
     this.loadMessages();
+    this.loadUser();
   }
 
   @HostListener('window:resize')
@@ -98,6 +102,23 @@ export class Navbar implements OnInit {
     if (this.isMobile) {
       document.body.style.overflow = this.isProfileMenuOpen ? 'hidden' : '';
     }
+  }
+
+  loadUser() {
+    this.userService.getUserById().subscribe(res => {
+      this.user = res.data
+
+    })
+  }
+
+  getRoleLabel(role: string): string {
+    const roles: { [key: string]: string } = {
+      'Admin': 'مدير النظام',
+      'Assistant': 'مساعد',
+      'Student': 'طالب',
+      'Teacher': 'معلم'
+    };
+    return roles[role] || role;
   }
 
   @HostListener('document:click', ['$event'])
@@ -127,7 +148,6 @@ export class Navbar implements OnInit {
     this.toastr.info("تم تسجيل الخروج من حسابك");
     this.router.navigate(['/auth/login']);
   }
-
 
   get unreadCount(): number {
     var count = this.messages.filter(msg => !msg.isRead).length;

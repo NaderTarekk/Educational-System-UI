@@ -4,6 +4,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { MessagesService } from '../../../messages/services/messages.service';
 import { ToastrService } from 'ngx-toastr';
+import { UsersService } from '../../../user/services/users.service';
 
 @Component({
   selector: 'app-sidenav',
@@ -16,6 +17,7 @@ export class Sidenav implements OnInit {
 
   role: string | null = null;
   isMobile: boolean = false;
+  user: any;
   messages: any[] = [];
 
   // 🎯 Sliding Highlight Properties
@@ -27,16 +29,18 @@ export class Sidenav implements OnInit {
   private hoverTimeout: any;
 
   constructor(
-    public sidenavService: SharedService, 
+    public sidenavService: SharedService,
+    public userService: UsersService,
     private messageService: MessagesService,
     private router: Router,
-    private toastr:ToastrService
+    private toastr: ToastrService
   ) { }
 
   ngOnInit(): void {
     this.role = localStorage.getItem("NHC_PL_Role");
     this.checkScreenSize();
     this.loadMessages();
+    this.loadUser();
 
     // ✅ Update highlight on route change
     this.router.events
@@ -58,7 +62,7 @@ export class Sidenav implements OnInit {
   // 🎯 Handle mouse hover on nav items
   onNavHover(event: Event): void {
     const target = event.currentTarget as HTMLElement;
-    
+
     if (this.hoverTimeout) {
       clearTimeout(this.hoverTimeout);
     }
@@ -74,6 +78,16 @@ export class Sidenav implements OnInit {
     }
   }
 
+   getRoleLabel(role: string): string {
+    const roles: { [key: string]: string } = {
+      'Admin': 'مدير النظام',
+      'Assistant': 'مساعد',
+      'Student': 'طالب',
+      'Teacher': 'معلم'
+    };
+    return roles[role] || role;
+  }
+  
   // 🎯 Handle mouse leave
   onNavLeave(): void {
     this.hoverTimeout = setTimeout(() => {
@@ -84,7 +98,7 @@ export class Sidenav implements OnInit {
   // 🎯 Update highlight to active link position
   private updateActiveHighlight(): void {
     const activeLink = this.navContainer?.nativeElement.querySelector('.active-link') as HTMLElement;
-    
+
     if (activeLink && this.navContainer) {
       const navRect = this.navContainer.nativeElement.getBoundingClientRect();
       const activeRect = activeLink.getBoundingClientRect();
@@ -112,12 +126,20 @@ export class Sidenav implements OnInit {
     });
   }
 
+
+  loadUser() {
+    this.userService.getUserById().subscribe(res => {
+      this.user = res.data
+
+    })
+  }
+
   get unreadCount(): number {
     var count = this.messages.filter(msg => !msg.isRead).length;
     return count;
   }
 
-  
+
   logout() {
     localStorage.removeItem('NHC_PL_Token');
     localStorage.removeItem('NHC_PL_Role');

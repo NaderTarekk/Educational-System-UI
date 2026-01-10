@@ -33,8 +33,8 @@ export class UsersService {
     });
   }
 
-  getUserById(id: string): Observable<GetByIdResponse<User>> {
-    return this.http.get<GetByIdResponse<User>>(`${environment.userUrl}/profile/${id}`, {
+  getUserById(): Observable<GetByIdResponse<User>> {
+    return this.http.get<GetByIdResponse<User>>(`${environment.userUrl}/profile`, {
       headers: this.getHeaders()
     });
   }

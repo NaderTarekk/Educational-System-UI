@@ -27,6 +27,8 @@ export class SignupComponent implements OnInit {
     this.form = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
+      thirdName: ['', [Validators.required, Validators.minLength(2)]],
+      fourthName: ['', [Validators.required, Validators.minLength(2)]],
       email: ['', [Validators.required, Validators.email]],
       phoneNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10,15}$/)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -115,6 +117,8 @@ export class SignupComponent implements OnInit {
     const registerData = {
       firstName: this.form.value.firstName.trim(),
       lastName: this.form.value.lastName.trim(),
+      thirdName: this.form.value.thirdName.trim(),
+      fourthName: this.form.value.fourthName.trim(),
       email: this.form.value.email.trim().toLowerCase(),
       phoneNumber: this.form.value.phoneNumber.trim(),
       password: this.form.value.password,

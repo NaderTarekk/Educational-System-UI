@@ -24,7 +24,7 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 50;
     display: flex;
     flex-direction: column;
-    transition: 
+    transition:
         width $transition-speed $transition-timing,
         transform $transition-speed $transition-timing;
 
@@ -104,7 +104,7 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
     .logo-text {
         flex: 1;
         min-width: 0;
-        
+
         h2 {
             font-size: 1.125rem;
             font-weight: 700;
@@ -114,7 +114,7 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         p {
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.8);
@@ -183,7 +183,7 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 12px;
     pointer-events: none;
     z-index: 0;
-    transition: 
+    transition:
         top 0.3s $transition-timing,
         height 0.2s $transition-timing,
         opacity 0.2s ease,
@@ -207,6 +207,10 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 
     &:hover {
+        .nav-text {
+            color: #fff;
+        }
+
         .nav-icon {
             transform: scale(1.05);
         }
@@ -222,6 +226,11 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
         }
     }
 }
+.profile-role {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin: 0;
+}
 
 .nav-icon {
     width: 40px;
@@ -233,7 +242,8 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
     justify-content: center;
     transition: all 0.2s ease;
 
-    i, svg {
+    i,
+    svg {
         font-size: 1.125rem;
         transition: color 0.2s ease;
     }
@@ -271,8 +281,9 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
 
     .nav-icon {
         background: rgba(255, 255, 255, 0.25) !important;
-        
-        i, svg {
+
+        i,
+        svg {
             color: white !important;
         }
     }
@@ -393,9 +404,12 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
    🎬 Animations
    ============================================ */
 @keyframes pulse {
-    0%, 100% {
+
+    0%,
+    100% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.1);
     }
@@ -449,7 +463,8 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
         height: 36px;
         min-width: 36px;
 
-        i, svg {
+        i,
+        svg {
             font-size: 1rem;
         }
     }
@@ -463,6 +478,7 @@ $transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
    ♿ Reduced Motion
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
+
     .sidenav-container,
     .nav-highlight,
     .nav-item,

@@ -1,424 +1,411 @@
-<div class="min-h-screen bg-gray-50" dir="rtl">
-    <!-- Header -->
-    <div class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
-            <div class="flex justify-between items-center py-3 sm:py-4">
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <button (click)="goBack()" class="p-2 hover:bg-gray-100 rounded-lg transition">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                        </svg>
-                    </button>
-                    <h1 class="text-lg sm:text-xl font-bold text-gray-800">الملف الشخصي</h1>
-                </div>
+<!-- src/app/pages/profile/profile.component.html -->
+<div class="min-h-screen" dir="rtl">
 
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <button class="relative p-2 hover:bg-gray-100 rounded-lg">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
-                </div>
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="flex items-center justify-center min-h-[60vh]">
+        <div class="text-center">
+            <div class="relative w-24 h-24 mx-auto mb-6">
+                <div class="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-blue-600 rounded-full border-t-transparent animate-spin"></div>
             </div>
+            <p class="text-gray-600 font-semibold text-lg animate-pulse">جاري تحميل الملف الشخصي...</p>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- Left Sidebar - Profile Card -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <!-- Cover Image -->
-                    <div class="h-24 sm:h-32 bg-gradient-to-r from-indigo-500 to-purple-600 relative">
-                        <button (click)="changeCover()" class="absolute top-2 right-2 sm:top-3 sm:right-3 bg-white bg-opacity-90 hover:bg-opacity-100 p-1.5 sm:p-2 rounded-lg transition">
-                            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                        </button>
-                    </div>
+    <!-- Profile Content -->
+    <div *ngIf="!isLoading && user" class="max-w-5xl mx-auto">
 
-                    <!-- Profile Image -->
-                    <div class="px-4 sm:px-6 pb-6">
-                        <div class="flex flex-col items-center -mt-12 sm:-mt-16">
-                            <div class="relative">
-                                <img [src]="user.profileImage || 'https://ui-avatars.com/api/?name=' + user.firstName + '+' + user.lastName + '&background=4F46E5&color=fff&size=200'" 
-                                     [alt]="user.firstName + ' ' + user.lastName"
-                                     class="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white shadow-lg object-cover">
-                                <button (click)="changeProfileImage()" class="absolute bottom-0 left-0 bg-indigo-600 hover:bg-indigo-700 text-white p-2 rounded-full shadow-lg transition">
-                                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </button>
-                            </div>
+        <!-- Back Button -->
+        <button (click)="goBack()" 
+            class="mb-6 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-gray-700 hover:text-blue-600 group">
+            <i class="fas fa-arrow-right group-hover:-translate-x-1 transition-transform"></i>
+            <span class="font-semibold">العودة</span>
+        </button>
 
-                            <h2 class="mt-4 text-xl sm:text-2xl font-bold text-gray-800 text-center">{{user.firstName}} {{user.lastName}}</h2>
-                            <p class="text-sm sm:text-base text-gray-600 mt-1">{{user.email}}</p>
-                            
-                            <div class="flex items-center gap-2 mt-2">
-                                <span [ngClass]="getRoleBadgeColor(user.role)" class="px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                                    {{getRoleDisplayName(user.role)}}
-                                </span>
-                            </div>
-
-                            <div class="w-full mt-6 pt-6 border-t border-gray-100 space-y-4">
-                                <!-- User Info -->
-                                <div class="flex items-center gap-3 text-gray-600">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <span class="text-sm break-all">{{user.email}}</span>
-                                </div>
-
-                                <div class="flex items-center gap-3 text-gray-600">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                    </svg>
-                                    <span class="text-sm">{{user.phoneNumber || 'لم يتم الإضافة'}}</span>
-                                </div>
-
-                                <div *ngIf="user.group" class="flex items-center gap-3 text-gray-600">
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                    </svg>
-                                    <span class="text-sm">{{user.group.name}}</span>
-                                </div>
-                            </div>
-
-                            <button (click)="editProfile()" class="w-full mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg transition font-medium flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                <span>تعديل الملف الشخصي</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Stats - Mobile Only -->
-                <div class="lg:hidden mt-4 grid grid-cols-3 gap-3">
-                    <div class="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 text-center">
-                        <p class="text-xl sm:text-2xl font-bold text-indigo-600">{{stats.courses}}</p>
-                        <p class="text-xs sm:text-sm text-gray-600 mt-1">الدورات</p>
-                    </div>
-                    <div class="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 text-center">
-                        <p class="text-xl sm:text-2xl font-bold text-green-600">{{stats.completed}}</p>
-                        <p class="text-xs sm:text-sm text-gray-600 mt-1">مكتملة</p>
-                    </div>
-                    <div class="bg-white rounded-xl p-3 sm:p-4 shadow-sm border border-gray-100 text-center">
-                        <p class="text-xl sm:text-2xl font-bold text-purple-600">{{stats.certificates}}</p>
-                        <p class="text-xs sm:text-sm text-gray-600 mt-1">شهادات</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Content -->
-            <div class="lg:col-span-2 space-y-4 sm:space-y-6">
-                <!-- Tabs -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="flex border-b border-gray-200 overflow-x-auto">
-                        <button *ngFor="let tab of tabs" 
-                                (click)="activeTab = tab.id" 
-                                [class.border-indigo-600]="activeTab === tab.id"
-                                [class.text-indigo-600]="activeTab === tab.id"
-                                [class.text-gray-600]="activeTab !== tab.id"
-                                class="flex-1 min-w-[100px] px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-medium border-b-2 transition whitespace-nowrap">
-                            {{tab.label}}
-                        </button>
-                    </div>
-
-                    <div class="p-4 sm:p-6">
-                        <!-- About Tab -->
-                        <div *ngIf="activeTab === 'about'">
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">نبذة عني</h3>
-                            
-                            <div class="space-y-4">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <label class="text-xs sm:text-sm text-gray-500 mb-1 block">الاسم الأول</label>
-                                        <p class="text-sm sm:text-base font-medium text-gray-800">{{user.firstName}}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <label class="text-xs sm:text-sm text-gray-500 mb-1 block">اسم العائلة</label>
-                                        <p class="text-sm sm:text-base font-medium text-gray-800">{{user.lastName}}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <label class="text-xs sm:text-sm text-gray-500 mb-1 block">البريد الإلكتروني</label>
-                                        <p class="text-sm sm:text-base font-medium text-gray-800 break-all">{{user.email}}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <label class="text-xs sm:text-sm text-gray-500 mb-1 block">رقم الهاتف</label>
-                                        <p class="text-sm sm:text-base font-medium text-gray-800">{{user.phoneNumber || 'لم يتم الإضافة'}}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <label class="text-xs sm:text-sm text-gray-500 mb-1 block">الدور</label>
-                                        <p class="text-sm sm:text-base font-medium text-gray-800">{{getRoleDisplayName(user.role)}}</p>
-                                    </div>
-                                    <div class="bg-gray-50 p-4 rounded-lg">
-                                        <label class="text-xs sm:text-sm text-gray-500 mb-1 block">المجموعة</label>
-                                        <p class="text-sm sm:text-base font-medium text-gray-800">{{user.group?.name || 'لا توجد'}}</p>
-                                    </div>
-                                </div>
-
-                                <!-- Desktop Quick Stats -->
-                                <div class="hidden lg:grid grid-cols-3 gap-4 pt-4">
-                                    <div class="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-6 text-white">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-indigo-100 text-sm mb-1">الدورات</p>
-                                                <p class="text-3xl font-bold">{{stats.courses}}</p>
-                                            </div>
-                                            <svg class="w-12 h-12 opacity-50" fill="currentColor" viewBox="0 0 20 20">
-                                                <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-green-100 text-sm mb-1">مكتملة</p>
-                                                <p class="text-3xl font-bold">{{stats.completed}}</p>
-                                            </div>
-                                            <svg class="w-12 h-12 opacity-50" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="text-purple-100 text-sm mb-1">شهادات</p>
-                                                <p class="text-3xl font-bold">{{stats.certificates}}</p>
-                                            </div>
-                                            <svg class="w-12 h-12 opacity-50" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd"></path>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Activity Tab -->
-                        <div *ngIf="activeTab === 'activity'">
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">النشاط الأخير</h3>
-                            
-                            <div class="space-y-3 sm:space-y-4">
-                                <div *ngFor="let activity of recentActivities" class="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                                    <div [ngClass]="getActivityIconColor(activity.type)" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20" [innerHTML]="getActivityIcon(activity.type)"></svg>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="text-sm sm:text-base font-medium text-gray-800">{{activity.title}}</p>
-                                        <p class="text-xs sm:text-sm text-gray-600 mt-1">{{activity.description}}</p>
-                                        <p class="text-xs text-gray-500 mt-2">{{activity.time}}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Settings Tab -->
-                        <div *ngIf="activeTab === 'settings'">
-                            <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">الإعدادات</h3>
-                            
-                            <div class="space-y-4 sm:space-y-6">
-                                <!-- Password Change -->
-                                <div class="border border-gray-200 rounded-xl p-4 sm:p-6">
-                                    <h4 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">تغيير كلمة المرور</h4>
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">كلمة المرور الحالية</label>
-                                            <input type="password" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">كلمة المرور الجديدة</label>
-                                            <input type="password" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base">
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">تأكيد كلمة المرور</label>
-                                            <input type="password" class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm sm:text-base">
-                                        </div>
-                                        <button class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg transition font-medium text-sm sm:text-base">
-                                            تحديث كلمة المرور
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Notifications -->
-                                <div class="border border-gray-200 rounded-xl p-4 sm:p-6">
-                                    <h4 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">الإشعارات</h4>
-                                    <div class="space-y-4">
-                                        <label class="flex items-center justify-between cursor-pointer">
-                                            <div class="flex-1">
-                                                <p class="text-sm sm:text-base font-medium text-gray-800">إشعارات البريد الإلكتروني</p>
-                                                <p class="text-xs sm:text-sm text-gray-600 mt-1">استلام تحديثات عبر البريد الإلكتروني</p>
-                                            </div>
-                                            <input type="checkbox" checked class="ml-4 w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
-                                        </label>
-                                        <label class="flex items-center justify-between cursor-pointer">
-                                            <div class="flex-1">
-                                                <p class="text-sm sm:text-base font-medium text-gray-800">إشعارات الرسائل</p>
-                                                <p class="text-xs sm:text-sm text-gray-600 mt-1">استلام إشعارات الرسائل الجديدة</p>
-                                            </div>
-                                            <input type="checkbox" checked class="ml-4 w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
-                                        </label>
-                                        <label class="flex items-center justify-between cursor-pointer">
-                                            <div class="flex-1">
-                                                <p class="text-sm sm:text-base font-medium text-gray-800">إشعارات التقدم</p>
-                                                <p class="text-xs sm:text-sm text-gray-600 mt-1">إشعارات عن تقدمك في الدورات</p>
-                                            </div>
-                                            <input type="checkbox" class="ml-4 w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Privacy -->
-                                <div class="border border-gray-200 rounded-xl p-4 sm:p-6">
-                                    <h4 class="text-base sm:text-lg font-semibold text-gray-800 mb-4">الخصوصية</h4>
-                                    <div class="space-y-4">
-                                        <label class="flex items-center justify-between cursor-pointer">
-                                            <div class="flex-1">
-                                                <p class="text-sm sm:text-base font-medium text-gray-800">ملف شخصي عام</p>
-                                                <p class="text-xs sm:text-sm text-gray-600 mt-1">السماح للآخرين برؤية ملفك الشخصي</p>
-                                            </div>
-                                            <input type="checkbox" checked class="ml-4 w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
-                                        </label>
-                                        <label class="flex items-center justify-between cursor-pointer">
-                                            <div class="flex-1">
-                                                <p class="text-sm sm:text-base font-medium text-gray-800">إظهار النشاط</p>
-                                                <p class="text-xs sm:text-sm text-gray-600 mt-1">إظهار نشاطك للمتابعين</p>
-                                            </div>
-                                            <input type="checkbox" class="ml-4 w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <!-- Danger Zone -->
-                                <div class="border border-red-200 bg-red-50 rounded-xl p-4 sm:p-6">
-                                    <h4 class="text-base sm:text-lg font-semibold text-red-800 mb-4">منطقة الخطر</h4>
-                                    <p class="text-sm sm:text-base text-red-700 mb-4">إجراءات لا يمكن التراجع عنها</p>
-                                    <div class="space-y-3">
-                                        <button (click)="deactivateAccount()" class="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg transition font-medium text-sm sm:text-base">
-                                            تعطيل الحساب
-                                        </button>
-                                        <button (click)="deleteAccount()" class="w-full sm:w-auto bg-red-700 hover:bg-red-800 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg transition font-medium text-sm sm:text-base mr-0 sm:mr-3">
-                                            حذف الحساب نهائياً
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Courses/Activities -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">الدورات الحالية</h3>
-                        <button class="text-sm sm:text-base text-indigo-600 hover:text-indigo-700 font-medium">
-                            عرض الكل
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div *ngFor="let course of currentCourses" class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
-                            <div class="flex items-start gap-3">
-                                <img [src]="course.thumbnail" [alt]="course.title" class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover flex-shrink-0">
-                                <div class="flex-1 min-w-0">
-                                    <h4 class="text-sm sm:text-base font-semibold text-gray-800 line-clamp-2 mb-2">{{course.title}}</h4>
-                                    <div class="flex items-center gap-2 text-xs sm:text-sm text-gray-600 mb-3">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
-                                        </svg>
-                                        <span>{{course.duration}}</span>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div class="flex items-center justify-between text-xs sm:text-sm">
-                                            <span class="text-gray-600">التقدم</span>
-                                            <span class="font-medium text-gray-800">{{course.progress}}%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 h-2 rounded-full transition-all" [style.width.%]="course.progress"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Achievements -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sm:p-6">
-                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">الإنجازات</h3>
+        <!-- ==================== Profile Header Card ==================== -->
+        <div class="relative bg-white rounded-3xl shadow-2xl overflow-hidden mb-8">
+            
+            <!-- Gradient Header -->
+            <div class="relative h-48 sm:h-56" [style.background]="getGradientStyle(user.role)">
+                
+                <!-- Animated Shapes -->
+                <div class="absolute inset-0 overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-10 rounded-full animate-blob"></div>
+                    <div class="absolute top-10 right-1/4 w-24 h-24 bg-white opacity-10 rounded-full animate-blob animation-delay-2000"></div>
+                    <div class="absolute -bottom-16 -left-16 w-64 h-64 bg-white opacity-10 rounded-full animate-blob animation-delay-4000"></div>
+                    <div class="absolute top-1/2 left-1/3 w-20 h-20 bg-white opacity-5 rounded-full animate-float-particle"></div>
                     
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                        <div *ngFor="let achievement of achievements" class="text-center p-3 sm:p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                            <div [ngClass]="achievement.unlocked ? 'text-yellow-500' : 'text-gray-300'" class="text-3xl sm:text-4xl mb-2">
-                                {{achievement.icon}}
-                            </div>
-                            <p class="text-xs sm:text-sm font-medium text-gray-800 mb-1">{{achievement.title}}</p>
-                            <p class="text-xs text-gray-600">{{achievement.description}}</p>
+                    <!-- Small Dots -->
+                    <div class="absolute top-8 left-8 w-3 h-3 bg-white opacity-40 rounded-full animate-float-particle"></div>
+                    <div class="absolute top-16 right-16 w-2 h-2 bg-white opacity-30 rounded-full animate-float-particle animation-delay-1000"></div>
+                    <div class="absolute bottom-12 left-1/4 w-4 h-4 bg-white opacity-20 rounded-full animate-float-particle animation-delay-2000"></div>
+                    
+                    <!-- Shimmer Line -->
+                    <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
+                </div>
+
+                <!-- Role Badge -->
+                <div class="absolute top-6 right-6 z-10">
+                    <div class="px-5 py-3 bg-white/20 backdrop-blur-sm rounded-2xl border border-white/30 flex items-center gap-3 hover:bg-white/30 transition-all cursor-pointer">
+                        <div class="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center">
+                            <i class="fas text-xl text-white" [ngClass]="getRoleIcon(user.role)"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-white/80 font-medium">الصلاحية</p>
+                            <p class="text-white font-bold text-lg">{{ getRoleLabel(user.role) }}</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Edit Profile Modal -->
-    <div *ngIf="showEditModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div class="p-4 sm:p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white z-10">
-                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">تعديل الملف الشخصي</h2>
-                <button (click)="closeEditModal()" class="p-2 hover:bg-gray-100 rounded-lg transition">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
+            <!-- Profile Info Section -->
+            <div class="relative px-6 sm:px-10 pb-10">
+                
+                <!-- Avatar -->
+                <div class="absolute -top-16 sm:-top-20 right-6 sm:right-10">
+                    <div class="relative group">
+                        <!-- Glow Effect -->
+                        <div class="absolute -inset-2 rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition-all"
+                             [style.background]="getGradientStyle(user.role)"></div>
+                        
+                        <!-- Avatar Box -->
+                        <div class="relative w-32 h-32 sm:w-40 sm:h-40 rounded-3xl shadow-2xl flex items-center justify-center text-white text-5xl sm:text-6xl font-bold border-4 border-white transform group-hover:scale-105 transition-all duration-300"
+                             [style.background]="getGradientStyle(user.role)">
+                            <span class="drop-shadow-lg">{{ getInitials() }}</span>
+                            
+                            <!-- Shine Effect -->
+                            <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-white/30 via-transparent to-transparent"></div>
+                        </div>
+                        
+                        <!-- Online Badge -->
+                        <div class="absolute -bottom-2 -left-2">
+                            <div class="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-xl border-4 border-white shadow-xl flex items-center justify-center animate-bounce-slow">
+                                <div class="w-3 h-3 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+
+                        <!-- Verified Badge -->
+                        <div *ngIf="user.emailConfirmed" class="absolute -top-2 -right-2">
+                            <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full border-2 border-white shadow-xl flex items-center justify-center">
+                                <i class="fas fa-check text-white text-sm"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Info -->
+                <div class="pt-20 sm:pt-24">
+                    
+                    <!-- Name -->
+                    <div class="mb-6">
+                        <h1 class="text-3xl sm:text-4xl font-black text-gray-900 mb-2">
+                            {{ user.firstName }} {{ user.lastName }}
+                        </h1>
+                        <div class="h-1 w-20 rounded-full" [style.background]="getGradientStyle(user.role)"></div>
+                    </div>
+
+                    <!-- Contact Cards -->
+                    <div class="flex flex-wrap gap-3">
+                        <!-- Email Card -->
+                        <div class="group flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-100 hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer"
+                            (click)="copyToClipboard(user.email)">
+                            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                                <i class="fas fa-envelope text-white text-lg"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-blue-600 font-medium">البريد الإلكتروني</p>
+                                <p class="text-gray-800 font-semibold truncate">{{ user.email }}</p>
+                            </div>
+                            <i class="fas fa-copy text-blue-300 group-hover:text-blue-500 transition-colors"></i>
+                        </div>
+
+                        <!-- Phone Card -->
+                        <div *ngIf="user.phoneNumber" 
+                            class="group flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100 hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer"
+                            (click)="copyToClipboard(user.phoneNumber)">
+                            <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform">
+                                <i class="fas fa-phone text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-green-600 font-medium">رقم الهاتف</p>
+                                <p class="text-gray-800 font-semibold" dir="ltr">{{ user.phoneNumber }}</p>
+                            </div>
+                            <i class="fas fa-copy text-green-300 group-hover:text-green-500 transition-colors"></i>
+                        </div>
+
+                        <!-- No Phone -->
+                        <div *ngIf="!user.phoneNumber" 
+                            class="flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-2xl border border-gray-200">
+                            <div class="w-12 h-12 bg-gray-400 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="fas fa-phone-slash text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 font-medium">رقم الهاتف</p>
+                                <p class="text-gray-400 font-semibold">غير مسجل</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User ID -->
+                    <div class="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full cursor-pointer hover:bg-gray-200 transition-colors"
+                        (click)="copyToClipboard(user.id)">
+                        <i class="fas fa-fingerprint text-gray-400 text-sm"></i>
+                        <span class="text-xs font-mono text-gray-500">{{ user.id.substring(0, 8) }}...</span>
+                        <i class="fas fa-copy text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== Stats Cards ==================== -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <!-- Groups -->
+            <div class="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-users text-white text-xl"></i>
+                    </div>
+                    <span class="text-3xl font-bold text-gray-900">{{ stats.totalGroups }}</span>
+                </div>
+                <p class="text-gray-600 font-semibold text-sm">المجموعات</p>
+            </div>
+
+            <!-- Subjects -->
+            <div class="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-book text-white text-xl"></i>
+                    </div>
+                    <span class="text-3xl font-bold text-gray-900">{{ stats.totalSubjects }}</span>
+                </div>
+                <p class="text-gray-600 font-semibold text-sm">المواد</p>
+            </div>
+
+            <!-- Email Status -->
+            <div class="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+                        [ngClass]="user.emailConfirmed ? 'bg-gradient-to-br from-green-500 to-green-600' : 'bg-gradient-to-br from-amber-500 to-amber-600'">
+                        <i class="fas text-white text-xl" [ngClass]="user.emailConfirmed ? 'fa-check' : 'fa-clock'"></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 font-semibold text-sm">{{ user.emailConfirmed ? 'بريد مفعّل' : 'بريد غير مفعّل' }}</p>
+            </div>
+
+            <!-- Phone Status -->
+            <div class="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
+                        [ngClass]="user.phoneNumber ? 'bg-gradient-to-br from-green-500 to-green-600' : 'bg-gradient-to-br from-gray-400 to-gray-500'">
+                        <i class="fas text-white text-xl" [ngClass]="user.phoneNumber ? 'fa-phone' : 'fa-phone-slash'"></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 font-semibold text-sm">{{ user.phoneNumber ? 'هاتف مسجل' : 'بدون هاتف' }}</p>
+            </div>
+        </div>
+
+        <!-- ==================== Tabs Section ==================== -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+            
+            <!-- Tab Headers -->
+            <div class="flex border-b border-gray-100 bg-gray-50">
+                <button (click)="setActiveTab('info')"
+                    [ngClass]="activeTab === 'info' ? 'text-blue-600 border-b-2 border-blue-600 bg-white' : 'text-gray-500'"
+                    class="flex-1 py-4 px-6 font-bold text-center transition-all hover:bg-white">
+                    <i class="fas fa-info-circle ml-2"></i>
+                    <span class="hidden sm:inline">المعلومات</span>
+                </button>
+                <button (click)="setActiveTab('groups')"
+                    [ngClass]="activeTab === 'groups' ? 'text-blue-600 border-b-2 border-blue-600 bg-white' : 'text-gray-500'"
+                    class="flex-1 py-4 px-6 font-bold text-center transition-all hover:bg-white">
+                    <i class="fas fa-users ml-2"></i>
+                    <span class="hidden sm:inline">المجموعات</span>
+                    <span class="sm:hidden">{{ stats.totalGroups }}</span>
+                </button>
+                <button (click)="setActiveTab('subjects')"
+                    [ngClass]="activeTab === 'subjects' ? 'text-blue-600 border-b-2 border-blue-600 bg-white' : 'text-gray-500'"
+                    class="flex-1 py-4 px-6 font-bold text-center transition-all hover:bg-white">
+                    <i class="fas fa-book ml-2"></i>
+                    <span class="hidden sm:inline">المواد</span>
+                    <span class="sm:hidden">{{ stats.totalSubjects }}</span>
                 </button>
             </div>
 
-            <div class="p-4 sm:p-6">
-                <div class="space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">الاسم الأول *</label>
-                            <input type="text" [(ngModel)]="editUser.firstName" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="أدخل الاسم الأول">
+            <!-- Tab Content -->
+            <div class="p-6 sm:p-8">
+
+                <!-- Info Tab -->
+                <div *ngIf="activeTab === 'info'">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <!-- Full Name -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-5 border border-blue-100">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-user text-white"></i>
+                                </div>
+                                <span class="text-sm font-semibold text-blue-600">الاسم الكامل</span>
+                            </div>
+                            <p class="text-xl font-bold text-gray-900">{{ user.firstName }} {{ user.lastName }}</p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">اسم العائلة *</label>
-                            <input type="text" [(ngModel)]="editUser.lastName" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="أدخل اسم العائلة">
+
+                        <!-- Email -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-5 border border-purple-100">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-envelope text-white"></i>
+                                </div>
+                                <span class="text-sm font-semibold text-purple-600">البريد الإلكتروني</span>
+                            </div>
+                            <p class="text-lg font-bold text-gray-900 break-all">{{ user.email }}</p>
                         </div>
-                    </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">البريد الإلكتروني *</label>
-                        <input type="email" [(ngModel)]="editUser.email" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="أدخل البريد الإلكتروني">
-                    </div>
+                        <!-- Phone -->
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-5 border border-green-100">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-phone text-white"></i>
+                                </div>
+                                <span class="text-sm font-semibold text-green-600">رقم الهاتف</span>
+                            </div>
+                            <p class="text-xl font-bold text-gray-900" dir="ltr">{{ user.phoneNumber || 'غير متوفر' }}</p>
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">رقم الهاتف</label>
-                        <input type="tel" [(ngModel)]="editUser.phoneNumber" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="أدخل رقم الهاتف">
-                    </div>
+                        <!-- Role -->
+                        <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-amber-100">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-id-badge text-white"></i>
+                                </div>
+                                <span class="text-sm font-semibold text-amber-600">الصلاحية</span>
+                            </div>
+                            <p class="text-xl font-bold text-gray-900">{{ getRoleLabel(user.role) }}</p>
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">النبذة الشخصية</label>
-                        <textarea [(ngModel)]="editUser.bio" rows="4" class="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="اكتب نبذة عنك..."></textarea>
+                        <!-- User ID -->
+                        <div class="sm:col-span-2 bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-5 border border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-gray-500 rounded-xl flex items-center justify-center">
+                                        <i class="fas fa-fingerprint text-white"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-sm font-semibold text-gray-600 block">معرف المستخدم</span>
+                                        <p class="text-sm font-mono text-gray-900 break-all">{{ user.id }}</p>
+                                    </div>
+                                </div>
+                                <button (click)="copyToClipboard(user.id)" 
+                                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-xl transition-colors">
+                                    <i class="fas fa-copy text-gray-600"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row items-center gap-3 mt-6">
-                    <button (click)="saveProfile()" class="w-full sm:flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:from-indigo-700 hover:to-purple-700 transition font-medium text-sm sm:text-base">
-                        حفظ التغييرات
-                    </button>
-                    <button (click)="closeEditModal()" class="w-full sm:w-auto px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium text-sm sm:text-base">
-                        إلغاء
-                    </button>
+                <!-- Groups Tab -->
+                <div *ngIf="activeTab === 'groups'">
+                    <div *ngIf="user.userGroups && user.userGroups.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div *ngFor="let ug of user.userGroups" 
+                            class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-users text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold">{{ ug.group?.name || 'مجموعة' }}</h3>
+                                    <p *ngIf="ug.group?.description" class="text-sm text-white/80 truncate">{{ ug.group.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div *ngIf="!user.userGroups || user.userGroups.length === 0" class="text-center py-12">
+                        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">لا توجد مجموعات</h3>
+                        <p class="text-gray-500">لم يتم تسجيلك في أي مجموعة بعد</p>
+                    </div>
                 </div>
+
+                <!-- Subjects Tab -->
+                <div *ngIf="activeTab === 'subjects'">
+                    <div *ngIf="user.userSubjects && user.userSubjects.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div *ngFor="let us of user.userSubjects" 
+                            class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-5 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-book text-2xl"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold">{{ us.subject?.name || 'مادة' }}</h3>
+                                    <p *ngIf="us.subject?.description" class="text-sm text-white/80 truncate">{{ us.subject.description }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div *ngIf="!user.userSubjects || user.userSubjects.length === 0" class="text-center py-12">
+                        <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-book text-4xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">لا توجد مواد</h3>
+                        <p class="text-gray-500">لم يتم تسجيلك في أي مادة بعد</p>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
-</div>
 
+        <!-- ==================== Quick Actions ==================== -->
+        <!-- <div *ngIf="isOwnProfile" class="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <button class="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex flex-col items-center gap-3 group">
+                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-key text-white text-xl"></i>
+                </div>
+                <span class="text-sm font-bold text-gray-700">تغيير كلمة المرور</span>
+            </button>
+
+            <button class="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex flex-col items-center gap-3 group">
+                <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-bell text-white text-xl"></i>
+                </div>
+                <span class="text-sm font-bold text-gray-700">الإشعارات</span>
+            </button>
+
+            <button class="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex flex-col items-center gap-3 group">
+                <div class="w-14 h-14 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-shield-alt text-white text-xl"></i>
+                </div>
+                <span class="text-sm font-bold text-gray-700">الأمان</span>
+            </button>
+
+            <button class="bg-white rounded-2xl p-5 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex flex-col items-center gap-3 group">
+                <div class="w-14 h-14 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fas fa-sign-out-alt text-white text-xl"></i>
+                </div>
+                <span class="text-sm font-bold text-gray-700">تسجيل الخروج</span>
+            </button>
+        </div> -->
+
+    </div>
+
+    <!-- User Not Found -->
+    <div *ngIf="!isLoading && !user" class="flex items-center justify-center min-h-[60vh]">
+        <div class="text-center">
+            <div class="w-32 h-32 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-user-slash text-5xl text-red-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">المستخدم غير موجود</h2>
+            <p class="text-gray-600 mb-6">لم نتمكن من العثور على الملف الشخصي المطلوب</p>
+            <button (click)="goBack()" 
+                class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold hover:shadow-lg transition-all">
+                <i class="fas fa-home ml-2"></i>
+                العودة للرئيسية
+            </button>
+        </div>
+    </div>
+
+</div>

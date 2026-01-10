@@ -183,7 +183,7 @@ export class PaymentsComponent implements OnInit {
       return;
     }
 
-    this.usersService.getUserById(studentId).subscribe({
+    this.usersService.getUserById().subscribe({
       next: (response) => {
         if (response.success && response.data) {
           const user = response.data;

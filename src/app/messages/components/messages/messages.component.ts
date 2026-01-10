@@ -142,7 +142,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response.success && response.data) {
           this.adminsList = response.data;
-          console.log('📋 Admins list loaded:', this.adminsList);
         }
       },
       error: (error: any) => {
@@ -181,7 +180,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
   selectAdmin(admin: AdminUser): void {
     this.selectedAdmin = admin;
     this.studentComposeData.specificAdminId = admin.id;
-    console.log('✅ Admin selected:', admin);
   }
 
   removeSelectedAdmin(): void {
@@ -219,7 +217,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
   //       : undefined
   //   };
 
-  //   console.log('📤 Sending message to admin:', dto);
 
   //   this.messageService.sendToAdmin(dto).subscribe({
   //     next: (response: any) => {
@@ -277,7 +274,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
 
     this.messageService.getMyMessages(params).subscribe({
       next: (response: any) => {
-        console.log(response);
 
         if (response.success && response.data) {
           this.messages = response.data;
@@ -491,7 +487,6 @@ export class MessagesComponent implements OnInit, OnDestroy {
       formData.append(`attachments`, file, file.name);
     });
 
-    console.log('📤 Sending FormData with files:', this.selectedFiles.length);
 
     this.messageService.sendToAdmin(formData).subscribe({
       next: (response: any) => {
@@ -526,9 +521,9 @@ export class MessagesComponent implements OnInit, OnDestroy {
   viewMessage(message: Message): void {
     this.messageService.getMessageById(message.id).subscribe({
       next: (response: any) => {
-        console.log(response);
-        
+
         if (response.success && response.data) {
+
           this.selectedMessage = response.data;
           this.isViewDialogOpen = true;
           document.body.style.overflow = 'hidden';
@@ -680,56 +675,52 @@ export class MessagesComponent implements OnInit, OnDestroy {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   }
+  
+  downloadAttachment(attachment: any): void {
+    const fileName = attachment.name || attachment.fileName || 'download';
 
- downloadAttachment(attachment: any): void {
-  // ✅ الـ fileName قد يكون name أو fileName حسب الـ Response
-  const fileName = attachment.name || attachment.fileName || 'download';
-  const fileUrl = attachment.url;
+    // ✅ أضف Backend URL
+    const backendUrl = 'https://nhc-pl-system.runasp.net';
+    const fileUrl = attachment.url.startsWith('http')
+      ? attachment.url
+      : `${backendUrl}${attachment.url}`;
 
-  console.log('📥 Downloading:', fileName, 'from:', fileUrl);
 
-  this.toastr.info('جاري تحميل الملف...', 'تحميل');
+    this.toastr.info('جاري تحميل الملف...', 'تحميل');
 
-  fetch(fileUrl, {
-    method: 'GET',
-    mode: 'cors',
-    credentials: 'include'
-  })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return response.blob();
+    fetch(fileUrl, {
+      method: 'GET',
+      mode: 'cors'
     })
-    .then(blob => {
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName; // ✅ استخدام الـ fileName
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.blob();
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
 
-      setTimeout(() => {
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      }, 100);
+        setTimeout(() => {
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        }, 100);
 
-      this.toastr.success('تم تحميل الملف بنجاح ✅', 'نجاح');
-    })
-    .catch(error => {
-      console.error('❌ Download Error:', error);
-      
-      if (error.message.includes('CORS')) {
-        this.toastr.error('خطأ في إعدادات الأمان (CORS)', 'خطأ');
-      } else if (error.message.includes('404')) {
-        this.toastr.error('الملف غير موجود على السيرفر', 'خطأ');
-      } else {
-        this.toastr.error(`فشل تحميل الملف: ${error.message}`, 'خطأ');
-      }
-    });
-}
+        this.toastr.success('تم تحميل الملف بنجاح ✅', 'نجاح');
+      })
+      .catch(error => {
+        console.error('❌ Downloadhj Error:', error);
 
+        // ✅ Fallback - فتح في tab جديد
+        window.open(fileUrl, '_blank');
+      });
+  }
   onFilterChange(filter: string): void {
     this.selectedFilter = filter;
     this.currentPage = 1;

@@ -1,5 +1,9 @@
+// src/app/pages/profile/profile.component.ts
 import { Component, OnInit } from '@angular/core';
-import { ApplicationUser } from '../../../models/applicationUser.model';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '../../../auth/components/auth-service';
+import { UsersService } from '../../../user/services/users.service';
 
 @Component({
   selector: 'app-profile',
@@ -8,171 +12,126 @@ import { ApplicationUser } from '../../../models/applicationUser.model';
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnInit {
-  user: ApplicationUser = {
-    id: '1',
-    firstName: 'محمد',
-    lastName: 'أحمد',
-    email: 'mohamed.ahmed@example.com',
-    phoneNumber: '+966501234567',
-    role: 'student',
-    groupId: '1',
-    group: { id: '1', name: 'الصف الثالث الثانوي - المجموعة أ' },
-    profileImage: '',
-    bio: 'طالب مجتهد يسعى للتميز في مجال العلوم والتكنولوجيا'
-  };
-
-  editUser: ApplicationUser = { ...this.user };
+  user: any | null = null;
+  isLoading = true;
+  isOwnProfile = true;
+  activeTab: 'info' | 'groups' | 'subjects' = 'info';
 
   stats = {
-    courses: 12,
-    completed: 8,
-    certificates: 5
+    totalGroups: 0,
+    totalSubjects: 0
   };
 
-  tabs = [
-    { id: 'about', label: 'نبذة عني' },
-    { id: 'activity', label: 'النشاط' },
-    { id: 'settings', label: 'الإعدادات' }
-  ];
-
-  activeTab = 'about';
-  showEditModal = false;
-
-  recentActivities = [
-    {
-      type: 'course',
-      title: 'أكمل درس جديد',
-      description: 'أساسيات البرمجة بلغة Python - الوحدة 3',
-      time: 'منذ ساعتين'
-    },
-    {
-      type: 'certificate',
-      title: 'حصل على شهادة',
-      description: 'شهادة إتمام دورة تطوير تطبيقات الويب',
-      time: 'منذ يوم واحد'
-    },
-    {
-      type: 'quiz',
-      title: 'أجرى اختبار',
-      description: 'اختبار الوحدة الثانية - الرياضيات المتقدمة',
-      time: 'منذ 3 أيام'
-    },
-    {
-      type: 'achievement',
-      title: 'فتح إنجاز جديد',
-      description: 'إنجاز "الطالب المثابر" - 30 يوم متتالي من التعلم',
-      time: 'منذ 5 أيام'
-    }
-  ];
-
-  currentCourses = [
-    {
-      title: 'أساسيات البرمجة بلغة Python',
-      thumbnail: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=400',
-      duration: '12 ساعة',
-      progress: 65
-    },
-    {
-      title: 'تطوير تطبيقات الويب الحديثة',
-      thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400',
-      duration: '20 ساعة',
-      progress: 40
-    },
-    {
-      title: 'الذكاء الاصطناعي للمبتدئين',
-      thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400',
-      duration: '15 ساعة',
-      progress: 25
-    },
-    {
-      title: 'قواعد البيانات وSQL',
-      thumbnail: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=400',
-      duration: '10 ساعات',
-      progress: 80
-    }
-  ];
-
-  achievements = [
-    { icon: '🏆', title: 'المتميز', description: '10 دورات مكتملة', unlocked: true },
-    { icon: '⭐', title: 'النجم', description: '5 شهادات', unlocked: true },
-    { icon: '🎯', title: 'الهدف', description: '100% في اختبار', unlocked: true },
-    { icon: '🔥', title: 'المثابر', description: '30 يوم متتالي', unlocked: true },
-    { icon: '📚', title: 'القارئ', description: '50 درس مكتمل', unlocked: false },
-    { icon: '💡', title: 'المبتكر', description: 'مشروع متميز', unlocked: false },
-    { icon: '🎓', title: 'الخريج', description: '20 دورة مكتملة', unlocked: false },
-    { icon: '👑', title: 'الملك', description: 'أعلى نقاط', unlocked: false }
-  ];
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService,
+    private usersService: UsersService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
-    // Load user data
+    this.loadProfile();
   }
 
-  getRoleDisplayName(role: string): string {
-    const roles: any = {
-      'admin': 'مدير النظام',
-      'teacher': 'معلم',
-      'student': 'طالب'
+  loadProfile(): void {
+    this.isLoading = true;
+    
+    const userId = this.route.snapshot.paramMap.get('id') || this.authService.getCurrentUserId();
+    
+    if (!userId) {
+      this.toastr.error('لم يتم العثور على معرف المستخدم', 'خطأ');
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+
+    this.isOwnProfile = userId === this.authService.getCurrentUserId();
+
+    this.usersService.getUserById().subscribe({
+      next: (response: any) => {
+        if (response.success && response.data) {
+          this.user = response.data;
+          this.calculateStats();
+        } else {
+          this.toastr.error(response.message || 'فشل تحميل البيانات', 'خطأ');
+        }
+        this.isLoading = false;
+      },
+      error: (error: any) => {
+        console.error('Error loading profile:', error);
+        this.toastr.error('حدث خطأ أثناء تحميل الملف الشخصي', 'خطأ');
+        this.isLoading = false;
+      }
+    });
+  }
+
+  calculateStats(): void {
+    if (this.user) {
+      this.stats.totalGroups = this.user.userGroups?.length || 0;
+      this.stats.totalSubjects = this.user.userSubjects?.length || 0;
+    }
+  }
+
+  // ✅ إرجاع اسم الصلاحية بالعربي
+  getRoleLabel(role: string): string {
+    const roles: { [key: string]: string } = {
+      'Admin': 'مدير النظام',
+      'Assistant': 'مساعد',
+      'Student': 'طالب',
+      'Teacher': 'معلم'
     };
     return roles[role] || role;
   }
 
-  getRoleBadgeColor(role: string): string {
-    const colors: any = {
-      'admin': 'bg-red-100 text-red-700',
-      'teacher': 'bg-blue-100 text-blue-700',
-      'student': 'bg-green-100 text-green-700'
+  // ✅ إرجاع أيقونة الصلاحية
+  getRoleIcon(role: string): string {
+    const icons: { [key: string]: string } = {
+      'Admin': 'fa-user-shield',
+      'Assistant': 'fa-user-tie',
+      'Student': 'fa-user-graduate',
+      'Teacher': 'fa-chalkboard-teacher'
     };
-    return colors[role] || 'bg-gray-100 text-gray-700';
+    return icons[role] || 'fa-user';
   }
 
-  getActivityIconColor(type: string): string {
-    const colors: any = {
-      'course': 'bg-blue-100 text-blue-600',
-      'certificate': 'bg-green-100 text-green-600',
-      'quiz': 'bg-purple-100 text-purple-600',
-      'achievement': 'bg-yellow-100 text-yellow-600'
+  // ✅ إرجاع Gradient Style مباشرة (الحل الصحيح)
+  getGradientStyle(role: string): string {
+    const gradients: { [key: string]: string } = {
+      'Admin': 'linear-gradient(135deg, #ef4444, #ec4899)',
+      'Assistant': 'linear-gradient(135deg, #8b5cf6, #6366f1)',
+      'Student': 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
+      'Teacher': 'linear-gradient(135deg, #22c55e, #14b8a6)'
     };
-    return colors[type] || 'bg-gray-100 text-gray-600';
+    return gradients[role] || 'linear-gradient(135deg, #3b82f6, #8b5cf6)';
   }
 
-  getActivityIcon(type: string): string {
-    // Return SVG path for different activity types
-    return '';
+  // ✅ إرجاع أول حرف من الاسم
+  getInitials(): string {
+    if (this.user) {
+      const first = this.user.firstName?.charAt(0) || '';
+      const last = this.user.lastName?.charAt(0) || '';
+      return first + last;
+    }
+    return 'U';
   }
 
-  editProfile(): void {
-    this.editUser = { ...this.user };
-    this.showEditModal = true;
+  // ✅ تغيير التاب
+  setActiveTab(tab: 'info' | 'groups' | 'subjects'): void {
+    this.activeTab = tab;
   }
 
-  closeEditModal(): void {
-    this.showEditModal = false;
+  // ✅ نسخ للـ Clipboard
+  copyToClipboard(text: string): void {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      this.toastr.success('تم النسخ بنجاح', 'نجاح');
+    }).catch(() => {
+      this.toastr.error('فشل النسخ', 'خطأ');
+    });
   }
 
-  saveProfile(): void {
-    this.user = { ...this.editUser };
-    this.closeEditModal();
-    // Call API to save user data
-  }
-
-  changeProfileImage(): void {
-    // Open file picker
-  }
-
-  changeCover(): void {
-    // Open file picker for cover image
-  }
-
+  // ✅ الرجوع
   goBack(): void {
-    // Navigate back
+    this.router.navigate(['/dashboard']);
   }
-
-  deactivateAccount(): void {
-    // Show confirmation and deactivate
-  }
-
-  deleteAccount(): void {
-    // Show confirmation and delete
-  }
-
 }
