@@ -697,6 +697,8 @@ export class ExamsListComponent implements OnInit {
   // تحسين دالة الحفظ مع التحقق من الاختيارات
   saveExam(): void {
   if (this.examForm.invalid) {
+    console.log(this.examForm.value);
+    
     this.examForm.markAllAsTouched();
     this.showError('الرجاء ملء جميع الحقول المطلوبة');
     return;

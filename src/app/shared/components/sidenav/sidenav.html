@@ -48,9 +48,9 @@
         <nav class="nav-container custom-scrollbar" #navContainer>
 
             <!-- Sliding Highlight -->
-            <div class="nav-highlight" [style.top.px]="highlightTop" [style.height.px]="highlightHeight"
+            <!-- <div class="nav-highlight" [style.top.px]="highlightTop" [style.height.px]="highlightHeight"
                 [style.opacity]="highlightVisible ? 1 : 0" [style.background]="highlightGradient">
-            </div>
+            </div> -->
 
             <!-- Dashboard -->
             <a routerLink="/dashboard" routerLinkActive="active-link" [routerLinkActiveOptions]="{ exact: true }"
@@ -111,7 +111,7 @@
             </a>
 
             <!-- الإختبارات (Admin/Assistant) -->
-            <a routerLink="/exams" *ngIf="role === 'Admin' || role === 'Assistant'" routerLinkActive="active-link"
+            <!-- <a routerLink="/exams" *ngIf="role === 'Admin' || role === 'Assistant'" routerLinkActive="active-link"
                 [attr.data-gradient]="'linear-gradient(135deg, #22c55e, #16a34a)'" class="nav-item"
                 [class.nav-item-collapsed]="!(sidenavService.isOpen$ | async) && !isMobile"
                 (mouseenter)="onNavHover($event)" (mouseleave)="onNavLeave()">
@@ -119,10 +119,10 @@
                     <i class="fa-solid fa-list-check text-green-600"></i>
                 </div>
                 <span *ngIf="(sidenavService.isOpen$ | async) || isMobile" class="nav-text">إدارة الإختبارات</span>
-            </a>
+            </a> -->
 
             <!-- اختباراتي (Student) -->
-            <a routerLink="/exams/my-exams" *ngIf="role === 'Student'" routerLinkActive="active-link"
+            <!-- <a routerLink="/exams/my-exams" *ngIf="role === 'Student'" routerLinkActive="active-link"
                 [attr.data-gradient]="'linear-gradient(135deg, #22c55e, #16a34a)'" class="nav-item"
                 [class.nav-item-collapsed]="!(sidenavService.isOpen$ | async) && !isMobile"
                 (mouseenter)="onNavHover($event)" (mouseleave)="onNavLeave()">
@@ -130,7 +130,7 @@
                     <i class="fa-solid fa-clipboard-list text-green-600"></i>
                 </div>
                 <span *ngIf="(sidenavService.isOpen$ | async) || isMobile" class="nav-text">اختباراتي</span>
-            </a>
+            </a> -->
 
             <!-- الفيديوهات -->
             <a routerLink="/videos" routerLinkActive="active-link"
@@ -186,7 +186,7 @@
 
             <!-- تسجيل الخروج -->
             <a *ngIf="role" (click)="logout()" [attr.data-gradient]="'linear-gradient(135deg, #f59e0b, #d97706)'"
-                class="nav-item" [class.nav-item-collapsed]="!(sidenavService.isOpen$ | async) && !isMobile"
+                class="nav-item nav-item-red" [class.nav-item-collapsed]="!(sidenavService.isOpen$ | async) && !isMobile"
                 (mouseenter)="onNavHover($event)" (mouseleave)="onNavLeave()">
                 <div class="nav-icon bg-red-100">
                     <i class="fa-solid fa-right-to-bracket text-red-600"></i>

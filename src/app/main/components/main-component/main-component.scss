@@ -1,143 +1,149 @@
- .gradient-card {
-     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
-     backdrop-filter: blur(10px);
-     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
- }
+// src/app/pages/main-component/main-component.scss
 
- .gradient-card:hover {
-     transform: translateY(-5px);
-     box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
- }
+// Animations
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
 
- .stat-card {
-     position: relative;
-     overflow: hidden;
- }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
- .stat-card::before {
-     content: '';
-     position: absolute;
-     top: 0;
-     right: 0;
-     width: 100%;
-     height: 100%;
-     background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
-     opacity: 0;
-     transition: opacity 0.3s ease;
- }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
 
- .stat-card:hover::before {
-     opacity: 1;
- }
+    to {
+        opacity: 1;
+    }
+}
 
- @keyframes slideIn {
-     from {
-         opacity: 0;
-         transform: translateY(20px);
-     }
+// Animation Classes
+.animate-slide-in {
+    animation: slideIn 0.6s ease-out backwards;
+}
 
-     to {
-         opacity: 1;
-         transform: translateY(0);
-     }
- }
+// Scrollbar
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
 
- .animate-slide-in {
-     animation: slideIn 0.6s ease-out backwards;
- }
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
 
- .delay-1 {
-     animation-delay: 0.1s;
- }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3b82f6, #6366f1);
+    border-radius: 10px;
+}
 
- .delay-2 {
-     animation-delay: 0.2s;
- }
+// src/app/pages/main-component/main-component.scss
 
- .delay-3 {
-     animation-delay: 0.3s;
- }
+// ==================== Animations ====================
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
- .delay-4 {
-     animation-delay: 0.4s;
- }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
 
- .delay-5 {
-     animation-delay: 0.5s;
- }
+@keyframes progressBar {
+    from {
+        width: 0%;
+    }
+}
 
- .delay-6 {
-     animation-delay: 0.6s;
- }
+// ==================== Animation Classes ====================
+.animate-slide-in {
+    animation: slideIn 0.6s ease-out backwards;
+}
 
- .progress-bar {
-     transition: width 1s ease-out;
- }
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
 
- .dialog-overlay {
-     backdrop-filter: blur(8px);
-     animation: fadeIn 0.3s ease;
- }
+// ==================== Revenue Chart Styling ====================
+.chart-row {
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px;
+    transition: all 0.3s ease;
 
- .dialog-content {
-     animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
- }
+    &:hover {
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        transform: translateX(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+}
 
- @keyframes fadeIn {
-     from {
-         opacity: 0;
-     }
+// ==================== Scrollbar ====================
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
 
-     to {
-         opacity: 1;
-     }
- }
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
 
- @keyframes slideUp {
-     from {
-         opacity: 0;
-         transform: translateY(30px) scale(0.95);
-     }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3b82f6, #6366f1);
+    border-radius: 10px;
+    
+    &:hover {
+        background: linear-gradient(180deg, #2563eb, #4f46e5);
+    }
+}
 
-     to {
-         opacity: 1;
-         transform: translateY(0) scale(1);
-     }
- }
+// ==================== Stat Cards ====================
+.stat-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+}
 
- .input-field {
-     transition: all 0.3s ease;
- }
+// ==================== Quick Action Buttons ====================
+.quick-action-btn {
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+}
 
- .input-field:focus {
-     transform: translateY(-2px);
-     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
- }
+// ==================== Empty States ====================
+.empty-state-icon {
+    animation: fadeIn 0.6s ease-out;
+}
 
- .dropdown-custom {
-     appearance: none;
- }
-
- .floating-label {
-     transition: all 0.3s ease;
- }
-
- .input-wrapper:focus-within .floating-label {
-     transform: translateY(-28px) scale(0.85);
-     color: #3b82f6;
- }
-
- .input-wrapper.has-value .floating-label {
-     transform: translateY(-28px) scale(0.85);
-     color: #6b7280;
- }
-
- .floating-label {
-     transition: all 0.3s ease;
- }
-
- .input-wrapper:focus-within .floating-label,
- .input-wrapper.has-value .floating-label {
-     transform: translateY(-28px) scale(0.85);
-     color: #3b82f6;
- }
+// ==================== Responsive ====================
+@media (max-width: 640px) {
+    .chart-row {
+        padding: 10px 12px;
+    }
+}

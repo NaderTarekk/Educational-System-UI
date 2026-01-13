@@ -107,7 +107,6 @@ export class Navbar implements OnInit {
   loadUser() {
     this.userService.getUserById().subscribe(res => {
       this.user = res.data
-
     })
   }
 

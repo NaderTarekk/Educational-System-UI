@@ -39,6 +39,12 @@ export class UsersService {
     });
   }
 
+  getUserWithGroups(userId: string): Observable<any> {
+    return this.http.get<any>(`${environment.userUrl}/user-with-groups/${userId}`, {
+      headers: this.getHeaders()
+    });
+  }
+
   addUser(user: User): Observable<ResponseMessage> {
     console.log("the url : " + environment.groupUrl);
 

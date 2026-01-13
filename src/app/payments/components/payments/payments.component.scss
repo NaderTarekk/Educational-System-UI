@@ -33,7 +33,7 @@ $transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 .payments-container {
     min-height: 100vh;
     padding: 1rem;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+    // background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
     
     @media (min-width: 640px) {
         padding: 1.5rem;

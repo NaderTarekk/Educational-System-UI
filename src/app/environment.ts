@@ -10,6 +10,7 @@ export const environment = {
   videoUrl: 'https://nhc-pl-system.runasp.net/api/videos',
   subjectUrl: 'https://nhc-pl-system.runasp.net/api/subjects',
   paymentUrl: 'https://nhc-pl-system.runasp.net/api/payments',
+  reportUrl: 'https://nhc-pl-system.runasp.net/api/reports',
   baseUrl: 'https://nhc-pl-system.runasp.net/',
 
   // authUrl: 'https://localhost:7273/api/Auth/',
@@ -22,5 +23,6 @@ export const environment = {
   // videoUrl: 'https://localhost:7273/api/videos',
   // subjectUrl: 'https://localhost:7273/api/subjects',
   // paymentUrl: 'https://localhost:7273/api/payments',
+  // reportUrl: 'https://localhost:7273/api/reports',
   // baseUrl: 'https://localhost:7273',
 };

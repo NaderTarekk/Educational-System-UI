@@ -13,6 +13,7 @@ import { UsersService } from '../../../user/services/users.service';
 })
 export class ProfileComponent implements OnInit {
   user: any | null = null;
+  role: any;
   isLoading = true;
   isOwnProfile = true;
   activeTab: 'info' | 'groups' | 'subjects' = 'info';
@@ -32,6 +33,8 @@ export class ProfileComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadProfile();
+    this.role = localStorage.getItem("NHC_PL_Role");
+
   }
 
   loadProfile(): void {

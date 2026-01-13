@@ -178,18 +178,17 @@ export class PaymentsComponent implements OnInit {
     const studentId = this.paymentForm.get('studentId')?.value;
 
     if (!studentId) {
+      alert("no")
       this.studentGroups = [];
       this.paymentForm.patchValue({ groupId: '' });
       return;
     }
 
-    this.usersService.getUserById().subscribe({
+    this.usersService.getUserWithGroups(studentId).subscribe({
       next: (response) => {
+        debugger
         if (response.success && response.data) {
           const user = response.data;
-
-          console.log('👤 User Data:', user);
-          console.log('📦 UserGroups:', user.userGroups);
 
           // ✅ Get groups from userGroups
           if (user.userGroups && user.userGroups.length > 0) {
@@ -200,8 +199,6 @@ export class PaymentsComponent implements OnInit {
           } else {
             this.studentGroups = [];
           }
-
-          console.log('✅ Student Groups:', this.studentGroups);
 
           // Auto-select if only one group
           if (this.studentGroups.length === 1) {

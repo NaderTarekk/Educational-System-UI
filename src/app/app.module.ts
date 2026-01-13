@@ -11,6 +11,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { AuthModule } from './auth/auth-module';
+import { MainModule } from './main/main-module';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { AuthModule } from './auth/auth-module';
     HttpClientModule,
     MatPaginatorModule,
     MatTableModule,
-    AuthModule
+    AuthModule,
+    MainModule
   ],
   providers: [{ provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }],
   bootstrap: [AppComponent]

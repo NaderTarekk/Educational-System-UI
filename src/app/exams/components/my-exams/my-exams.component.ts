@@ -31,6 +31,8 @@ export class MyExamsComponent implements OnInit {
     // Load available exams (active exams)
     this.examService.getActiveExams().subscribe({
       next: (response) => {
+        console.log(response);
+        
         if (response.success && response.data) {
           this.availableExams = response.data;
           this.processExams(this.availableExams);
