@@ -1,6 +1,145 @@
 <!-- attendance.component.html -->
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 sm:p-6 lg:p-8" dir="rtl">
 
+  <!-- 🆕 Mode Selection Modal -->
+  <div *ngIf="showModeSelectionModal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center animate-fadeIn p-4">
+
+    <div
+      class="bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 lg:p-12 w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl shadow-2xl transform animate-scaleIn overflow-y-auto max-h-[95vh]">
+
+      <!-- Header -->
+      <div class="text-center mb-6 sm:mb-8 md:mb-10">
+        <div
+          class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl sm:rounded-3xl mx-auto mb-4 sm:mb-6 flex items-center justify-center shadow-xl">
+          <i class="fas fa-clipboard-check text-white text-3xl sm:text-4xl md:text-5xl"></i>
+        </div>
+        <h2 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-gray-800 mb-2 sm:mb-3 px-2">
+          اختر طريقة التسجيل
+        </h2>
+        <p class="text-sm sm:text-base md:text-lg text-gray-600 px-4">
+          كيف تريد تسجيل حضور الطلاب؟
+        </p>
+      </div>
+
+      <!-- Options -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-8">
+
+        <!-- Barcode Mode (Default) -->
+        <button (click)="selectMode('barcode')"
+          class="group relative bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 rounded-2xl sm:rounded-3xl p-6 sm:p-7 md:p-8 text-white shadow-2xl hover:shadow-blue-500/50 transition-all duration-500 hover:scale-105 active:scale-95 transform overflow-hidden">
+
+          <div
+            class="absolute inset-0 bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+          </div>
+
+          <div class="relative z-10">
+            <!-- Icon -->
+            <div
+              class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white/20 rounded-xl sm:rounded-2xl mx-auto mb-4 sm:mb-5 md:mb-6 flex items-center justify-center">
+              <i class="fas fa-barcode text-3xl sm:text-4xl md:text-5xl"></i>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-lg sm:text-xl md:text-2xl font-black mb-2 sm:mb-3">
+              مسح الباركود
+            </h3>
+
+            <!-- Description -->
+            <p class="text-white/90 mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed">
+              تسجيل سريع باستخدام قارئ الباركود
+            </p>
+
+            <!-- Badge -->
+            <div
+              class="inline-flex items-center gap-1 sm:gap-1.5 bg-white/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold backdrop-blur-xl">
+              <i class="fas fa-star text-yellow-300"></i>
+              <span>مُوصى به</span>
+            </div>
+          </div>
+
+          <div class="absolute -bottom-10 -right-10 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-3xl"></div>
+        </button>
+
+        <!-- Manual Mode -->
+        <button (click)="selectMode('manual')"
+          class="group relative bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 rounded-2xl sm:rounded-3xl p-6 sm:p-7 md:p-8 text-white shadow-2xl hover:shadow-gray-500/50 transition-all duration-500 hover:scale-105 active:scale-95 transform overflow-hidden">
+
+          <div
+            class="absolute inset-0 bg-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
+          </div>
+
+          <div class="relative z-10">
+            <!-- Icon -->
+            <div
+              class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-white/20 rounded-xl sm:rounded-2xl mx-auto mb-4 sm:mb-5 md:mb-6 flex items-center justify-center">
+              <i class="fas fa-hand-pointer text-3xl sm:text-4xl md:text-5xl"></i>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-lg sm:text-xl md:text-2xl font-black mb-2 sm:mb-3">
+              تسجيل يدوي
+            </h3>
+
+            <!-- Description -->
+            <p class="text-white/90 mb-3 sm:mb-4 text-xs sm:text-sm leading-relaxed">
+              تسجيل يدوي باستخدام النقر والاختيار
+            </p>
+
+            <!-- Badge -->
+            <div
+              class="inline-flex items-center gap-1 sm:gap-1.5 bg-white/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm font-bold backdrop-blur-xl">
+              <i class="fas fa-mouse-pointer text-blue-300"></i>
+              <span>تقليدي</span>
+            </div>
+          </div>
+
+          <div class="absolute -bottom-10 -right-10 w-24 h-24 sm:w-32 sm:h-32 bg-white/10 rounded-full blur-3xl"></div>
+        </button>
+      </div>
+
+      <!-- Help Text -->
+      <div class="bg-blue-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border-2 border-blue-200">
+        <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+          <!-- Icon -->
+          <div
+            class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-info-circle text-white text-lg sm:text-xl"></i>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1">
+            <p class="text-gray-700 font-bold sm:font-semibold mb-2 sm:mb-3 text-sm sm:text-base">
+              💡 ملاحظة:
+            </p>
+            <ul class="text-xs sm:text-sm text-gray-600 space-y-2">
+              <li class="flex items-start gap-2">
+                <i class="fas fa-check text-green-500 mt-0.5 sm:mt-1 flex-shrink-0"></i>
+                <span class="leading-relaxed">وضع الباركود: امسح بطاقة كل طالب بالقارئ</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fas fa-check text-green-500 mt-0.5 sm:mt-1 flex-shrink-0"></i>
+                <span class="leading-relaxed">الوضع اليدوي: اضغط على حالة كل طالب</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <i class="fas fa-check text-green-500 mt-0.5 sm:mt-1 flex-shrink-0"></i>
+                <span class="leading-relaxed">يمكنك التبديل بين الوضعين في أي وقت</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Optional: Close Button for better UX -->
+      <div class="mt-6 sm:mt-8 text-center">
+        <p class="text-xs sm:text-sm text-gray-500">
+          <i class="fas fa-hand-pointer ml-1"></i>
+          اضغط على أحد الخيارات للمتابعة
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading Overlay -->
   <div *ngIf="loading"
     class="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center animate-fadeIn">
@@ -35,17 +174,46 @@
         </div>
       </div>
 
+      <!-- 🆕 Mode Toggle Button -->
+      <button (click)="toggleMode()"
+        [class]="attendanceMode === 'barcode' ? 'bg-gradient-to-r from-blue-600 to-purple-600' : 'bg-gradient-to-r from-gray-700 to-gray-900'"
+        class="w-full sm:w-auto px-6 py-3 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold text-lg flex items-center justify-center gap-3">
+        <i [class]="attendanceMode === 'barcode' ? 'fa-solid fa-barcode' : 'fa-solid fa-hand-pointer'"></i>
+        <span>{{ attendanceMode === 'barcode' ? 'وضع الباركود' : 'وضع يدوي' }}</span>
+        <i class="fa-solid fa-repeat"></i>
+      </button>
+
       <a routerLink="/attendances/daily-attendance-report"
-        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold text-lg flex items-center justify-center gap-2">
+        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold text-lg flex items-center justify-center gap-2">
         <i class="fa-solid fa-clipboard-user"></i>
         <span>تقرير الحضور اليومي</span>
       </a>
 
       <a routerLink="/attendances/group-attendance-report"
-        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold text-lg flex items-center justify-center gap-2">
+        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 font-bold text-lg flex items-center justify-center gap-2">
         <i class="fa-solid fa-clipboard-user"></i>
         <span>تقرير حضور المجموعات</span>
       </a>
+    </div>
+  </div>
+
+  <!-- 🆕 Barcode Status Banner (Only in Barcode Mode) -->
+  <div *ngIf="attendanceMode === 'barcode' && selectedGroupId"
+    class="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-3xl p-6 mb-8 shadow-2xl animate-slideUp text-white">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center animate-pulse">
+          <i class="fas fa-barcode text-4xl"></i>
+        </div>
+        <div>
+          <h3 class="text-2xl font-black mb-1">🎯 جاهز للمسح</h3>
+          <p class="text-white/90 text-sm">امسح بطاقة الطالب باستخدام قارئ الباركود</p>
+        </div>
+      </div>
+      <div class="text-center">
+        <div class="text-4xl font-black">{{ stats.scanned }} / {{ stats.total }}</div>
+        <div class="text-sm text-white/80">طالب ممسوح</div>
+      </div>
     </div>
   </div>
 
@@ -217,8 +385,8 @@
       </div>
     </div>
 
-    <!-- Search & Quick Actions -->
-    <div class="p-6 sm:p-8 border-b border-gray-100 bg-gray-50">
+    <!-- Search & Quick Actions (Only in Manual Mode) -->
+    <div *ngIf="attendanceMode === 'manual'" class="p-6 sm:p-8 border-b border-gray-100 bg-gray-50">
       <div class="flex flex-col lg:flex-row gap-4">
 
         <!-- Search -->
@@ -261,18 +429,24 @@
 
     <!-- Students Cards (Mobile) -->
     <div class="block lg:hidden p-4 space-y-4">
-      <div *ngFor="let student of filteredStudents; let i = index"
+      <div *ngFor="let student of filteredStudents; let i = index" [id]="'student-' + student.id"
+        [class.border-green-400]="isScanned(student.id)" [class.bg-green-50]="isScanned(student.id)"
         class="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-3xl p-5 hover:shadow-xl hover:border-blue-300 transition-all duration-300 animate-slideIn"
         [style.animation-delay]="i * 50 + 'ms'">
 
         <!-- Student Info -->
         <div class="flex items-center gap-4 mb-5">
-          <div
-            class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg">
+          <div [class]="isScanned(student.id) ? 'from-green-500 to-emerald-600' : 'from-blue-500 to-purple-600'"
+            class="w-16 h-16 bg-gradient-to-br rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg relative">
             {{ student.firstName.charAt(0) }}{{ student.lastName.charAt(0) }}
+            <i *ngIf="isScanned(student.id)"
+              class="fas fa-check-circle absolute -top-2 -right-2 text-green-500 bg-white rounded-full text-xl"></i>
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-black text-gray-800 text-lg truncate">{{ student.fullName }}</p>
+            <p class="font-black text-gray-800 text-lg truncate">
+              {{ student.fullName }}
+              <span *ngIf="isScanned(student.id)" class="text-green-600 text-sm">✓ ممسوح</span>
+            </p>
             <p class="text-sm text-gray-500 truncate flex items-center gap-2">
               <i class="fas fa-envelope text-xs"></i>
               <span>{{ student.email }}</span>
@@ -280,14 +454,24 @@
           </div>
         </div>
 
-        <!-- Status Buttons -->
-        <div class="grid grid-cols-3 gap-3">
+        <!-- Status Buttons (Only in Manual Mode) -->
+        <div *ngIf="attendanceMode === 'manual'" class="grid grid-cols-3 gap-3">
           <button *ngFor="let option of statusOptions" (click)="setStatus(student.id, option.value)"
             [class]="getStatus(student.id) === option.value ? option.activeClass : 'bg-gray-100 text-gray-700 hover:' + option.hoverClass"
             class="py-4 rounded-2xl font-bold transition-all duration-300 flex flex-col items-center gap-2 group hover:scale-105 shadow-sm hover:shadow-md">
             <i [class]="'fas ' + option.icon + ' text-xl'"></i>
             <span class="text-xs">{{ option.label }}</span>
           </button>
+        </div>
+
+        <!-- Barcode Mode Indicator -->
+        <div *ngIf="attendanceMode === 'barcode'" class="text-center py-2">
+          <span *ngIf="getStatus(student.id) === AttendanceStatus.Present" class="text-green-600 font-bold">
+            <i class="fas fa-check-circle"></i> حاضر
+          </span>
+          <span *ngIf="getStatus(student.id) === AttendanceStatus.Absent" class="text-gray-400 font-bold">
+            <i class="fas fa-clock"></i> بانتظار المسح
+          </span>
         </div>
       </div>
     </div>
@@ -304,18 +488,24 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let student of filteredStudents; let i = index"
+          <tr *ngFor="let student of filteredStudents; let i = index" [id]="'student-' + student.id"
+            [class.bg-green-50]="isScanned(student.id)"
             class="border-b border-gray-100 hover:bg-blue-50 transition-all duration-300 animate-slideIn group"
             [style.animation-delay]="i * 30 + 'ms'">
 
             <td class="py-6 px-8">
               <div class="flex items-center gap-4">
-                <div
-                  class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg group-hover:scale-110 transition-transform">
+                <div [class]="isScanned(student.id) ? 'from-green-500 to-emerald-600' : 'from-blue-500 to-purple-600'"
+                  class="w-14 h-14 bg-gradient-to-br rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg group-hover:scale-110 transition-transform relative">
                   {{ student.firstName.charAt(0) }}{{ student.lastName.charAt(0) }}
+                  <i *ngIf="isScanned(student.id)"
+                    class="fas fa-check-circle absolute -top-2 -right-2 text-green-500 bg-white rounded-full text-lg"></i>
                 </div>
                 <div>
-                  <p class="font-black text-gray-800 text-lg">{{ student.fullName }}</p>
+                  <p class="font-black text-gray-800 text-lg">
+                    {{ student.fullName }}
+                    <span *ngIf="isScanned(student.id)" class="text-green-600 text-sm ml-2">✓ ممسوح</span>
+                  </p>
                   <p class="text-sm text-gray-500">{{ student.phoneNumber || 'لا يوجد هاتف' }}</p>
                 </div>
               </div>
@@ -329,13 +519,30 @@
             </td>
 
             <td class="py-6 px-8">
-              <div class="flex items-center justify-center gap-3">
+              <!-- Manual Mode: Show Buttons -->
+              <div *ngIf="attendanceMode === 'manual'" class="flex items-center justify-center gap-3">
                 <button *ngFor="let option of statusOptions" (click)="setStatus(student.id, option.value)"
                   [class]="getStatus(student.id) === option.value ? option.activeClass : 'bg-gray-100 text-gray-700 hover:' + option.hoverClass"
                   class="w-12 h-12 rounded-2xl transition-all duration-300 flex items-center justify-center group-btn hover:scale-110 shadow-sm hover:shadow-lg"
                   [title]="option.label">
                   <i [class]="'fas ' + option.icon + ' text-lg'"></i>
                 </button>
+              </div>
+
+              <!-- Barcode Mode: Show Status -->
+              <div *ngIf="attendanceMode === 'barcode'" class="text-center">
+                <span *ngIf="getStatus(student.id) === AttendanceStatus.Present"
+                  class="inline-block px-4 py-2 bg-green-100 text-green-700 rounded-xl font-bold">
+                  <i class="fas fa-check-circle"></i> حاضر
+                </span>
+                <span *ngIf="getStatus(student.id) === AttendanceStatus.Absent"
+                  class="inline-block px-4 py-2 bg-gray-100 text-gray-500 rounded-xl font-bold">
+                  <i class="fas fa-clock"></i> بانتظار المسح
+                </span>
+                <span *ngIf="getStatus(student.id) === AttendanceStatus.Late"
+                  class="inline-block px-4 py-2 bg-orange-100 text-orange-700 rounded-xl font-bold">
+                  <i class="fas fa-clock"></i> متأخر
+                </span>
               </div>
             </td>
           </tr>

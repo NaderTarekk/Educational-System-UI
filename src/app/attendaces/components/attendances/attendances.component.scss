@@ -1,6 +1,24 @@
-// attendance.component.scss
+@keyframes highlightFlash {
+  0% {
+    background-color: white;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #d1fae5;
+    transform: scale(1.02);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3);
+  }
+  100% {
+    background-color: #ecfdf5;
+    transform: scale(1);
+  }
+}
 
-// ========== Keyframe Animations ==========
+.highlight-flash {
+  animation: highlightFlash 2s ease-in-out;
+}
+
+// Fade In Animation
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -10,10 +28,31 @@
   }
 }
 
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in;
+}
+
+// Scale In Animation
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+// Slide Down Animation
 @keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-30px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;
@@ -21,10 +60,15 @@
   }
 }
 
+.animate-slideDown {
+  animation: slideDown 0.4s ease-out;
+}
+
+// Slide Up Animation
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -32,6 +76,11 @@
   }
 }
 
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out;
+}
+
+// Slide In Animation
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -40,6 +89,155 @@
   to {
     opacity: 1;
     transform: translateX(0);
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.4s ease-out;
+}
+
+// Pulse Animation for Icons
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// Bounce Animation
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
+}
+
+// Spin Animation
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+// Ping Animation
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+.animate-ping {
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+// Custom Scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #2563eb, #7c3aed);
+}
+
+// 🆕 Barcode Mode Specific Styles
+.barcode-mode-indicator {
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+    background-size: 300% 300%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: gradientShift 3s ease infinite;
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .animate-slideIn {
+    animation-duration: 0.3s;
+  }
+  
+  .animate-slideUp {
+    animation-duration: 0.3s;
+  }
+}
+
+body.modal-open {
+  overflow: hidden;
+  
+  @media (max-width: 640px) {
+    position: fixed;
+    width: 100%;
+  }
+}
+
+// 🆕 Enhanced Modal Animations
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
@@ -54,97 +252,115 @@
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-// ========== Animation Classes ==========
-.animate-fadeIn {
-  animation: fadeIn 0.6s ease-out;
-}
-
-.animate-slideDown {
-  animation: slideDown 0.6s ease-out;
-}
-
-.animate-slideUp {
-  animation: slideUp 0.6s ease-out;
-}
-
-.animate-slideIn {
-  animation: slideIn 0.4s ease-out;
-}
-
-.animate-scaleIn {
-  animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-// ========== Custom Styles ==========
-.group-select,
-.date-select {
-  position: relative;
-
-  select:focus,
-  input:focus {
-    + div {
-      i {
-        color: currentColor;
-      }
-    }
-  }
-}
-
-// ========== Smooth Transitions ==========
-* {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-// ========== Hover Effects ==========
-button {
-  &:active {
-    transform: scale(0.95);
-  }
-}
-
-// ========== Loading Animation ==========
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-.animate-ping {
-  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-@keyframes ping {
-  75%, 100% {
-    transform: scale(2);
-    opacity: 0;
-  }
-}
-
-// ========== Responsive ==========
+// 🆕 Touch-friendly buttons for mobile
 @media (max-width: 640px) {
-  .animate-slideIn {
-    animation-delay: 0ms !important;
+  button {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  // Increase touch targets
+  .group {
+    min-height: 44px; // iOS recommended minimum
+  }
+}
+
+// 🆕 Smooth scrolling for modal content
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 10px;
+  }
+}
+
+// 🆕 Landscape mode adjustments for mobile
+@media (max-height: 600px) and (orientation: landscape) {
+  .max-h-\[95vh\] {
+    max-height: 90vh;
+  }
+  
+  .mb-10, .mb-8 {
+    margin-bottom: 1rem !important;
+  }
+  
+  .p-12, .p-10 {
+    padding: 1.5rem !important;
+  }
+}
+
+// 🆕 Extra small devices (< 360px)
+@media (max-width: 360px) {
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+  
+  .text-3xl {
+    font-size: 1.5rem !important;
+  }
+  
+  .p-6 {
+    padding: 1rem !important;
+  }
+}
+
+// 🆕 Tablet optimizations
+@media (min-width: 768px) and (max-width: 1024px) {
+  .max-w-2xl {
+    max-width: 40rem;
+  }
+}
+
+// 🆕 High DPI screens
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  }
+}
+
+// 🆕 Reduced motion for accessibility
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn,
+  .animate-scaleIn,
+  .transition-all,
+  .transition-opacity,
+  .transition-transform {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .hover\:scale-105:hover {
+    transform: none !important;
+  }
+}
+
+// 🆕 Dark mode support (optional)
+@media (prefers-color-scheme: dark) {
+  .bg-white {
+    // background-color: #1f2937; // Uncomment if you want dark mode
+  }
+}
+
+// 🆕 Focus styles for accessibility
+button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+// 🆕 Safe area for notched devices (iPhone X+)
+@supports (padding: max(0px)) {
+  .p-4 {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 }
