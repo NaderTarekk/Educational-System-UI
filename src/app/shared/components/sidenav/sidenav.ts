@@ -128,7 +128,7 @@ export class Sidenav implements OnInit {
 
 
   loadUser() {
-    this.userService.getUserById().subscribe(res => {
+    this.userService.getUserById('0').subscribe(res => {
       this.user = res.data
 
     })

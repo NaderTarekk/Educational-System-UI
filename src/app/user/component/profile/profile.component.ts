@@ -50,7 +50,7 @@ export class ProfileComponent implements OnInit {
 
     this.isOwnProfile = userId === this.authService.getCurrentUserId();
 
-    this.usersService.getUserById().subscribe({
+    this.usersService.getUserById('0').subscribe({
       next: (response: any) => {
         console.log(response.data);
         

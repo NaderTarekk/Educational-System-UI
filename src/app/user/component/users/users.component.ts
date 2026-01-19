@@ -280,7 +280,7 @@ export class UsersComponent implements OnInit {
     this.isViewDialogOpen = true;
     document.body.style.overflow = 'hidden';
 
-    this.userService.getUserById().subscribe({
+    this.userService.getUserById(id).subscribe({
       next: (response) => {
         if (response.success) {
           this.viewedUser = response.data;

@@ -38,7 +38,7 @@ export class MainComponent implements OnInit {
 
   loadUser(): void {
     this.isLoading = true;
-    this.userService.getUserById().subscribe({
+    this.userService.getUserById('0').subscribe({
       next: (res: any) => {
         if (res.success && res.data) {
           this.user = res.data;
