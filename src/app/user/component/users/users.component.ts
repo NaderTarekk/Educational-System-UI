@@ -93,7 +93,6 @@ export class UsersComponent implements OnInit {
           this.toastr.warning("ليس لديك صلاحية للوصول إلى هذا الجزء من النظام.");
           this.router.navigate(["/"]);
         } else {
-          console.log(error);
           this.showError(error.error?.message || 'حدث خطأ أثناء تحميل المستخدمين');
         }
         this.isLoading = false;
@@ -165,6 +164,7 @@ export class UsersComponent implements OnInit {
   }
 
   openDialog(user?: User): void {
+
     this.isDialogOpen = true;
     document.body.style.overflow = 'hidden';
 
@@ -258,7 +258,6 @@ export class UsersComponent implements OnInit {
         next: (response) => {
 
           if (response.success) {
-            console.log("success inside");
             this.showSuccess(response.message);
             this.closeDialog();
             this.loadUsers();
@@ -276,6 +275,7 @@ export class UsersComponent implements OnInit {
   }
 
   viewUser(id: string): void {
+
     this.isLoadingUserDetails = true;
     this.isViewDialogOpen = true;
     document.body.style.overflow = 'hidden';
@@ -283,6 +283,7 @@ export class UsersComponent implements OnInit {
     this.userService.getUserById(id).subscribe({
       next: (response) => {
         if (response.success) {
+
           this.viewedUser = response.data;
         } else {
           this.showError(response.message);
@@ -304,7 +305,21 @@ export class UsersComponent implements OnInit {
     this.viewedUser = null;
     document.body.style.overflow = 'auto';
   }
+  editUserFromView(user: User): void {
+    const userToEdit = { ...user };
+    this.closeViewDialog();
+    setTimeout(() => {
+      this.openDialog(userToEdit);
+    }, 100);
+  }
 
+  deleteUserFromView(user: User): void {
+    const userToDelete = { ...user };
+    this.closeViewDialog();
+    setTimeout(() => {
+      this.openDeleteDialog(userToDelete);
+    }, 100);
+  }
   // Get multiple group names
   getGroupNames(user: User): string {
     if (!user.userGroups || user.userGroups.length === 0) {

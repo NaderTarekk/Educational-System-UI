@@ -92,33 +92,40 @@ export class AttendancesComponent implements OnInit {
   }
 
   // 🆕 اختيار طريقة التسجيل
-  selectMode(mode: AttendanceMode): void {
-    this.attendanceMode = mode;
-    this.showModeSelectionModal = false;
+// في الدالة selectMode
+selectMode(mode: AttendanceMode): void {
+  this.attendanceMode = mode;
+  this.showModeSelectionModal = false;
 
-    if (mode === 'barcode') {
-      this.toastr.info('جاهز لمسح الباركود - امسح بطاقة الطالب', '📷 وضع الباركود', {
-        timeOut: 3000
-      });
-    } else {
-      this.toastr.info('يمكنك الآن تسجيل الحضور يدوياً', '✋ وضع يدوي', {
-        timeOut: 3000
-      });
-    }
+  // ⬅️ أضف هذا السطر
+  if (this.selectedGroupId) {
+    this.loadExistingAttendance();
   }
 
-  // 🆕 تبديل الوضع
-  toggleMode(): void {
-    this.attendanceMode = this.attendanceMode === 'barcode' ? 'manual' : 'barcode';
-    this.barcodeInput = '';
-    this.scannedStudents.clear();
-
-    if (this.attendanceMode === 'barcode') {
-      this.toastr.info('تم التبديل إلى وضع الباركود', '📷 وضع الباركود');
-    } else {
-      this.toastr.info('تم التبديل إلى الوضع اليدوي', '✋ وضع يدوي');
-    }
+  if (mode === 'barcode') {
+    this.toastr.info('جاهز لمسح الباركود - امسح بطاقة الطالب', '📷 وضع الباركود', {
+      timeOut: 3000
+    });
+  } else {
+    this.toastr.info('يمكنك الآن تسجيل الحضور يدوياً', '✋ وضع يدوي', {
+      timeOut: 3000
+    });
   }
+}
+
+// ⬅️ عدل دالة toggleMode
+toggleMode(): void {
+  this.attendanceMode = this.attendanceMode === 'barcode' ? 'manual' : 'barcode';
+  this.barcodeInput = '';
+  // ⬅️ احذف هذا السطر
+  // this.scannedStudents.clear();
+
+  if (this.attendanceMode === 'barcode') {
+    this.toastr.info('تم التبديل إلى وضع الباركود', '📷 وضع الباركود');
+  } else {
+    this.toastr.info('تم التبديل إلى الوضع اليدوي', '✋ وضع يدوي');
+  }
+}
 
   @HostListener('window:keypress', ['$event'])
   handleBarcodeInput(event: KeyboardEvent): void {
@@ -352,10 +359,39 @@ export class AttendancesComponent implements OnInit {
     this.calculateStats();
   }
 
-  setStatus(studentId: string, status: AttendanceStatus): void {
-    this.attendanceRecords.set(studentId, status);
-    this.calculateStats();
+// ⬅️ عدل دالة setStatus
+setStatus(studentId: string, status: AttendanceStatus): void {
+  this.attendanceRecords.set(studentId, status);
+  
+  // ⬅️ أضف هذا: تحديث scannedStudents
+  if (status === AttendanceStatus.Present) {
+    this.scannedStudents.add(studentId);
+  } else {
+    this.scannedStudents.delete(studentId);
   }
+  
+  this.calculateStats();
+}
+
+// ⬅️ عدل دالة markAll
+markAll(status: AttendanceStatus): void {
+  this.students.forEach(student => {
+    this.attendanceRecords.set(student.id, status);
+    
+    // ⬅️ أضف هذا: تحديث scannedStudents
+    if (status === AttendanceStatus.Present) {
+      this.scannedStudents.add(student.id);
+    } else {
+      this.scannedStudents.delete(student.id);
+    }
+  });
+  
+  this.calculateStats();
+  this.showQuickMarkMenu = false;
+
+  const statusLabel = this.getStatusOption(status)?.label || '';
+  this.toastr.info(`تم تحديد الكل كـ ${statusLabel}`);
+}
 
   getStatus(studentId: string): AttendanceStatus {
     return this.attendanceRecords.get(studentId) || AttendanceStatus.Absent;
@@ -365,16 +401,16 @@ export class AttendancesComponent implements OnInit {
     return this.statusOptions.find(opt => opt.value === status);
   }
 
-  markAll(status: AttendanceStatus): void {
-    this.students.forEach(student => {
-      this.attendanceRecords.set(student.id, status);
-    });
-    this.calculateStats();
-    this.showQuickMarkMenu = false;
+  // markAll(status: AttendanceStatus): void {
+  //   this.students.forEach(student => {
+  //     this.attendanceRecords.set(student.id, status);
+  //   });
+  //   this.calculateStats();
+  //   this.showQuickMarkMenu = false;
 
-    const statusLabel = this.getStatusOption(status)?.label || '';
-    this.toastr.info(`تم تحديد الكل كـ ${statusLabel}`);
-  }
+  //   const statusLabel = this.getStatusOption(status)?.label || '';
+  //   this.toastr.info(`تم تحديد الكل كـ ${statusLabel}`);
+  // }
 
   calculateStats(): void {
     this.stats = {
